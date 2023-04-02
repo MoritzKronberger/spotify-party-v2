@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 18
       - name: Lint Nuxt application
-      - run: cd nuxt-app
-      - run: npm ci
-      - run: npm run lint
+        run: |
+             cd nuxt-app
+             npm ci
+             npm run lint
