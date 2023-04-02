@@ -1,0 +1,19 @@
+name: lint-nuxt-app
+run-name: ${{ github.actor }} is linting the Nuxt application
+on: [pull_request]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Job was automatically triggered by a ${{ github.event_name }} event"
+      - run: echo "Branch is ${{ github.ref }} in repository ${{ github.repository }}"
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install Node 18.15.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.15.0
+      - name: Lint Nuxt application
+        - run: cd nuxt-app
+        - run: npm ci
+        - run: npm run lint
