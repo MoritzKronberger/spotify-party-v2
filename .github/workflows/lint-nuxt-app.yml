@@ -12,6 +12,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: cd nuxt-app
-      - run: npm install
-      - run: npm run lint
+      - name: Lint Nuxt application
+        run: |
+             cd nuxt-app
+             npm ci
+             npm run lint
