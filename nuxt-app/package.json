@@ -8,8 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "prettier --plugin-search-dir . --check . && eslint .",
-    "format": "prettier --plugin-search-dir . --write ."
+    "lint": "prettier --plugin-search-dir . --check . && eslint . && markdownlint .",
+    "format": "prettier --plugin-search-dir . --write . && markdownlint . --fix"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
@@ -19,6 +19,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "husky": "^8.0.3",
+    "markdownlint-cli": "^0.33.0",
     "nuxt": "^3.3.2",
     "prettier": "^2.8.7",
     "typescript": "^5.0.3"
@@ -28,6 +29,9 @@
       "prettier --plugin-search-dir . --write",
       "prettier --plugin-search-dir . --check",
       "eslint"
+    ],
+    "./**/*.md": [
+      "markdownlint --fix"
     ]
   }
 }
