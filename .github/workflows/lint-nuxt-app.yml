@@ -9,10 +9,10 @@ jobs:
       - run: echo "Branch is ${{ github.ref }} in repository ${{ github.repository }}"
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Install Node 18.15.0
+      - name: Install Node v18
         uses: actions/setup-node@v3
         with:
-          node-version: 18.15.0
+          node-version: 18
       - name: Lint Nuxt application
         - run: cd nuxt-app
         - run: npm ci
