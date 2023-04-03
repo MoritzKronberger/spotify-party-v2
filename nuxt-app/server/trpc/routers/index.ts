@@ -6,11 +6,13 @@ export const appRouter = router({
     .input(
       z.object({
         text: z.string().nullish(),
+        timestamp: z.date().nullish(),
       })
     )
     .query(({ input }) => {
       return {
         greeting: `hello ${input?.text ?? 'world'}`,
+        timestamp: input.timestamp ?? new Date(),
       }
     }),
 })

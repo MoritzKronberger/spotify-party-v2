@@ -10,9 +10,18 @@
  * Reference: https://trpc-nuxt-docs.vercel.app/get-started/usage/recommended#1-create-a-trpc-router
  */
 import { initTRPC } from '@trpc/server'
+import superjson from 'superjson'
 import { Context } from '~/server/trpc/context'
 
-const t = initTRPC.context<Context>().create()
+const t = initTRPC.context<Context>().create({
+  /**
+   * SuperJSON data transformer.
+   *
+   * Reference:
+   * https://trpc.io/docs/server/data-transformers
+   */
+  transformer: superjson,
+})
 
 /** Unprotected procedure. **/
 export const publicProcedure = t.procedure
