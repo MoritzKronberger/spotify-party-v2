@@ -33,5 +33,12 @@
     "./**/*.md": [
       "markdownlint --fix"
     ]
+  },
+  "dependencies": {
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0",
+    "superjson": "^1.12.2",
+    "trpc-nuxt": "^0.8.0",
+    "zod": "^3.21.4"
   }
 }
