@@ -1,0 +1,37 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "prepare": "cd .. && husky install nuxt-app/.husky",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "prettier --plugin-search-dir . --check . && eslint . && markdownlint .",
+    "format": "prettier --plugin-search-dir . --write . && markdownlint . --fix"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/parser": "^5.57.0",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
+    "markdownlint-cli": "^0.33.0",
+    "nuxt": "^3.3.2",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.3"
+  },
+  "lint-staged": {
+    "./**/*.{json,js,ts,vue}": [
+      "prettier --plugin-search-dir . --write",
+      "prettier --plugin-search-dir . --check",
+      "eslint"
+    ],
+    "./**/*.md": [
+      "markdownlint --fix"
+    ]
+  }
+}
