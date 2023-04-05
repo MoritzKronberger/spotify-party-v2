@@ -43,7 +43,7 @@
     "@planetscale/database": "^1.6.0",
     "@trpc/client": "^10.18.0",
     "@trpc/server": "^10.18.0",
-    "drizzle-orm": "^0.23.6",
+    "drizzle-orm": "^0.23.6-26ec506",
     "drizzle-zod": "^0.2.1",
     "superjson": "^1.12.2",
     "trpc-nuxt": "^0.8.0",
