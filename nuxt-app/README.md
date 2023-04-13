@@ -1,25 +1,43 @@
-# Nuxt 3 Minimal Starter
+# Spotify Party – Nuxt 3
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Uses [Nuxt 3](https://nuxt.com/), [tRPC](https://trpc.io/), [tRPC Nuxt](https://trpc-nuxt.vercel.app/),
+[Drizzle ORM](https://github.com/drizzle-team/drizzle-orm)
+and [Drizzle Kit](https://github.com/drizzle-team/drizzle-kit-mirror)
+with [Planetscale](https://app.planetscale.com/m-kronberger/spotify-party).
 
-## Setup
+The application is deployed using [Vercel](https://vercel.com/moritzkronberger/spotify-party).
 
-Make sure to install the dependencies:
+## Development
+
+### Setup
+
+Make sure you have navigated to the `nuxt-app` directory:
 
 ```bash
-# yarn
-yarn install
-
-# npm
-npm install
-
-# pnpm
-pnpm install
+cd nuxt-app
 ```
 
-## Development Server
+Install the dependencies:
 
-Start the development server on <http://localhost:3000>
+```bash
+npm install
+```
+
+Link the directory to the Vercel project:
+
+```bash
+npm run vercel-link
+```
+
+And pull the required environment variables:
+
+```bash
+npm run vercel-env-pull
+```
+
+### Development Server
+
+Start the development server on <http://localhost:3000>:
 
 ```bash
 npm run dev
@@ -38,5 +56,3 @@ Locally preview production build:
 ```bash
 npm run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
