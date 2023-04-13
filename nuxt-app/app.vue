@@ -1,7 +1,5 @@
 <script setup lang="ts">
   import { SongInput } from './types/trpc'
-  // Import Vuetify base CSS
-  import 'vuetify/styles'
 
   // Get tRPC client
   const { $client } = useNuxtApp()
@@ -28,23 +26,14 @@
 </script>
 
 <template>
-  <v-theme-provider theme="customTheme" with-background>
-    <div>
-      <v-form>
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-text-field v-model="songName" label="Song name" rounded="x-large"></v-text-field>
-            </v-col>
-            <v-col>
-              <v-btn variant="flat" @click="() => addSong(songName)">Add song</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-      <ul>
-        <li v-for="song in songs.data.value" :key="song.id">{{ song.name }}</li>
-      </ul>
+  <div>
+    <div style="background-color: black; color: white">
+      <input v-model="songName" type="text" placeholder="Song name" />
+      <button @click="() => addSong(songName)">Add song</button>
     </div>
-  </v-theme-provider>
+    <ul v-for="song in songs.data.value" :key="song.id">
+      <li>{{ song.name }}</li>
+    </ul>
+    <NuxtWelcome />
+  </div>
 </template>
