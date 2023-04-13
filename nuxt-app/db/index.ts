@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/planetscale-serverless'
+import { drizzle } from 'drizzle-orm/planetscale-serverless/index.js'
 import { connect } from '@planetscale/database'
 
 const { env } = process
