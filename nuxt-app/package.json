@@ -40,6 +40,7 @@
     ]
   },
   "dependencies": {
+    "@mdi/font": "^7.2.96",
     "@planetscale/database": "^1.6.0",
     "@trpc/client": "^10.18.0",
     "@trpc/server": "^10.18.0",
