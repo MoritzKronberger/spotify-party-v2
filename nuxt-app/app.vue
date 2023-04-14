@@ -1,10 +1,9 @@
-<script setup lang="ts">
-  // Import Vuetify base CSS
-  import 'vuetify/styles'
-</script>
-
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <!-- Do not set NuxtLayout as root element -->
+  <!-- Reference: https://nuxt.com/docs/api/components/nuxt-layout#layout-and-transition -->
+  <div>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   definePageMeta({
-    layout: 'default-home',
+    layout: 'wireframes-home',
   })
 </script>
 
@@ -17,7 +17,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <button-primary to="/party/create">I am a host</button-primary>
+            <button-primary to="/wireframes/party/create">I am a host</button-primary>
           </v-col>
         </v-row>
         <v-row>

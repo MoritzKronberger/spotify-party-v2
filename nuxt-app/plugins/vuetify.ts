@@ -1,6 +1,7 @@
 import { ThemeDefinition, createVuetify } from 'vuetify/lib/framework.mjs'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { VBtn, VCard } from 'vuetify/components'
 
 /**
  * Custom Vuetify theme.
@@ -8,12 +9,25 @@ import * as directives from 'vuetify/directives'
  * Reference:
  * https://vuetifyjs.com/en/features/theme/#typescript
  */
-const customTheme: ThemeDefinition = {
+const defaultTheme: ThemeDefinition = {
   dark: true,
   colors: {
     background: '#000000',
     surface: '#000000',
-    primary: '#1DB954',
+    primary: '#17AE69',
+    secondary: '#FFFFFF',
+    spotify: '#1DB954',
+    openAI: '#10A37F',
+  },
+}
+
+const wireframesTheme: ThemeDefinition = {
+  dark: false,
+  colors: {
+    background: '#FFFFFF',
+    surface: '#FFFFFF',
+    primary: '#A6A6A6',
+    secondary: '#A6A6A6',
   },
 }
 
@@ -29,10 +43,22 @@ export default defineNuxtPlugin((nuxtApp) => {
     components,
     directives,
     theme: {
-      defaultTheme: 'customTheme',
+      defaultTheme: 'defaultTheme',
       themes: {
-        customTheme,
+        defaultTheme,
+        wireframesTheme,
       },
+    },
+    /**
+     * Configure component aliases
+     *
+     * Reference:
+     * https://vuetifyjs.com/en/features/aliasing
+     */
+    aliases: {
+      ButtonPrimary: VBtn,
+      ButtonSecondary: VBtn,
+      PlaceholderCard: VCard,
     },
     /**
      * Configure global and component defaults.
@@ -43,9 +69,25 @@ export default defineNuxtPlugin((nuxtApp) => {
     defaults: {
       global: {
         rounded: 'x-large',
+        elevation: 0,
       },
-      VBtn: {
+      ButtonPrimary: {
         color: 'primary',
+        variant: 'flat',
+        block: true,
+      },
+      ButtonSecondary: {
+        color: 'secondary',
+        variant: 'outlined',
+        block: true,
+      },
+      PlaceholderCard: {
+        color: 'secondary',
+        variant: 'outlined',
+        title: 'Placeholder',
+      },
+      VTextField: {
+        variant: 'outlined',
       },
     },
   })
