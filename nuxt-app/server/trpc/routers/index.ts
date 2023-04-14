@@ -1,4 +1,5 @@
 import { createInsertSchema } from 'drizzle-zod'
+import { desc } from 'drizzle-orm/expressions.js'
 import { publicProcedure, router } from '../trpc'
 import { db } from '~/db'
 import { songs } from '~/db/schema'
@@ -17,7 +18,7 @@ export const appRouter = router({
     return await db.insert(songs).values({ name, createdAt: createdAt ?? new Date() })
   }),
   getSongs: publicProcedure.query(async () => {
-    return await db.select().from(songs)
+    return await db.select().from(songs).orderBy(desc(songs.createdAt))
   }),
 })
 
