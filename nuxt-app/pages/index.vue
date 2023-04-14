@@ -26,23 +26,21 @@
 </script>
 
 <template>
-  <v-theme-provider theme="customTheme" with-background>
-    <div>
-      <v-form>
-        <v-container>
-          <v-row>
-            <v-col>
-              <v-text-field v-model="songName" label="Song name" rounded="x-large"></v-text-field>
-            </v-col>
-            <v-col>
-              <v-btn variant="flat" @click="() => addSong(songName)">Add song</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-form>
-      <ul>
-        <li v-for="song in songs.data.value" :key="song.id">{{ song.name }}</li>
-      </ul>
-    </div>
-  </v-theme-provider>
+  <div>
+    <v-form>
+      <v-container>
+        <v-row>
+          <v-col>
+            <v-text-field v-model="songName" label="Song name" rounded="x-large"></v-text-field>
+          </v-col>
+          <v-col>
+            <v-btn variant="flat" @click="() => addSong(songName)">Add song</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-form>
+    <ul>
+      <li v-for="song in songs.data.value" :key="song.id">{{ song.name }}</li>
+    </ul>
+  </div>
 </template>
