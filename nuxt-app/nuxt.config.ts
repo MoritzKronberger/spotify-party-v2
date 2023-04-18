@@ -5,4 +5,7 @@ export default defineNuxtConfig({
   build: {
     transpile: ['trpc-nuxt'],
   },
+  // Use Vuetify-main and mdi-icon styles
+  // Reference: https://codybontecou.com/how-to-use-vuetify-with-nuxt-3.html
+  css: ['vuetify/lib/styles/main.css', '@mdi/font/css/materialdesignicons.min.css'],
 })
