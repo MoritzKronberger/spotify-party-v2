@@ -8,4 +8,10 @@ export default defineNuxtConfig({
   // Use Vuetify-main and mdi-icon styles
   // Reference: https://codybontecou.com/how-to-use-vuetify-with-nuxt-3.html
   css: ['vuetify/lib/styles/main.css', '@mdi/font/css/materialdesignicons.min.css'],
+  runtimeConfig: {
+    public: {
+      SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
+      SPOTIFY_CLIENT_REDIRECT_URL: process.env.SPOTIFY_CLIENT_REDIRECT_URL,
+    },
+  },
 })
