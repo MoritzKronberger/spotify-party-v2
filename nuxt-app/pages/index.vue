@@ -1,8 +1,10 @@
 <script setup lang="ts">
   import { generateCodeChallenge, generateRandomString } from '../utils/pkce'
+
   definePageMeta({
     layout: 'default-home',
   })
+
   const config = useRuntimeConfig()
   const spotifyURL = ref('')
   const clientId = config.public.SPOTIFY_CLIENT_ID
@@ -26,7 +28,6 @@
         code_challenge: codeChallenge,
       })
       spotifyURL.value = 'https://accounts.spotify.com/authorize?' + args
-      console.log(args)
     })
   })
 </script>
