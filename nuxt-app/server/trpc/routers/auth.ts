@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
-import { addCredentialsCookieHeaders, fetchCredentials } from '~/server/utils/pkce'
+import { fetchCredentials, setCredentialsCookie } from '~/server/utils/pkce'
 
 const getCredentialsInputSchema = z.object({
   code: z.string(),
@@ -11,7 +11,7 @@ const getCredentialsInputSchema = z.object({
 export const authRouter = router({
   /** Fetch credentials from Spotify API using code and verifier. */
   getCredentials: publicProcedure.input(getCredentialsInputSchema).query(async ({ ctx, input }) => {
-    const { credentials, contextHeaders } = ctx
+    const { credentials, event } = ctx
     const { code } = input
 
     if (!credentials?.verifier) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Missing code verifier!' })
@@ -23,14 +23,9 @@ export const authRouter = router({
       throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could not fetch access token!' })
     })
 
-    // Set Set-Cookie response headers for credentials
-    addCredentialsCookieHeaders(
-      {
-        accessToken: creds.access_token,
-        refreshToken: creds.refresh_token,
-      },
-      contextHeaders
-    )
+    // Set cookies for credentials using Nitro
+    setCredentialsCookie(event, 'access_token', creds.access_token)
+    setCredentialsCookie(event, 'refresh_token', creds.refresh_token)
 
     return true
   }),

@@ -28,9 +28,8 @@ export const createContext = (event: H3Event) => {
   return {
     // Pass credentials to tRPC context to be used in auth middleware
     credentials,
-    // Create headers object to allow tRPC procedures to modify response headers
-    // (Set using `responseMeta` function)
-    contextHeaders: new Headers(),
+    // Pass Nitro event to allow tRPC procedures to interact with it (i.e. for modifying response headers, ect.)
+    event,
   }
 }
 

@@ -38,17 +38,19 @@ export const getPublicSpotifyVars = () => {
 }
 
 /**
- * Serialize cookies as Same-Site: lax, Secure and HTTP-Only cookie.
+ * Sane defaults for serializing credentials cookies.
  *
  * Reference:
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#Secure_and_HttpOnly_cookies
  */
+export const defaultCredentialsCookieSerializationOpts = {
+  sameSite: 'lax',
+  secure: true,
+  httpOnly: true,
+  path: '/',
+} as const
+
+/** Serialize cookies as using sane defaults for serialization options. */
 export const serializeCredentialsCookie = (cred: [string, string], opts?: CookieSerializeOptions) => {
-  const defaultOpts = {
-    sameSite: 'lax',
-    secure: true,
-    httpOnly: true,
-    path: '/',
-  } as const
-  return serialize(...cred, { ...defaultOpts, ...opts })
+  return serialize(...cred, { ...defaultCredentialsCookieSerializationOpts, ...opts })
 }

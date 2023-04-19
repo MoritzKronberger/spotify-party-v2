@@ -1,7 +1,8 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
+import type { H3Event } from 'h3'
 import { middleware, publicProcedure } from '../trpc'
-import { addCredentialsCookieHeaders, fetchCredentials, getAuthHeader } from '~~/server/utils/pkce'
+import { fetchCredentials, getAuthHeader } from '~/server/utils/pkce'
 
 /**
  * User data as returned by the Spotify API.
@@ -48,16 +49,16 @@ const spotifyUserUnauthorizedSchema = z.object({ error: z.object({ status: z.num
  * Helper function to update refresh and access token.
  *
  * - Fetches new credentials using refresh token.
- * - Adds Set-Cookie headers for new credentials.
+ * - Sets cookies for new credentials using Nitro.
  */
-const updateCredentials = async (refreshToken: string, contextHeaders: Headers) => {
+const updateCredentials = async (refreshToken: string, event: H3Event) => {
   const res = await fetchCredentials({ refreshToken })
-  const creds = {
+  setCookie(event, 'access_token', res.access_token)
+  setCookie(event, 'refresh_token', res.refresh_token)
+  return {
     accessToken: res.access_token,
     refreshToken: res.refresh_token,
   }
-  addCredentialsCookieHeaders(creds, contextHeaders)
-  return creds
 }
 
 /** Fetch user data from Spotify API. */
@@ -80,7 +81,7 @@ const fetchUserData = async (accessToken: string) => {
  */
 const isAuthed = middleware(async ({ next, ctx }) => {
   let { accessToken, refreshToken } = ctx.credentials
-  const { contextHeaders } = ctx
+  const { event } = ctx
   const unauthorizedError = new TRPCError({ code: 'UNAUTHORIZED' })
 
   // Throw if both, access and refresh token, are missing
@@ -88,11 +89,10 @@ const isAuthed = middleware(async ({ next, ctx }) => {
 
   let user: z.infer<typeof spotifyUserSchema>
 
-  // Update credentials using refresh token if no access token exists
-  // (Add Set-Cookie headers to update the client's credentials)
+  // Update credentials (incl. cookies) using refresh token if no access token exists
   // (Throw if access token can't be fetched)
   if (!accessToken && refreshToken) {
-    ;({ accessToken, refreshToken } = await updateCredentials(refreshToken, contextHeaders).catch(() => {
+    ;({ accessToken, refreshToken } = await updateCredentials(refreshToken, event).catch(() => {
       throw unauthorizedError
     }))
   }
@@ -113,10 +113,9 @@ const isAuthed = middleware(async ({ next, ctx }) => {
     user = userRes
     // If user was unauthorized (401), access token might be expired or invalid
   } else {
-    // Update credentials using refresh token if no access token exists
-    // (Add Set-Cookie headers to update the client's credentials)
+    // Update credentials (incl. cookies) using refresh token if no access token exists
     // (Throw if access token can't be fetched)
-    ;({ accessToken, refreshToken } = await updateCredentials(refreshToken, contextHeaders).catch(() => {
+    ;({ accessToken, refreshToken } = await updateCredentials(refreshToken, event).catch(() => {
       throw unauthorizedError
     }))
     // Try fetching user data again, now that all tokens are up-to date

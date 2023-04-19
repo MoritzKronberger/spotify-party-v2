@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { getPublicSpotifyVars, serializeCredentialsCookie } from '~/utils/pkce'
+import { getPublicSpotifyVars, defaultCredentialsCookieSerializationOpts } from '~/utils/pkce'
 import tsFetch from '~/utils/tsFetch'
 
 export type Credentials = {
@@ -9,16 +9,13 @@ export type Credentials = {
   code: string
 }
 
-/** Add credentials as Set-Cookie headers. */
-export const addCredentialsCookieHeaders = (
-  creds: Pick<Credentials, 'accessToken' | 'refreshToken'>,
-  headers: Headers
-) => {
-  const initCredCookies = {
-    access_token: creds.accessToken,
-    refresh_token: creds.refreshToken,
-  }
-  Object.entries(initCredCookies).forEach((cred) => headers.append('Set-Cookie', serializeCredentialsCookie(cred)))
+/**
+ * Set cookies for H3 event using Nitro's `setCookie`.
+ *
+ * Uses sane defaults for for serialization options.
+ */
+export const setCredentialsCookie: typeof setCookie = (event, name, value, opts) => {
+  setCookie(event, name, value, { ...defaultCredentialsCookieSerializationOpts, ...opts })
 }
 
 /**
