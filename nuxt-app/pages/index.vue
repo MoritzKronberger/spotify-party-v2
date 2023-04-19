@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { callWithNuxt } from '#app'
+  // eslint-disable-next-line import/order
   import {
     generateCodeChallenge,
     generateRandomString,
@@ -10,8 +12,36 @@
     layout: 'default-home',
   })
 
-  const { clientId, redirectURI } = getPublicSpotifyVars()
   const spotifyURL = ref('')
+  const errorMessage = ref('')
+
+  // Get tRPC client
+  const nuxtApp = useNuxtApp()
+  const $client = nuxtApp.$client
+
+  // Get auth code from query parameters
+  const route = useRoute()
+  const code = route.query.code?.toString()
+
+  // If code was passed (after redirect)
+  if (code) {
+    // Fetch credentials using auth code
+    await $client.auth.getCredentials.query({ code }, {}).then(
+      // Redirect if fetching credentials was successful
+      () => {
+        // Nuxt's `navigateTo` does not work inside async try/catch
+        // -> Use `callWithNuxt` to make it work
+        // Reference: https://github.com/nuxt/nuxt/issues/14269#issuecomment-1397352832
+        callWithNuxt(nuxtApp, navigateTo, ['/party/create', { replace: true }])
+      },
+      // Otherwise show error message
+      () => {
+        errorMessage.value = 'Something went wrong. Please try again.'
+      }
+    )
+  }
+
+  const { clientId, redirectURI } = getPublicSpotifyVars()
   const codeVerifier = generateRandomString(128)
 
   onMounted(() => {
@@ -48,6 +78,11 @@
 
     <VRow style="min-width: 300px">
       <VCol>
+        <VRow :v-if="errorMessage != ''">
+          <VCol>
+            <div>{{ errorMessage }}</div>
+          </VCol>
+        </VRow>
         <VRow>
           <VCol>
             <button-primary :href="spotifyURL">I am a host</button-primary>
