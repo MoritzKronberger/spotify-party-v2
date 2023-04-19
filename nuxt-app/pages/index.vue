@@ -1,12 +1,7 @@
 <script setup lang="ts">
   import { callWithNuxt } from '#app'
   // eslint-disable-next-line import/order
-  import {
-    generateCodeChallenge,
-    generateRandomString,
-    getPublicSpotifyVars,
-    serializeCredentialsCookie,
-  } from '../utils/pkce'
+  import { generateCodeChallenge, generateRandomString, getPublicSpotifyVars } from '../utils/pkce'
 
   definePageMeta({
     layout: 'default-home',
@@ -23,10 +18,13 @@
   const route = useRoute()
   const code = route.query.code?.toString()
 
+  // Get code_verifier cookie via useCookie composable
+  const { code_verifier: codeVerifierCookie } = useAppCookies()
+
   // If code was passed (after redirect)
   if (code) {
     // Fetch credentials using auth code
-    await $client.auth.getCredentials.query({ code }, {}).then(
+    await $client.auth.getCredentials.useQuery({ code }).then(
       // Redirect if fetching credentials was successful
       () => {
         // Nuxt's `navigateTo` does not work inside async try/catch
@@ -50,8 +48,7 @@
       const scope = 'user-read-private user-read-email'
 
       // Set code verifier as cookie (to preserve it after OAuth-redirect)
-      const verifierCookieString = serializeCredentialsCookie(['code_verifier', codeVerifier], { httpOnly: false })
-      document.cookie = verifierCookieString
+      codeVerifierCookie.value = codeVerifier
 
       const args = new URLSearchParams({
         response_type: 'code',

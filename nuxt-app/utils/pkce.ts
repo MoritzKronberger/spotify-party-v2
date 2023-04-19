@@ -1,5 +1,3 @@
-import { serialize, type CookieSerializeOptions } from 'cookie'
-
 // Spotify OAuth //
 export const generateRandomString = (length: number): string => {
   let text = ''
@@ -49,8 +47,3 @@ export const defaultCredentialsCookieSerializationOpts = {
   httpOnly: true,
   path: '/',
 } as const
-
-/** Serialize cookies as using sane defaults for serialization options. */
-export const serializeCredentialsCookie = (cred: [string, string], opts?: CookieSerializeOptions) => {
-  return serialize(...cred, { ...defaultCredentialsCookieSerializationOpts, ...opts })
-}
