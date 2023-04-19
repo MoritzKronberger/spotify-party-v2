@@ -1,0 +1,84 @@
+import { serialize } from 'cookie'
+import { z } from 'zod'
+
+export type Credentials = {
+  verifier: string
+  accessToken: string
+  refreshToken: string
+  code: string
+}
+
+/**
+ * Serialize cookies as Same-Site: lax, Secure and HTTP-Only cookie.
+ *
+ * Reference:
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#Secure_and_HttpOnly_cookies
+ */
+export const serializeCredentialsCookie = (cred: [string, string]) =>
+  serialize(...cred, {
+    sameSite: 'lax',
+    secure: true,
+    httpOnly: true,
+    path: '/',
+  })
+
+/** Add credentials as Set-Cookie headers. */
+export const addCredentialsCookieHeaders = (
+  creds: Pick<Credentials, 'accessToken' | 'refreshToken'>,
+  headers: Headers
+) => {
+  const initCredCookies = {
+    access_token: creds.accessToken,
+    refresh_token: creds.refreshToken,
+  }
+  Object.entries(initCredCookies).forEach((cred) => headers.append('Set-Cookie', serializeCredentialsCookie(cred)))
+}
+
+/**
+ * Spotify API response when requesting an access token.
+ *
+ * Reference: https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+ */
+const spotifyAccessTokenResponseSchema = z.object({
+  access_token: z.string(),
+  token_type: z.string(),
+  scope: z.string(),
+  expires_in: z.number(),
+  refresh_token: z.string(),
+})
+
+/**
+ * Fetch Spotify OAuth credentials.
+ *
+ * Uses either code + verifier or refresh token based on the provided credentials.
+ *
+ * Reference:
+ * https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow
+ */
+export const fetchCredentials = async (
+  creds: Pick<Credentials, 'code' | 'verifier'> | Pick<Credentials, 'refreshToken'>
+) => {
+  return await tsFetch(
+    'https://accounts.spotify.com/api/token',
+    { 200: spotifyAccessTokenResponseSchema },
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(
+        'code' in creds
+          ? {
+              grant_type: 'authorization_code',
+              code: creds.code,
+              redirect_uri: 'FROM .env',
+              client_id: 'FROM .env',
+              code_verifier: creds.verifier,
+            }
+          : {
+              grant_type: 'refresh_token',
+              refresh_token: creds.refreshToken,
+              client_id: 'FROM .env',
+            }
+      ),
+    }
+  )
+}

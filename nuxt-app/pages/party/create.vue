@@ -8,7 +8,7 @@
   const songName = ref('')
 
   // Execute tRPC query
-  const songs = $client.getSongs.useQuery()
+  const songs = $client.songs.getSongs.useQuery()
 
   const addSong = (songName: string) => {
     // Create procedure input
@@ -19,7 +19,7 @@
       createdAt: new Date(),
     }
     // Execute tRPC mutation and refresh song procedure on success
-    $client.addSong.mutate(song).then(() => {
+    $client.songs.addSong.mutate(song).then(() => {
       songs.refresh()
     })
   }
@@ -51,7 +51,6 @@
         </v-form>
       </v-col>
     </v-row>
-
     <v-row>
       <v-col>
         <v-list style="max-height: 400px">
