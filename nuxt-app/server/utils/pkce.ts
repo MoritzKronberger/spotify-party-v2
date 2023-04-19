@@ -1,5 +1,5 @@
-import { serialize } from 'cookie'
 import { z } from 'zod'
+import { getPublicSpotifyVars, serializeCredentialsCookie } from '~/utils/pkce'
 
 export type Credentials = {
   verifier: string
@@ -7,20 +7,6 @@ export type Credentials = {
   refreshToken: string
   code: string
 }
-
-/**
- * Serialize cookies as Same-Site: lax, Secure and HTTP-Only cookie.
- *
- * Reference:
- * https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#Secure_and_HttpOnly_cookies
- */
-export const serializeCredentialsCookie = (cred: [string, string]) =>
-  serialize(...cred, {
-    sameSite: 'lax',
-    secure: true,
-    httpOnly: true,
-    path: '/',
-  })
 
 /** Add credentials as Set-Cookie headers. */
 export const addCredentialsCookieHeaders = (

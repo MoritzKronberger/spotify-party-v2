@@ -1,5 +1,10 @@
 <script setup lang="ts">
-  import { generateCodeChallenge, generateRandomString, getPublicSpotifyVars } from '../utils/pkce'
+  import {
+    generateCodeChallenge,
+    generateRandomString,
+    getPublicSpotifyVars,
+    serializeCredentialsCookie,
+  } from '../utils/pkce'
 
   definePageMeta({
     layout: 'default-home',
@@ -14,7 +19,9 @@
       const state = generateRandomString(16)
       const scope = 'user-read-private user-read-email'
 
-      localStorage.setItem('code_verifier', codeVerifier)
+      // Set code verifier as cookie (to preserve it after OAuth-redirect)
+      const verifierCookieString = serializeCredentialsCookie(['code_verifier', codeVerifier], { httpOnly: false })
+      document.cookie = verifierCookieString
 
       const args = new URLSearchParams({
         response_type: 'code',

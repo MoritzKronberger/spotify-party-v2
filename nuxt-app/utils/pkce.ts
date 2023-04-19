@@ -1,3 +1,5 @@
+import { serialize, type CookieSerializeOptions } from 'cookie'
+
 // Spotify OAuth //
 export const generateRandomString = (length: number): string => {
   let text = ''
@@ -33,4 +35,20 @@ export const getPublicSpotifyVars = () => {
     clientId: config.public.SPOTIFY_CLIENT_ID,
     redirectURI: config.public.SPOTIFY_CLIENT_REDIRECT_URL,
   }
+}
+
+/**
+ * Serialize cookies as Same-Site: lax, Secure and HTTP-Only cookie.
+ *
+ * Reference:
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#Secure_and_HttpOnly_cookies
+ */
+export const serializeCredentialsCookie = (cred: [string, string], opts?: CookieSerializeOptions) => {
+  const defaultOpts = {
+    sameSite: 'lax',
+    secure: true,
+    httpOnly: true,
+    path: '/',
+  } as const
+  return serialize(...cred, { ...defaultOpts, ...opts })
 }
