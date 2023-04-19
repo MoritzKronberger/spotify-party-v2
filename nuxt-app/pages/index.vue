@@ -1,14 +1,12 @@
 <script setup lang="ts">
-  import { generateCodeChallenge, generateRandomString } from '../utils/pkce'
+  import { generateCodeChallenge, generateRandomString, getPublicSpotifyVars } from '../utils/pkce'
 
   definePageMeta({
     layout: 'default-home',
   })
 
-  const config = useRuntimeConfig()
+  const { clientId, redirectURI } = getPublicSpotifyVars()
   const spotifyURL = ref('')
-  const clientId = config.public.SPOTIFY_CLIENT_ID
-  const redirectUri = config.public.SPOTIFY_CLIENT_REDIRECT_URL
   const codeVerifier = generateRandomString(128)
 
   onMounted(() => {
@@ -22,7 +20,7 @@
         response_type: 'code',
         client_id: clientId,
         scope,
-        redirect_uri: redirectUri,
+        redirect_uri: redirectURI,
         state,
         code_challenge_method: 'S256',
         code_challenge: codeChallenge,

@@ -1,5 +1,5 @@
 // Spotify OAuth //
-const generateRandomString = (length: number): string => {
+export const generateRandomString = (length: number): string => {
   let text = ''
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
@@ -18,7 +18,7 @@ const base64encode = (arr: ArrayBuffer): string => {
   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-const generateCodeChallenge = async (codeVerifier: string): Promise<string> => {
+export const generateCodeChallenge = async (codeVerifier: string): Promise<string> => {
   const encoder = new TextEncoder()
   const data = encoder.encode(codeVerifier)
   // Code Challenge
@@ -26,9 +26,11 @@ const generateCodeChallenge = async (codeVerifier: string): Promise<string> => {
   return base64encode(digest)
 }
 
-export default {
-  generateCodeChallenge,
-  generateRandomString,
+/** Get public env variables for Spotify API. */
+export const getPublicSpotifyVars = () => {
+  const config = useRuntimeConfig()
+  return {
+    clientId: config.public.SPOTIFY_CLIENT_ID,
+    redirectURI: config.public.SPOTIFY_CLIENT_REDIRECT_URL,
+  }
 }
-
-export { generateCodeChallenge, generateRandomString }

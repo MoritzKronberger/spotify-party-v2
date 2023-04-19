@@ -58,6 +58,7 @@ const spotifyAccessTokenResponseSchema = z.object({
 export const fetchCredentials = async (
   creds: Pick<Credentials, 'code' | 'verifier'> | Pick<Credentials, 'refreshToken'>
 ) => {
+  const { clientId, redirectURI } = getPublicSpotifyVars()
   return await tsFetch(
     'https://accounts.spotify.com/api/token',
     { 200: spotifyAccessTokenResponseSchema },
@@ -69,14 +70,14 @@ export const fetchCredentials = async (
           ? {
               grant_type: 'authorization_code',
               code: creds.code,
-              redirect_uri: 'FROM .env',
-              client_id: 'FROM .env',
+              redirect_uri: redirectURI,
+              client_id: clientId,
               code_verifier: creds.verifier,
             }
           : {
               grant_type: 'refresh_token',
               refresh_token: creds.refreshToken,
-              client_id: 'FROM .env',
+              client_id: clientId,
             }
       ),
     }
