@@ -82,3 +82,13 @@ export const fetchCredentials = async (
     }
   )
 }
+
+/**
+ * Set auth header for requests to the Spotify API.
+ *
+ * Reference:
+ * https://developer.spotify.com/documentation/web-api/concepts/access-token
+ */
+export const getAuthHeader = (accessToken: Credentials['accessToken']) => ({
+  AUTHORIZATION: `Bearer ${accessToken}`,
+})
