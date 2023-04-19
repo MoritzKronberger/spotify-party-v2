@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { getPublicSpotifyVars, serializeCredentialsCookie } from '~/utils/pkce'
+import tsFetch from '~/utils/tsFetch'
 
 export type Credentials = {
   verifier: string
