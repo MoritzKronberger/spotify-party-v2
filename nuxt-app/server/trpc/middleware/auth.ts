@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type { H3Event } from 'h3'
 import { middleware, publicProcedure } from '../trpc'
 import { fetchCredentials, getAuthHeader } from '~/server/utils/pkce'
+import tsFetch from '~/utils/tsFetch'
 
 /**
  * User data as returned by the Spotify API.
@@ -22,16 +23,18 @@ const spotifyUserSchema = z.object({
     spotify: z.string(),
   }),
   followers: z.object({
-    href: z.string(),
+    href: z.string().nullable(),
     total: z.number(),
   }),
   href: z.string(),
   id: z.string(),
-  images: z.object({
-    url: z.string(),
-    height: z.number(),
-    width: z.number(),
-  }),
+  images: z
+    .object({
+      url: z.string(),
+      height: z.number(),
+      width: z.number(),
+    })
+    .array(),
   product: z.string(),
   type: z.string(),
   uri: z.string(),
