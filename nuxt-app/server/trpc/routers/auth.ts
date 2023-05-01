@@ -1,6 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
+import { privateProcedure } from '../middleware/auth'
 import { fetchCredentials, setCredentialsCookie } from '~/server/utils/pkce'
 
 const getCredentialsInputSchema = z.object({
@@ -28,5 +29,8 @@ export const authRouter = router({
     setCredentialsCookie(event, 'refresh_token', creds.refresh_token)
 
     return true
+  }),
+  getUser: privateProcedure.query(({ ctx }) => {
+    return ctx.user
   }),
 })

@@ -7,8 +7,9 @@
   // Keep track of song name input
   const songName = ref('')
 
-  // Execute tRPC query
+  // Execute tRPC querys
   const songs = $client.songs.getSongs.useQuery()
+  const user = $client.auth.getUser.useQuery()
 
   const addSong = (songName: string) => {
     // Create procedure input
@@ -31,7 +32,7 @@
 
     <v-row>
       <v-col>
-        <h1>Create Party</h1>
+        <h1>Create Party {{ user.data.value?.display_name }}</h1>
       </v-col>
     </v-row>
 
