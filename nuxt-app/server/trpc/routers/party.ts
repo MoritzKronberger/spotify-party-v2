@@ -2,7 +2,7 @@ import { createInsertSchema } from 'drizzle-zod'
 import { and, eq } from 'drizzle-orm/expressions'
 import { z } from 'zod'
 import { customAlphabet } from 'nanoid'
-import { router } from '../trpc'
+import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
 import { db } from '~/db'
 import party from '~/db/schema/party'
@@ -97,4 +97,19 @@ export const partyRouter = router({
       // Return party Id if update was successful
       return { id: rowsAffected(res) ? partyId : undefined }
     }),
+  /** Get single party by id. (Returns empty array if id does not exist or user is not owner of the party) */
+  getParty: privateProcedure.input(z.object({ id: nanoId })).query(async ({ ctx, input }) => {
+    return await db
+      .select()
+      .from(party)
+      .where(and(eq(party.id, input.id), eq(party.userId, ctx.user.id)))
+  }),
+  /** Get all parties for current user. */
+  getUserParties: privateProcedure.query(async ({ ctx }) => {
+    return await db.select().from(party).where(eq(party.userId, ctx.user.id))
+  }),
+  /** Get party using random party code. (Returns empty array if code does not exist) */
+  getPartyByCode: publicProcedure.input(z.object({ code: z.string() })).query(async ({ input }) => {
+    return await db.select().from(party).where(eq(party.code, input.code))
+  }),
 })
