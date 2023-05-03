@@ -61,7 +61,7 @@ export const partyRouter = router({
       // Return party Id if it was created successfully
       return { id: idOnSuccess(res) }
     }),
-  /** Update existing party (and image). (Returns undefined for id does not exist or user is not owner of the party). */
+  /** Update existing party (and image). (Returns undefined for id if party does not exist or user is not owner of the party). */
   updateParty: privateProcedure
     .input(z.object({ data: z.object({ party: partySchema.partial(), image: imageSchema.optional() }), id: nanoId }))
     .mutation(async ({ ctx, input }) => {
@@ -111,5 +111,17 @@ export const partyRouter = router({
   /** Get party using random party code. (Returns empty array if code does not exist) */
   getPartyByCode: publicProcedure.input(z.object({ code: z.string() })).query(async ({ input }) => {
     return await db.select().from(party).where(eq(party.code, input.code))
+  }),
+  /** Delete party (Returns undefined for id if party does not exist or user is not owner of the party). */
+  deleteParty: privateProcedure.input(z.object({ id: nanoId })).mutation(async ({ ctx, input }) => {
+    const { id: partyId } = input
+    // Delete associated image if exists
+    const imageId = await getPartyImageId(input.id, ctx.user.id)
+    if (imageId) {
+      await db.delete(image).where(eq(image.id, imageId))
+    }
+    // Delete party itself
+    const res = await db.delete(party).where(and(eq(party.id, partyId), eq(party.userId, ctx.user.id)))
+    return { id: rowsAffected(res) ? partyId : undefined }
   }),
 })
