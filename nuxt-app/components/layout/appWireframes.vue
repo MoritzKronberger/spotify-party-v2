@@ -8,7 +8,9 @@
   <v-theme-provider theme="wireframesTheme" with-background>
     <v-app class="gradient-background">
       <!-- Optional top app-bar -->
-      <v-app-bar v-if="!props.hideNavigation" title="Spotify Party" />
+      <v-app-bar v-if="!props.hideNavigation">
+        <v-app-bar-nav-icon icon="mdi-arrow-left" />
+      </v-app-bar>
       <!-- App content goes here -->
       <v-main>
         <slot />
