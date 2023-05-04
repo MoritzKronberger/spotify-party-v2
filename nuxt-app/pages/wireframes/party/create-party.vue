@@ -23,7 +23,7 @@
             <v-text-field label="Description" />
             <v-file-input clearable accept="image/*" label="Picture" variant="outlined" prepend-icon="mdi-image" />
             <v-switch inset label="Schedule party" />
-<!--            Datepicker nur anzeigen wenn schedule party true ist-->
+            <!--            Datepicker nur anzeigen wenn schedule party true ist-->
             <VueDatePicker position="right" />
           </v-col>
           <v-col>

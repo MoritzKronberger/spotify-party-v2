@@ -1,22 +1,20 @@
 <script setup lang="ts">
-
-definePageMeta({
-  layout: 'wireframes',
-})
-const parties = [
-  {id: 1, name: 'Party 1', songs: 10},
-  {id: 2, name: 'Party 2', songs: 5},
-  {id: 3, name: 'Party 3', songs: 5},
-  {id: 4, name: 'Party 4', songs: 5},
-  {id: 5, name: 'Party 5', songs: 5},
-];
-let itemComponent: ListItem
-
+  definePageMeta({
+    layout: 'wireframes',
+  })
+  const parties = [
+    { id: 1, name: 'Party 1', songs: 10 },
+    { id: 2, name: 'Party 2', songs: 5 },
+    { id: 3, name: 'Party 3', songs: 5 },
+    { id: 4, name: 'Party 4', songs: 5 },
+    { id: 5, name: 'Party 5', songs: 5 },
+  ]
+  let itemComponent: ListItem
 </script>
 
 <template>
   <v-container class="fill-height flex-column">
-    <v-spacer/>
+    <v-spacer />
 
     <v-row>
       <v-col>
@@ -38,9 +36,9 @@ let itemComponent: ListItem
 
     <v-col>
       <v-card>
-        <v-list lines="one" style="height: 300px;" class="overflow-y-auto mx-auto">
+        <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
           <v-list-subheader>All Parties</v-list-subheader>
-          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs"/>
+          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs" />
         </v-list>
       </v-card>
     </v-col>
@@ -50,6 +48,6 @@ let itemComponent: ListItem
         <v-btn variant="tonal">New Party</v-btn>
       </v-col>
     </v-row>
-    <v-spacer/>
+    <v-spacer />
   </v-container>
 </template>
