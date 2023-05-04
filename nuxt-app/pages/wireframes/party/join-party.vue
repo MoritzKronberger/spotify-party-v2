@@ -2,10 +2,6 @@
   import SvgIcon from '@jamescoyle/vue-icon'
   import { mdiQrcodeScan } from '@mdi/js'
 
-  const name = 'my-component'
-  const components = {
-    SvgIcon,
-  }
   const path = mdiQrcodeScan
 
   definePageMeta({

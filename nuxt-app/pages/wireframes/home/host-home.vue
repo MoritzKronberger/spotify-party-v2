@@ -9,7 +9,6 @@
     { id: 4, name: 'Party 4', songs: 5 },
     { id: 5, name: 'Party 5', songs: 5 },
   ]
-  let itemComponent: ListItem
 </script>
 
 <template>
