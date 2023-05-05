@@ -9,7 +9,7 @@
     <v-app class="gradient-background">
       <!-- Optional top app-bar -->
       <v-app-bar v-if="!props.hideNavigation">
-        <v-app-bar-nav-icon icon="mdi-arrow-left" />
+        <v-app-bar-nav-icon icon="mdi-arrow-left" @click="useRouter().back()" />
       </v-app-bar>
       <!-- App content goes here -->
       <v-main>
