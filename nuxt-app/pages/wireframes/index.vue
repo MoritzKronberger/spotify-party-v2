@@ -17,21 +17,16 @@
       <v-col>
         <v-row>
           <v-col>
-            <nuxt-link to="party/create-party">
-              <button-primary> I am a host</button-primary>
-            </nuxt-link>
+            <button-primary to="/wireframes/party/create-party">I am a host</button-primary>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <nuxt-link to="login-guest">
-              <button-primary> I am a guest</button-primary>
-            </nuxt-link>
+            <button-secondary to="/wireframes/login-guest">I am a guest</button-secondary>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
-
     <v-spacer />
   </v-container>
 </template>
