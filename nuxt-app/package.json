@@ -1,0 +1,54 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "prepare": "cd .. && husky install nuxt-app/.husky",
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "prettier --plugin-search-dir . --check . && eslint . && markdownlint .",
+    "format": "prettier --plugin-search-dir . --write . && markdownlint . --fix",
+    "drizzle-push": "drizzle-kit push:mysql",
+    "vercel-env-pull": "vercel env pull",
+    "vercel-link": "vercel link"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config-typescript": "^12.0.0",
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/parser": "^5.57.0",
+    "drizzle-kit": "^0.17.1-609a4f0",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
+    "markdownlint-cli": "^0.33.0",
+    "nuxt": "^3.3.2",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.3",
+    "vercel": "^28.18.3"
+  },
+  "lint-staged": {
+    "./**/*.{json,js,ts,vue}": [
+      "prettier --plugin-search-dir . --write",
+      "prettier --plugin-search-dir . --check",
+      "eslint"
+    ],
+    "./**/*.md": [
+      "markdownlint --fix"
+    ]
+  },
+  "dependencies": {
+    "@mdi/font": "^7.2.96",
+    "@planetscale/database": "^1.6.0",
+    "@trpc/client": "^10.18.0",
+    "@trpc/server": "^10.18.0",
+    "drizzle-orm": "^0.23.6-26ec506",
+    "drizzle-zod": "^0.2.1",
+    "superjson": "^1.12.2",
+    "trpc-nuxt": "^0.8.0",
+    "vuetify": "^3.1.14",
+    "zod": "^3.21.4"
+  }
+}
