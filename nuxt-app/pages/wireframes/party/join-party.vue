@@ -43,7 +43,7 @@
                 <v-text-field label="Enter Code" />
               </v-col>
             </v-row>
-            <v-btn variant="tonal" block>Join</v-btn>
+            <v-btn to="/wireframes/login-guest" variant="tonal" block>Join</v-btn>
           </v-col>
         </v-row>
       </v-col>
