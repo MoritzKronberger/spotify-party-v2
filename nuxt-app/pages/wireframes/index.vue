@@ -17,12 +17,12 @@
       <v-col>
         <v-row>
           <v-col>
-            <button-primary to="/wireframes/party/create-party">I am a host</button-primary>
+            <button-primary to="/wireframes/home/host-home">I am a host</button-primary>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <button-secondary to="/wireframes/login-guest">I am a guest</button-secondary>
+            <button-secondary to="/wireframes/party/join-party">I am a guest</button-secondary>
           </v-col>
         </v-row>
       </v-col>
