@@ -27,7 +27,6 @@
         </v-row>
       </v-col>
     </v-row>
-
     <v-spacer />
   </v-container>
 </template>
