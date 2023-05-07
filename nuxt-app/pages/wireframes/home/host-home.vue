@@ -44,7 +44,7 @@
 
     <v-row>
       <v-col>
-        <v-btn variant="tonal">New Party</v-btn>
+        <v-btn to="/wireframes/party/create-party" variant="tonal">New Party</v-btn>
       </v-col>
     </v-row>
     <v-spacer />
