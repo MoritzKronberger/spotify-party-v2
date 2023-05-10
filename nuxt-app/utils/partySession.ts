@@ -4,19 +4,29 @@ import { Message, Member, PresenceData, partyCodeSchema } from '~/types/partySes
 /** Global config for party session Pusher. */
 export const partySessionConfig = {
   events: {
+    /** Default pusher events. */
     pusher: {
       subscribeSuccess: 'pusher:subscription_succeeded',
       memberAdded: 'pusher:member_added',
       memberRemoved: 'pusher:member_removed',
     },
+    /** Custom events. */
     messages: 'messages',
   },
   authEndpoint: (username: string) => `/api/pusher_auth?name=${username}`,
   presenceCacheChannelPrefix: 'presence-cache-',
+  /** Create presence-cache channel using Pusher naming convention.
+   *
+   * Reference: https://pusher.com/docs/channels/using_channels/channels/#channel-naming-conventions
+   */
   presenceCacheChannel: (channelName: string) => `${partySessionConfig.presenceCacheChannelPrefix}${channelName}`,
 }
 
+// Unpack session config for convenience
 const { events, authEndpoint, presenceCacheChannel } = partySessionConfig
+
+// Types for Pusher channel `members` property
+// Reference: https://pusher.com/docs/channels/using_channels/presence-channels/#accessing-channel-members
 
 type PusherMembers = {
   [id: string]: PresenceData['user_info']
@@ -27,7 +37,7 @@ type PusherMe = {
   info: PresenceData['user_info']
 }
 
-export type PusherMemberData = {
+type PusherMemberData = {
   members: PusherMembers | null
   me: PusherMe | null
 }
@@ -42,7 +52,7 @@ export class PartySession {
   /**
    * Create new client-side helper for Pusher party session.
    *
-   * Validates session code and subscribes to Pusher channel.
+   * Validates session code and subscribes to the party session's Pusher channel.
    */
   constructor(sessionCode: string, username: string) {
     // Validate session code
@@ -52,6 +62,7 @@ export class PartySession {
     this.username = username
 
     // Initialize the pusher client
+    // Reference: https://github.com/pusher/pusher-js#configuration
     const publicVars = useRuntimeConfig().public
     this.pusher = new Pusher(publicVars.PUSHER_KEY, {
       cluster: publicVars.PUSHER_CLUSTER,
@@ -62,6 +73,9 @@ export class PartySession {
     })
 
     // Subscribe to the party session channel
+    // (Use presence-cache-channel)
+    // References: https://pusher.com/docs/channels/using_channels/channels/#channel-types
+    // - https://github.com/pusher/pusher-js#subscribing-to-channels
     this.partyChannel = this.pusher.subscribe(presenceCacheChannel(sessionCode))
   }
 

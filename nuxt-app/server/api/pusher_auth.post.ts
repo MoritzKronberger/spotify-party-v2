@@ -11,10 +11,15 @@ const pusherAuthSchema = z.object({
 })
 
 /**
- * Authorizes all users for all channels.
+ * Handle pusher authentication.
+ *
+ * Authorizes all users for all channels!
  *
  * No authentication check (other than via the random channel id)!
  * Only used as user-tracker, not to grant any privileges!
+ *
+ * Reference:
+ * https://pusher.com/docs/channels/server%5Fapi/authenticating-users/#user-authentication
  */
 export default defineEventHandler(async (event) => {
   // Get Pusher data from request body
@@ -31,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
   if (!exists) {
     throw createError({
-      statusCode: 404,
+      statusCode: 403, // use 403 for Pusher convention
       message: 'Party not found',
     })
   }
@@ -43,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
   if (!userName) {
     throw createError({
-      statusCode: 400,
+      statusCode: 403, // use 403 for Pusher convention
       message: 'No username provided',
     })
   }
