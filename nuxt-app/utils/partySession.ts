@@ -12,7 +12,8 @@ export const partySessionConfig = {
     messages: 'messages',
   },
   authEndpoint: (username: string) => `/api/pusher_auth?name=${username}`,
-  presenceCacheChannel: (channelName: string) => `presence-cache-${channelName}`,
+  presenceCacheChannelPrefix: 'presence-cache-',
+  presenceCacheChannel: (channelName: string) => `${partySessionConfig.presenceCacheChannelPrefix}${channelName}`,
 }
 
 const { events, authEndpoint, presenceCacheChannel } = partySessionConfig
@@ -45,9 +46,9 @@ export class PartySession {
    */
   constructor(sessionCode: string, username: string) {
     // Validate session code
-    partyCodeSchema.parse(sessionCode)
+    const uppercaseCode = partyCodeSchema.parse(sessionCode.toUpperCase())
     // Set the session code and username
-    this.sessionCode = sessionCode
+    this.sessionCode = uppercaseCode
     this.username = username
 
     // Initialize the pusher client

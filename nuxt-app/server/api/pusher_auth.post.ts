@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { appRouter } from '../trpc/routers'
 import { genNanoId } from '~/utils/nanoId'
+import { partySessionConfig } from '~/utils/partySession'
 import { PartySession } from '~/server/utils/partySession'
 import { PresenceData } from '~/types/partySession'
 
@@ -19,7 +21,20 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { socket_id: socketId, channel_name: channel } = pusherAuthSchema.parse(body)
 
-  // TODO: Ensure that channel name corresponds to valid party code
+  // Ensure that channel name corresponds to valid party code
+  // Remove prefix from string
+  const partyCode = channel.replace(partySessionConfig.presenceCacheChannelPrefix, '')
+  // Make server-side call to tRPC endpoint
+  // Reference: https://trpc-nuxt.vercel.app/get-started/tips/server-side-calls
+  const tRPCCaller = appRouter.createCaller({ credentials: {}, event })
+  const { exists } = await tRPCCaller.party.checkPartyExists({ code: partyCode })
+
+  if (!exists) {
+    throw createError({
+      statusCode: 404,
+      message: 'Party not found',
+    })
+  }
 
   // Get username from request query params
   // TODO: Only allow unique usernames?

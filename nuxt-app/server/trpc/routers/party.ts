@@ -9,7 +9,7 @@ import party from '~/db/schema/party'
 import image from '~/db/schema/image'
 import { insertId, rowsAffected } from '~/server/utils/db'
 import { nanoId } from '~/utils/nanoId/zod'
-import { partyCodeLength } from '~/types/partySession'
+import { partyCodeLength, partyCodeSchema } from '~/types/partySession'
 
 // Create Zod schemas from drizzle schemas.
 const partySchema = createInsertSchema(party).omit({ id: true, userId: true, code: true, imageId: true })
@@ -110,7 +110,7 @@ export const partyRouter = router({
     return await db.select().from(party).where(eq(party.userId, ctx.user.id))
   }),
   /** Get party using random party code. (Returns empty array if code does not exist) */
-  getPartyByCode: publicProcedure.input(z.object({ code: z.string() })).query(async ({ input }) => {
+  getPartyByCode: publicProcedure.input(z.object({ code: partyCodeSchema })).query(async ({ input }) => {
     return await db.select().from(party).where(eq(party.code, input.code))
   }),
   /** Delete party (Returns undefined for id if party does not exist or user is not owner of the party). */
@@ -124,5 +124,9 @@ export const partyRouter = router({
     // Delete party itself
     const res = await db.delete(party).where(and(eq(party.id, partyId), eq(party.userId, ctx.user.id)))
     return { id: rowsAffected(res) ? partyId : undefined }
+  }),
+  checkPartyExists: publicProcedure.input(z.object({ code: partyCodeSchema })).query(async ({ input }) => {
+    const partyRes = await db.select().from(party).where(eq(party.code, input.code))
+    return { exists: partyRes.length > 0 }
   }),
 })
