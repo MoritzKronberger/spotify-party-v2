@@ -1,10 +1,10 @@
 import kv from '@vercel/kv'
 import Pusher from 'pusher'
-import { Message, User } from '~/types/partySession'
-import { partySessionConfig } from '~/composables/usePartySessionConfig'
+import { Message, PresenceData } from '~/types/partySession'
+import { partySessionConfig } from '~/utils/partySession'
 
 const { env } = process
-const { events, cacheChannel } = partySessionConfig
+const { events, presenceCacheChannel } = partySessionConfig
 
 /** Server-side helper for Pusher party sessions. */
 export class PartySession {
@@ -28,19 +28,14 @@ export class PartySession {
     this.sessionCode = sessionCode
   }
 
-  /** Get user list from KV store for session code. */
-  private getUsers(): Promise<User[] | null> {
-    // TODO: Validate using Zod?
-    return kv.hget(this.sessionCode, events.users)
-  }
-
-  /** Add new user to KV store for session code. */
-  public async addUser(user: User) {
-    const users = (await this.getUsers()) ?? []
-    users.push(user)
-    await kv.hset(this.sessionCode, { users })
-    // TODO: Too optimistic?
-    this.pusher.trigger(cacheChannel(this.sessionCode), events.users, users)
+  /**
+   * Authorizes all users for all channels.
+   *
+   * No authentication check (other than via the random channel id)!
+   * Only used as user tracker, not to grant any privileges!
+   */
+  public authorizeUser(socketId: string, channel: string, presenceData: PresenceData) {
+    return this.pusher.authorizeChannel(socketId, channel, presenceData)
   }
 
   /** Get message list from KV store for session code.  */
@@ -55,6 +50,6 @@ export class PartySession {
     messages.push(message)
     await kv.hset(this.sessionCode, { messages })
     // TODO: Too optimistic?
-    this.pusher.trigger(cacheChannel(this.sessionCode), events.messages, messages)
+    this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.messages, messages)
   }
 }

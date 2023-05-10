@@ -8,12 +8,6 @@ const sessionSchema = z.object({
 })
 
 export const sessionRouter = router({
-  /** Join party session with user. */
-  join: publicProcedure.input(z.object({ user: userSchema, session: sessionSchema })).mutation(({ input }) => {
-    const { user, session } = input
-    const kvSession = new PartySession(session.sessionCode)
-    return kvSession.addUser(user)
-  }),
   /** Add message to party session. */
   addMessage: publicProcedure
     .input(z.object({ session: sessionSchema, message: messageSchema }))

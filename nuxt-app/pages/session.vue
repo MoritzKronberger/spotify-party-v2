@@ -5,24 +5,27 @@
 
   const message = ref('')
 
-  // Get the party helper
-  const { $partySession } = useNuxtApp()
-
-  const { users, messages, addMessage } = $partySession
+  // Get the party helpers
+  const { me, messages, addMessage, members } = usePartySession()
 </script>
 
 <template>
   <VContainer class="fill-height flex-column">
     <VRow>
       <VCol>
+        <div>Hello {{ me?.name }}</div>
+      </VCol>
+    </VRow>
+    <VRow>
+      <VCol>
         <div>Current users:</div>
-        <div v-for="user in users" :key="user.id">{{ user.name }}</div>
+        <div v-for="member in members" :key="member.id">{{ member.name }}</div>
       </VCol>
     </VRow>
     <VRow>
       <VCol>
         <div>Messages:</div>
-        <div v-for="message in messages" :key="message.content">{{ message.content }}</div>
+        <div v-for="msg in messages" :key="msg.content">{{ msg.content }}</div>
       </VCol>
     </VRow>
     <VRow>
