@@ -4,7 +4,7 @@
 
   // Keep track of party name input and created party
   const partyName = ref('')
-  const partyRef = ref<{ name: string; imageURL: string } | undefined>(undefined)
+  const partyRef = ref<{ name: string; imageURL: string; code: string } | undefined>(undefined)
 
   // Execute tRPC querys
   const user = $client.auth.getUser.useQuery()
@@ -72,6 +72,7 @@
         partyRef.value = {
           name: prty.name,
           imageURL: `/api/image?id=${prty.imageId}`,
+          code: prty.code,
         }
 
         // Fetch party again using party code
@@ -135,7 +136,7 @@
     </v-row>
     <v-row v-if="partyRef">
       <v-col>
-        <div>{{ partyRef.name }}</div>
+        <div>{{ partyRef.name }} {{ partyRef.code }}</div>
         <img :src="partyRef.imageURL" />
       </v-col>
     </v-row>
