@@ -12,6 +12,6 @@ export const nanoId = customType<{ data: string }>({
     return 'varchar(12)'
   },
   toDriver(value) {
-    return nanoIdSchema.parse(value)
+    return nanoIdSchema().parse(value)
   },
 })

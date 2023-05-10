@@ -4,7 +4,7 @@ import { nanoId } from '~/utils/nanoId/zod'
 /** Application-wide length for party code. */
 export const partyCodeLength = 6
 /** Zod schema for party code. */
-export const partyCodeSchema = nanoId(partyCodeLength)
+export const partyCodeSchema = nanoId(partyCodeLength, /^[A-Z0-9]+$/)
 
 export const memberSchema = z.object({
   id: nanoId(),
