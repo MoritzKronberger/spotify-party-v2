@@ -1,11 +1,10 @@
 import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
-import { nanoId } from '~/utils/nanoId/zod'
-import { messageSchema, userSchema } from '~/types/partySession'
+import { messageSchema, partyCodeSchema } from '~/types/partySession'
 import { PartySession } from '~/server/utils/partySession'
 
 const sessionSchema = z.object({
-  sessionCode: nanoId,
+  sessionCode: partyCodeSchema,
 })
 
 export const sessionRouter = router({
