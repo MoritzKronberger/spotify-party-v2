@@ -12,6 +12,7 @@ export const memberSchema = z.object({
 })
 
 export const messageSchema = z.object({
+  id: nanoId(),
   content: z.string(),
   member: memberSchema,
 })

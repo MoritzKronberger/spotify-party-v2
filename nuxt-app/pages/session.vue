@@ -25,7 +25,7 @@
     <VRow>
       <VCol>
         <div>Messages:</div>
-        <div v-for="msg in messages" :key="msg.content">{{ msg.content }}</div>
+        <div v-for="msg in messages" :key="msg.id">{{ msg.content }}</div>
       </VCol>
     </VRow>
     <VRow>
