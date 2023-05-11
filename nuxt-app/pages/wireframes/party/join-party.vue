@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import SvgIcon from '@jamescoyle/vue-icon'
   import { mdiQrcodeScan } from '@mdi/js'
+  import SpotButton from '~/components/spot-button'
 
   const path = mdiQrcodeScan
 
@@ -27,7 +28,7 @@
         </v-row>
         <v-row>
           <v-col align="center">
-            <v-btn variant="tonal">SCAN QR CODE</v-btn>
+            <spot-button primary="true" title="SCAN QR CODE" />
           </v-col>
         </v-row>
 
@@ -43,7 +44,7 @@
                 <v-text-field label="Enter Code" />
               </v-col>
             </v-row>
-            <v-btn variant="tonal" block>Join</v-btn>
+            <spot-button primary="true" title="JOIN" />
           </v-col>
         </v-row>
       </v-col>

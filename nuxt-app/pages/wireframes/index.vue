@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
     layout: 'wireframes-home',
   })
@@ -17,12 +18,12 @@
       <v-col>
         <v-row>
           <v-col>
-            <button-primary to="/wireframes/party/create-party">I am a host</button-primary>
+            <spot-button to="/wireframes/party/create-party" title="I AM A HOST" />
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <button-secondary to="/wireframes/login-guest">I am a guest</button-secondary>
+            <spot-button to="/wireframes/login-guest" title="I AM A GUEST"/>
           </v-col>
         </v-row>
       </v-col>

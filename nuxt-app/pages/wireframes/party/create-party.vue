@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import VueDatePicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
+  import SpotButton from '~/components/spot-button.vue'
   const isScheduledParty = ref(false)
   definePageMeta({
     layout: 'wireframes',
@@ -22,13 +23,13 @@
             <v-text-field label="Party name" />
             <v-text-field label="Description" />
             <v-file-input clearable accept="image/*" label="Picture" variant="outlined" prepend-icon="mdi-image" />
-            <v-switch v-model="isScheduledParty" inset label="Schedule Party" />
+            <v-switch v-model="isScheduledParty" label="Schedule Party" />
             <div v-if="isScheduledParty">
               <VueDatePicker position="right" />
             </div>
           </v-col>
           <v-col>
-            <button-primary>Create</button-primary>
+            <spot-button title="Create" primary="false" />
           </v-col>
         </v-form>
       </v-col>

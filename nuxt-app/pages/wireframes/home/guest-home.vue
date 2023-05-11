@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
     layout: 'wireframes',
   })
@@ -26,7 +27,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-btn variant="tonal">Join Party</v-btn>
+        <spot-button primary="true" title="JOIN PARTY" />
       </v-col>
     </v-row>
     <v-spacer />

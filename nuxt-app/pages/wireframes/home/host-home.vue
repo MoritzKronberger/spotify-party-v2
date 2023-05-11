@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import SpotButton from '~/components/spot-button'
   definePageMeta({
     layout: 'wireframes',
   })
@@ -44,7 +45,7 @@
 
     <v-row>
       <v-col>
-        <v-btn variant="tonal">New Party</v-btn>
+        <spot-button primary="true" title="NEW PARTY" />
       </v-col>
     </v-row>
     <v-spacer />
