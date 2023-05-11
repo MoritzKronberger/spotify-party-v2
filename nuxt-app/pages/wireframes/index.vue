@@ -23,7 +23,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <spot-button to="/wireframes/login-guest" title="I AM A GUEST"/>
+            <spot-button to="/wireframes/login-guest" title="I AM A GUEST" />
           </v-col>
         </v-row>
       </v-col>
