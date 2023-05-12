@@ -31,9 +31,9 @@
   const rules = toRef(props, 'rules')
 
   const party = {
-    name: '',
-    description: '',
-    startAutomatically: null,
+    name: ref(''),
+    description: ref(''),
+    startAutomatically: ref(null),
     image: file,
   }
 
@@ -43,7 +43,14 @@
 
   const createParty = async () => {
     await $client.party.createParty
-      .mutate({ party })
+      .mutate({
+        party: {
+          name: party.name.value,
+          description: party.description.value,
+          startAutomatically: party.startAutomatically.value,
+          // image: party.image
+        },
+      })
       .then((response) => {
         console.log(response)
         // handle the response data here
@@ -65,8 +72,8 @@
       <v-col>
         <v-form style="min-width: 300px">
           <v-col>
-            <v-text-field v-model="party.name" label="Party name" />
-            <v-text-field v-model="party.description" label="Description" />
+            <v-text-field v-model="party.name.value" label="Party name" />
+            <v-text-field v-model="party.description.value" label="Description" />
             <v-file-input
               v-model="file"
               clearable
@@ -78,7 +85,7 @@
             />
             <v-switch v-model="isScheduledParty" label="Schedule Party" />
             <div v-if="isScheduledParty">
-              <VueDatePicker v-model="party.startAutomatically" position="right" />
+              <VueDatePicker v-model="party.startAutomatically.value" position="right" />
             </div>
           </v-col>
           <v-col>
