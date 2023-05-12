@@ -7,8 +7,9 @@
   // Keep track of song name input
   const songName = ref('')
 
-  // Execute tRPC query
-  const songs = $client.getSongs.useQuery()
+  // Execute tRPC querys
+  const songs = $client.songs.getSongs.useQuery()
+  const user = $client.auth.getUser.useQuery()
 
   const addSong = (songName: string) => {
     // Create procedure input
@@ -19,7 +20,7 @@
       createdAt: new Date(),
     }
     // Execute tRPC mutation and refresh song procedure on success
-    $client.addSong.mutate(song).then(() => {
+    $client.songs.addSong.mutate(song).then(() => {
       songs.refresh()
     })
   }
@@ -31,7 +32,7 @@
 
     <v-row>
       <v-col>
-        <h1>Create Party</h1>
+        <h1>Create Party {{ user.data.value?.display_name }}</h1>
       </v-col>
     </v-row>
 
@@ -51,7 +52,6 @@
         </v-form>
       </v-col>
     </v-row>
-
     <v-row>
       <v-col>
         <v-list style="max-height: 400px">
