@@ -6,13 +6,6 @@
     layout: 'wireframes',
   })
 
-  interface Party {
-    name: string
-    description: string
-    playlistCover?: File[]
-    date?: string
-  }
-
   const file = ref<File[]>()
 
   const isScheduledParty = ref(false)
@@ -37,15 +30,27 @@
 
   const rules = toRef(props, 'rules')
 
-  const party: Party = {
+  const party = {
     name: '',
     description: '',
-    playlistCover: file.value,
-    date: '',
+    startAutomatically: null,
+    image: file,
   }
 
-  const createParty = () => {
-    console.log(party)
+  // Get tRPC client
+  const nuxtApp = useNuxtApp()
+  const $client = nuxtApp.$client
+
+  const createParty = async () => {
+    await $client.party.createParty
+      .mutate({ party })
+      .then((response) => {
+        console.log(response)
+        // handle the response data here
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 </script>
 
@@ -65,17 +70,15 @@
             <v-file-input
               v-model="file"
               clearable
-              show-size
               :rules="rules"
-              accept="image/png, image/jpeg"
+              accept="image/png, image/jpeg, image/jpg"
               label="Picture"
-              placeholder="Choose a playlist cover"
               variant="outlined"
               prepend-icon="mdi-image"
             />
             <v-switch v-model="isScheduledParty" label="Schedule Party" />
             <div v-if="isScheduledParty">
-              <VueDatePicker v-model="party.date" position="right" />
+              <VueDatePicker v-model="party.startAutomatically" position="right" />
             </div>
           </v-col>
           <v-col>
