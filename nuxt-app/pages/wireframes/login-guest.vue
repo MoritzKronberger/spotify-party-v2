@@ -11,7 +11,7 @@
 
     <v-row>
       <v-col>
-        <h1>Create Party</h1>
+        <h1>Choose a name</h1>
       </v-col>
     </v-row>
 
@@ -20,17 +20,18 @@
         <v-form style="min-width: 300px">
           <v-row>
             <v-col>
-              <v-text-field label="Song name" />
+              <v-text-field label="Guest name" />
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <button-primary>Add song</button-primary>
+              <button-primary>Continue</button-primary>
             </v-col>
           </v-row>
         </v-form>
       </v-col>
     </v-row>
+    <v-btn variant="text">Login instead</v-btn>
     <v-spacer />
   </v-container>
 </template>
