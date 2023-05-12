@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import SpotButton from '~/components/spot-button'
+  import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
     layout: 'wireframes',
   })
@@ -45,7 +45,7 @@
 
     <v-row>
       <v-col>
-        <spot-button primary="true" title="NEW PARTY" />
+        <spot-button :primary="true" title="NEW PARTY" />
       </v-col>
     </v-row>
     <v-spacer />
