@@ -1,31 +1,33 @@
 <script setup lang="ts">
   import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
-    layout: 'wireframes-home',
+    layout: 'wireframes',
   })
 </script>
 
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer />
-    <v-row style="min-width: 300px">
+
+    <v-row>
       <v-col>
-        <placeholder-card text="Logo" />
+        <h1>My Parties</h1>
       </v-col>
     </v-row>
 
-    <v-row style="min-width: 300px">
+    <v-row>
       <v-col>
         <v-row>
           <v-col>
-            <spot-button to="/wireframes/party/create-party" title="I AM A HOST" />
+            <p class="text-center text-subtitle-1 font-weight-bold">Welcome user</p>
+            <p class="text-center">Get started by joining a new party.</p>
           </v-col>
         </v-row>
-        <v-row>
-          <v-col>
-            <spot-button to="/wireframes/login-guest" title="I AM A GUEST" />
-          </v-col>
-        </v-row>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <spot-button primary="true" title="JOIN PARTY" />
       </v-col>
     </v-row>
     <v-spacer />
