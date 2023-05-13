@@ -31,9 +31,9 @@
   const rules = toRef(props, 'rules')
 
   const party = {
-    name: ref(''),
-    description: ref(''),
-    startAutomatically: ref(null),
+    name: ref('My Party'),
+    description: ref('Birthday Celebration'),
+    startAutomatically: ref(new Date()),
     image: file,
   }
 
@@ -42,14 +42,21 @@
   const $client = nuxtApp.$client
 
   const createParty = async () => {
+    // console.log(party)
+    const partydata = {
+      name: party.name.value,
+      description: party.description.value,
+      startAutomatically: party.startAutomatically.value,
+    }
+    console.log(partydata)
     await $client.party.createParty
       .mutate({
         party: {
           name: party.name.value,
           description: party.description.value,
-          startAutomatically: party.startAutomatically.value,
-          // image: party.image
+          // startAutomatically: party.startAutomatically.value,
         },
+        image: undefined,
       })
       .then((response) => {
         console.log(response)
