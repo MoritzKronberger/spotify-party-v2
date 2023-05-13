@@ -31,8 +31,8 @@ const spotifyUserSchema = z.object({
   images: z
     .object({
       url: z.string(),
-      height: z.number(),
-      width: z.number(),
+      height: z.number().nullable(),
+      width: z.number().nullable(),
     })
     .array(),
   product: z.string(),
@@ -107,7 +107,8 @@ const isAuthed = middleware(async ({ next, ctx }) => {
 
   // Try fetching user data using access token
   // (Throw on any other status codes than 200 and 401)
-  const userRes = await fetchUserData(accessToken).catch(() => {
+  const userRes = await fetchUserData(accessToken).catch((e) => {
+    console.log(e)
     throw userDataError
   })
 
