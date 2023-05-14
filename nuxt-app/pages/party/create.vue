@@ -159,7 +159,7 @@
         image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
       })
       .then(() => {
-        router.push({ path: '/wireframes/home/host-home', replace: true })
+        router.push({ path: '/home/host-home', replace: true })
       })
       .catch((error) => {
         console.error(error)
