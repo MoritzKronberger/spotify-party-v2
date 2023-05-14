@@ -1,26 +1,51 @@
 <script setup lang="ts">
+  import VueDatePicker from '@vuepic/vue-datepicker'
+  import '@vuepic/vue-datepicker/dist/main.css'
+  import SpotButton from '~/components/spot-button.vue'
+
   // Get tRPC client
   const { $client } = useNuxtApp()
+  // Get router
+  const router = useRouter()
+
+  // Temp image-file storage
+  const file = ref<File[]>()
 
   // Keep track of party name input and created party
-  const partyName = ref('')
-  const partyRef = ref<{ name: string; imageURL: string } | undefined>(undefined)
-
-  // Execute tRPC querys
-  const user = $client.auth.getUser.useQuery()
-  const userParties = $client.party.getUserParties.useQuery()
-
-  // Convert blob to base64 DataURL
-  // Reference: https://stackoverflow.com/a/18650249/14906871
-  const blobToDataURL = (blob: Blob): Promise<string> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onloadend = () => resolve(reader.result as string)
-      reader.readAsDataURL(blob)
-    })
+  const party = {
+    name: ref('My Party'),
+    description: ref('Birthday Celebration'),
+    startAutomatically: ref(new Date()),
+    image: file,
   }
 
-  const randomTestImage = async () => {
+  // Control display of Datepicker
+  const isScheduledParty = ref(false)
+
+  // Define prop for vuetify-image-validation
+  // Ref:
+  const props = defineProps({
+    rules: {
+      type: Array as () => ((value: File[] | undefined) => true | string)[],
+      default: () => [
+        (value: File[] | undefined) => {
+          if (!value || !value.length) {
+            return true // validation passes if value is undefined or empty
+          }
+          const fileSizeLimit = 2000000 // in bytes
+          if (value[0]!.size > fileSizeLimit) {
+            return 'Cover size should be less than 2 MB!' // return error message if file size exceeds limit
+          }
+          return true // validation passes
+        },
+      ],
+    },
+  })
+
+  // New reference rules prop -> reactive
+  const rules = toRef(props, 'rules')
+
+  /* const randomTestImage = async () => {
     // Get random image blob from unsplash
     const randomURL = 'https://source.unsplash.com/random/300x300/?party'
     const res = await fetch(randomURL)
@@ -36,26 +61,19 @@
     if (!data || !mimeType) throw new Error('Could not create random image')
 
     return { data, mimeType }
-  }
+  } */
 
-  const testPartyProcedures = async (partyName: string, del: boolean) => {
+  /* const testPartyProcedures = async (partyName: string, del: boolean) => {
     // Generate random image
-    const { data: imageData, mimeType: imageMimeType } = await randomTestImage()
-
     // Create new party
     const party = await $client.party.createParty.mutate({
       party: {
         name: partyName,
         description: 'Test party',
+        startAutomatically: new Date(),
       },
       // Add random image to party
-      image:
-        imageData && imageMimeType
-          ? {
-              base64Blob: imageData,
-              mimeType: imageMimeType as 'image/jpeg',
-            }
-          : undefined,
+      image: undefined,
     })
     console.log('Created:', party)
 
@@ -99,58 +117,60 @@
       const deleteParty = await $client.party.deleteParty.mutate({ id: party.id })
       console.log('Deleted:', deleteParty)
     }
+  } */
+
+  const createParty = async () => {
+    await $client.party.createParty
+      .mutate({
+        party: {
+          name: party.name.value,
+          description: party.description.value,
+          startAutomatically: party.startAutomatically.value,
+        },
+        image: undefined,
+      })
+      .then(() => {
+        router.push({ path: '/wireframes/home/host-home' })
+        // handle the response data here
+      })
+      .catch((error) => {
+        console.error(error)
+      })
   }
 </script>
 
 <template>
   <v-container class="fill-height flex-column">
-    <v-spacer />
-
     <v-row>
       <v-col>
-        <h1>Create Party {{ user.data.value?.display_name }}</h1>
+        <h1>Create Party</h1>
       </v-col>
     </v-row>
-
     <v-row>
       <v-col>
         <v-form style="min-width: 300px">
-          <v-row>
-            <v-col>
-              <v-text-field v-model="partyName" label="Party name" />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <button-primary @click="() => testPartyProcedures(partyName, false)">Add party</button-primary>
-            </v-col>
-            <v-col>
-              <button-secondary @click="() => testPartyProcedures(partyName, true)"
-                >Add party and delete</button-secondary
-              >
-            </v-col>
-          </v-row>
+          <v-col>
+            <v-text-field v-model="party.name.value" label="Party name" />
+            <v-text-field v-model="party.description.value" label="Description" />
+            <v-file-input
+              v-model="file"
+              clearable
+              :rules="rules"
+              accept="image/png, image/jpeg, image/jpg"
+              label="Picture"
+              variant="outlined"
+              prepend-icon="mdi-image"
+            />
+            <v-switch v-model="isScheduledParty" label="Schedule Party" />
+            <div v-if="isScheduledParty">
+              <VueDatePicker v-model="party.startAutomatically.value" position="right" />
+            </div>
+          </v-col>
+          <v-col>
+            <spot-button :primary="true" title="Create" @click="createParty" />
+          </v-col>
         </v-form>
       </v-col>
     </v-row>
-    <v-row v-if="partyRef">
-      <v-col>
-        <div>{{ partyRef.name }}</div>
-        <img :src="partyRef.imageURL" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-list style="max-height: 400px">
-          <v-list-item
-            v-for="party in userParties.data.value"
-            :key="party.id"
-            :title="party.name"
-            :subtitle="party.description ?? ''"
-          />
-        </v-list>
-      </v-col>
-    </v-row>
-    <v-spacer />
   </v-container>
 </template>
