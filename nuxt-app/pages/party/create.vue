@@ -23,7 +23,7 @@
   const isScheduledParty = ref(false)
 
   // Define prop for vuetify-image-validation
-  // Ref:
+  // Ref: https://vuetifyjs.com/en/api/v-file-input/#props-validation-value
   const props = defineProps({
     rules: {
       type: Array as () => ((value: File[] | undefined) => true | string)[],
