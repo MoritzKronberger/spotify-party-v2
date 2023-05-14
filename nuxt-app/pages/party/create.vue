@@ -9,15 +9,16 @@
   const router = useRouter()
 
   // Temp image-file storage
-  const file = ref<File[]>()
+  const file = ref<File[]>([])
 
   // Keep track of party name input and created party
   const party = {
     name: ref('My Party'),
     description: ref('Birthday Celebration'),
     startAutomatically: ref(new Date()),
-    image: file,
   }
+  const base64Blob = ref<string | undefined>(undefined)
+  const mimeType = ref<'image/jpeg' | 'image/jpg' | 'image/png' | undefined>(undefined)
 
   // Control display of Datepicker
   const isScheduledParty = ref(false)
@@ -46,80 +47,108 @@
   const rules = toRef(props, 'rules')
 
   /* const randomTestImage = async () => {
-    // Get random image blob from unsplash
-    const randomURL = 'https://source.unsplash.com/random/300x300/?party'
-    const res = await fetch(randomURL)
-    const blob = await res.blob()
+          // Get random image blob from unsplash
+          const randomURL = 'https://source.unsplash.com/random/300x300/?party'
+          const res = await fetch(randomURL)
+          const blob = await res.blob()
 
-    // Convert blob to DataURL
-    const dataURL = await blobToDataURL(blob)
+          // Convert blob to DataURL
+          const dataURL = await blobToDataURL(blob)
 
-    // Split DataURL into data and mime-type
-    const data = dataURL.split(',')[1]
-    const mimeType = dataURL.split(',')[0]?.split(':')[1]?.split(';')[0]
+          // Split DataURL into data and mime-type
+          const data = dataURL.split(',')[1]
+          const mimeType = dataURL.split(',')[0]?.split(':')[1]?.split(';')[0]
 
-    if (!data || !mimeType) throw new Error('Could not create random image')
+          if (!data || !mimeType) throw new Error('Could not create random image')
 
-    return { data, mimeType }
-  } */
+          return { data, mimeType }
+        } */
 
   /* const testPartyProcedures = async (partyName: string, del: boolean) => {
-    // Generate random image
-    // Create new party
-    const party = await $client.party.createParty.mutate({
-      party: {
-        name: partyName,
-        description: 'Test party',
-        startAutomatically: new Date(),
-      },
-      // Add random image to party
-      image: undefined,
-    })
-    console.log('Created:', party)
+          // Generate random image
+          // Create new party
+          const party = await $client.party.createParty.mutate({
+            party: {
+              name: partyName,
+              description: 'Test party',
+              startAutomatically: new Date(),
+            },
+            // Add random image to party
+            image: undefined,
+          })
+          console.log('Created:', party)
 
-    // Update and fetch party
-    if (party.id) {
-      // Fetch party using its Id
-      const partyById = await $client.party.getParty.query({ id: party.id })
-      console.log('By Id:', partyById)
+          // Update and fetch party
+          if (party.id) {
+            // Fetch party using its Id
+            const partyById = await $client.party.getParty.query({ id: party.id })
+            console.log('By Id:', partyById)
 
-      const prty = partyById[0]
+            const prty = partyById[0]
 
-      if (prty) {
-        // Set party name and image URL for loading the party image
-        partyRef.value = {
-          name: prty.name,
-          imageURL: `/api/image?id=${prty.imageId}`,
+            if (prty) {
+              // Set party name and image URL for loading the party image
+              partyRef.value = {
+                name: prty.name,
+                imageURL: `/api/image?id=${prty.imageId}`,
+              }
+
+              // Fetch party again using party code
+              const partyByCode = await $client.party.getPartyByCode.query({ code: prty.code })
+              console.log('By code:', partyByCode)
+            }
+
+            // Update party
+            const updateParty = await $client.party.updateParty.mutate({
+              id: party.id,
+              data: {
+                party: {
+                  name: 'UPDATE ' + partyName,
+                },
+              },
+            })
+            console.log('Updated:', updateParty)
+          }
+
+          // Re-fetch all parties for current user
+          await userParties.refresh()
+
+          // Delete party again if specified
+          if (del && party.id) {
+            const deleteParty = await $client.party.deleteParty.mutate({ id: party.id })
+            console.log('Deleted:', deleteParty)
+          }
+        } */
+
+  const fileToBase64 = (file: File | undefined): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          const base64 = reader.result.split(',')[1]
+          if (base64) {
+            const decoder = new TextDecoder('utf-8')
+            const buffer = decoder.decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)))
+            resolve(buffer)
+          } else {
+            reject(new Error('Failed to convert file to Base64'))
+          }
+        } else {
+          reject(new Error('Failed to read file'))
         }
-
-        // Fetch party again using party code
-        const partyByCode = await $client.party.getPartyByCode.query({ code: prty.code })
-        console.log('By code:', partyByCode)
       }
-
-      // Update party
-      const updateParty = await $client.party.updateParty.mutate({
-        id: party.id,
-        data: {
-          party: {
-            name: 'UPDATE ' + partyName,
-          },
-        },
-      })
-      console.log('Updated:', updateParty)
-    }
-
-    // Re-fetch all parties for current user
-    await userParties.refresh()
-
-    // Delete party again if specified
-    if (del && party.id) {
-      const deleteParty = await $client.party.deleteParty.mutate({ id: party.id })
-      console.log('Deleted:', deleteParty)
-    }
-  } */
+      reader.onerror = reject
+      reader.readAsDataURL(file!)
+    })
+  }
 
   const createParty = async () => {
+    if (file.value[0]) {
+      const img = file.value[0]
+      base64Blob.value = await fileToBase64(img)
+      mimeType.value = img.type as 'image/jpeg' | 'image/jpg' | 'image/png'
+    }
+
     await $client.party.createParty
       .mutate({
         party: {
@@ -127,11 +156,10 @@
           description: party.description.value,
           startAutomatically: party.startAutomatically.value,
         },
-        image: undefined,
+        image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
       })
       .then(() => {
-        router.push({ path: '/wireframes/home/host-home' })
-        // handle the response data here
+        router.push({ path: '/wireframes/home/host-home', replace: true })
       })
       .catch((error) => {
         console.error(error)
