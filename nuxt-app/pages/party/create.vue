@@ -144,9 +144,8 @@
 
   const createParty = async () => {
     if (file.value[0]) {
-      const img = file.value[0]
-      base64Blob.value = await fileToBase64(img)
-      mimeType.value = img.type as 'image/jpeg' | 'image/jpg' | 'image/png'
+      base64Blob.value = await fileToBase64(file.value[0])
+      mimeType.value = file.value[0].type as 'image/jpeg' | 'image/jpg' | 'image/png'
     }
 
     await $client.party.createParty
