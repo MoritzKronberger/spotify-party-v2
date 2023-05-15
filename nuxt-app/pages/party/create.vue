@@ -120,6 +120,9 @@
           }
         } */
 
+  // File to Blob(Base-64) Conversion
+  // FileReader API: https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+  // FileReader.readAsDataURL(): https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
   const fileToBase64 = (file: File | undefined): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
