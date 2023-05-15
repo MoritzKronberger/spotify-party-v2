@@ -1,5 +1,4 @@
-import { text, timestamp, varchar } from 'drizzle-orm/mysql-core/columns/index.js'
-import { mysqlTable } from 'drizzle-orm/mysql-core/table.js'
+import { text, timestamp, varchar, mysqlTable } from 'drizzle-orm/mysql-core'
 import { nanoId } from '~/utils/nanoId/drizzle'
 
 /**
