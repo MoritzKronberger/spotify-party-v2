@@ -15,5 +15,5 @@ jobs:
       - name: Lint Nuxt application
         run: |
              cd nuxt-app
-             npm ci
+             npm i
              npm run lint
