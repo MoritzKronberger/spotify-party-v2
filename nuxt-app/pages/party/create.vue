@@ -13,8 +13,8 @@
 
   // Keep track of party name input and created party
   const party = {
-    name: ref('My Party'),
-    description: ref('Birthday Celebration'),
+    name: ref(''),
+    description: ref(''),
     startAutomatically: ref(new Date()),
   }
   const base64Blob = ref<string | undefined>(undefined)
