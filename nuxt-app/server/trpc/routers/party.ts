@@ -57,7 +57,9 @@ export const partyRouter = router({
       }
       // Create new party (and link image if it was created successfully)
       const { id, idOnSuccess } = insertId()
-      const res = await db.insert(party).values({ ...partyData, id, userId, code: generateRandomPartyCode(), imageId })
+      const res = await db
+        .insert(party)
+        .values({ ...partyData, id, userId, code: generateRandomPartyCode(), imageId: imageId ?? null })
       // Return party Id if it was created successfully
       return { id: idOnSuccess(res) }
     }),

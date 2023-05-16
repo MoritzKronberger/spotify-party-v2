@@ -31,8 +31,8 @@ const spotifyUserSchema = z.object({
   images: z
     .object({
       url: z.string(),
-      height: z.number(),
-      width: z.number(),
+      height: z.number().nullable(),
+      width: z.number().nullable(),
     })
     .array(),
   product: z.string(),
