@@ -64,6 +64,7 @@ export class PartySession {
     await kv.hset(this.sessionCode, { messages })
     // TODO: Too optimistic?
     // Await trigger, otherwise it will not be executed when deployed
+    // Reference: https://github.com/vercel/next.js/discussions/48433#discussioncomment-5710270
     await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.messages, messages)
   }
 }
