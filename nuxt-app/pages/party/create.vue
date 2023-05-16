@@ -2,7 +2,7 @@
   import VueDatePicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
   import SpotButton from '~/components/spot-button.vue'
-
+  import { MimeType } from '~/types/trpc'
   // Get tRPC client
   const { $client } = useNuxtApp()
   // Get router
@@ -15,13 +15,23 @@
   const party = {
     name: ref(''),
     description: ref(''),
-    startAutomatically: ref(new Date()),
+    startAutomatically: ref<Date | null | undefined>(null),
   }
   const base64Blob = ref<string | undefined>(undefined)
-  const mimeType = ref<'image/jpeg' | 'image/jpg' | 'image/png' | undefined>(undefined)
+  const mimeType = ref<MimeType>()
 
   // Control display of Datepicker
-  const isScheduledParty = ref(false)
+  const isScheduledParty = ref<boolean>(false)
+
+  // Update scheduler on changes
+  const updateScheduledParty = () => {
+    isScheduledParty.value = !isScheduledParty.value
+    if (isScheduledParty.value) {
+      party.startAutomatically.value = new Date()
+    } else {
+      party.startAutomatically.value = null
+    }
+  }
 
   // Define prop for vuetify-image-validation
   // Ref: https://vuetifyjs.com/en/api/v-file-input/#props-validation-value
@@ -74,7 +84,7 @@
   const createParty = async () => {
     if (file.value[0]) {
       base64Blob.value = await fileToBase64(file.value[0])
-      mimeType.value = file.value[0].type as 'image/jpeg' | 'image/jpg' | 'image/png'
+      mimeType.value = file.value[0].type as MimeType
     }
 
     await $client.party.createParty
@@ -117,7 +127,7 @@
               variant="outlined"
               prepend-icon="mdi-image"
             />
-            <v-switch v-model="isScheduledParty" label="Schedule Party" />
+            <v-switch label="Schedule Party" @click="updateScheduledParty" />
             <div v-if="isScheduledParty">
               <VueDatePicker v-model="party.startAutomatically.value" position="right" />
             </div>
