@@ -27,7 +27,7 @@
   // Update scheduler on changes
   const updateScheduledParty = () => {
     isScheduledParty.value = !isScheduledParty.value
-    if (isScheduledParty.value) {
+    if (!isScheduledParty.value) {
       party.startAutomatically.value = new Date()
     } else {
       party.startAutomatically.value = null
