@@ -63,6 +63,7 @@ export class PartySession {
     messages.push(message)
     await kv.hset(this.sessionCode, { messages })
     // TODO: Too optimistic?
-    this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.messages, messages)
+    // Await trigger, otherwise it will not be executed when deployed
+    await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.messages, messages)
   }
 }
