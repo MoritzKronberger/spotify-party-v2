@@ -122,7 +122,7 @@
               v-model="file"
               clearable
               :rules="rules"
-              accept="image/png, image/jpeg, image/jpg"
+              :accept="MimeType"
               label="Picture"
               variant="outlined"
               prepend-icon="mdi-image"
