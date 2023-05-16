@@ -107,8 +107,7 @@ const isAuthed = middleware(async ({ next, ctx }) => {
 
   // Try fetching user data using access token
   // (Throw on any other status codes than 200 and 401)
-  const userRes = await fetchUserData(accessToken).catch((e) => {
-    console.log(e)
+  const userRes = await fetchUserData(accessToken).catch(() => {
     throw userDataError
   })
 
