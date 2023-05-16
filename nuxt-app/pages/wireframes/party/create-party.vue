@@ -5,67 +5,7 @@
   definePageMeta({
     layout: 'wireframes',
   })
-
-  const file = ref<File[]>()
-
   const isScheduledParty = ref(false)
-
-  const props = defineProps({
-    rules: {
-      type: Array as () => ((value: File[] | undefined) => true | string)[],
-      default: () => [
-        (value: File[] | undefined) => {
-          if (!value || !value.length) {
-            return true // validation passes if value is undefined or empty
-          }
-          const fileSizeLimit = 2000000 // in bytes
-          if (value[0]!.size > fileSizeLimit) {
-            return 'Cover size should be less than 2 MB!' // return error message if file size exceeds limit
-          }
-          return true // validation passes
-        },
-      ],
-    },
-  })
-
-  const rules = toRef(props, 'rules')
-
-  const party = {
-    name: ref('My Party'),
-    description: ref('Birthday Celebration'),
-    startAutomatically: ref(new Date()),
-    image: file,
-  }
-
-  // Get tRPC client
-  const nuxtApp = useNuxtApp()
-  const $client = nuxtApp.$client
-
-  const createParty = async () => {
-    // console.log(party)
-    const partydata = {
-      name: party.name.value,
-      description: party.description.value,
-      startAutomatically: party.startAutomatically.value,
-    }
-    console.log(partydata)
-    await $client.party.createParty
-      .mutate({
-        party: {
-          name: party.name.value,
-          description: party.description.value,
-          // startAutomatically: party.startAutomatically.value,
-        },
-        image: undefined,
-      })
-      .then((response) => {
-        console.log(response)
-        // handle the response data here
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
 </script>
 
 <template>
@@ -79,24 +19,16 @@
       <v-col>
         <v-form style="min-width: 300px">
           <v-col>
-            <v-text-field v-model="party.name.value" label="Party name" />
-            <v-text-field v-model="party.description.value" label="Description" />
-            <v-file-input
-              v-model="file"
-              clearable
-              :rules="rules"
-              accept="image/png, image/jpeg, image/jpg"
-              label="Picture"
-              variant="outlined"
-              prepend-icon="mdi-image"
-            />
+            <v-text-field label="Party name" />
+            <v-text-field label="Description" />
+            <v-file-input label="Picture" variant="outlined" prepend-icon="mdi-image" />
             <v-switch v-model="isScheduledParty" label="Schedule Party" />
             <div v-if="isScheduledParty">
-              <VueDatePicker v-model="party.startAutomatically.value" position="right" />
+              <VueDatePicker position="right" />
             </div>
           </v-col>
           <v-col>
-            <spot-button :primary="true" title="Create" @click="createParty" />
+            <spot-button :primary="true" title="Create" />
           </v-col>
         </v-form>
       </v-col>
