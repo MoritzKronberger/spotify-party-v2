@@ -1,5 +1,5 @@
 import { createInsertSchema } from 'drizzle-zod'
-import { and, eq } from 'drizzle-orm/expressions'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { customAlphabet } from 'nanoid'
 import { publicProcedure, router } from '../trpc'

@@ -1,4 +1,4 @@
-import { customType } from 'drizzle-orm/mysql-core/columns/index.js'
+import { customType } from 'drizzle-orm/mysql-core'
 import { nanoId as nanoIdSchema } from './zod'
 
 /**
