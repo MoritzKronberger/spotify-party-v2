@@ -1,5 +1,5 @@
 import { createInsertSchema } from 'drizzle-zod'
-import { desc } from 'drizzle-orm/expressions.js'
+import { desc } from 'drizzle-orm'
 import { publicProcedure, router } from '../trpc'
 import { db } from '~/db'
 import { songs } from '~/db/schema'

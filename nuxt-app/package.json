@@ -40,18 +40,21 @@
     ]
   },
   "dependencies": {
+    "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/font": "^7.2.96",
+    "@mdi/js": "^7.2.96",
     "@planetscale/database": "^1.6.0",
     "@trpc/client": "^10.18.0",
     "@trpc/server": "^10.18.0",
     "@vercel/kv": "^0.1.2",
-    "drizzle-orm": "^0.23.6-26ec506",
-    "drizzle-zod": "^0.2.1",
+    "@vuepic/vue-datepicker": "^4.5.1",
+    "drizzle-orm": "^0.25.4",
+    "drizzle-zod": "^0.4.1",
     "pusher": "^5.1.3",
     "pusher-js": "^8.0.2",
     "superjson": "^1.12.2",
     "trpc-nuxt": "^0.8.0",
-    "vuetify": "^3.1.14",
+    "vuetify": "^3.2.2",
     "zod": "^3.21.4"
   }
 }

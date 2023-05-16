@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { eq } from 'drizzle-orm/expressions'
+import { eq } from 'drizzle-orm'
 import { db } from '~/db'
 import { image } from '~/db/schema'
 
