@@ -9,10 +9,11 @@
   const user = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
 
-  const getPartyByID = async (id: string) => {
-    const party = await $client.party.getPartyByCode.useQuery({ code: id })
-    console.log(party.data.value)
-    // router.push({ path: '/party/session', replace: true })
+  const getPartyByID = async (partyID: string) => {
+    const party = await $client.party.getParty.useQuery({ id: partyID })
+    const partyCode = party.data.value[0].id
+    console.log(partyCode)
+    // router.push({ path: `/party/session/?code=${partyCode}`, replace: true })
   }
 
   /* const deletePartyByID = (partyID: string) => {
