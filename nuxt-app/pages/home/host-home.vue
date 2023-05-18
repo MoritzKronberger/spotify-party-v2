@@ -16,16 +16,19 @@
     // router.push({ path: `/party/session/?code=${partyCode}`, replace: true })
   }
 
-  /* const deletePartyByID = (partyID: string) => {
-    $client.party.deleteParty
+  /*
+  const deletePartyByID = async (partyID: string) => {
+    await $client.party.deleteParty
       .mutate({ id: partyID })
-      .then((res) => {
-        console.log(res)
+      .then(() => {
+        const index = userParties.data.value.findIndex((party: any) => (party.id = partyID))
+        userParties.data.value.splice(index, 1)
       })
       .catch((error) => {
         console.log(error)
       })
-  } */
+  } 
+  */
 </script>
 
 <template>
