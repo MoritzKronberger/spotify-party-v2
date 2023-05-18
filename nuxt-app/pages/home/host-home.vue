@@ -4,14 +4,32 @@
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
+  // const router = useRouter()
 
+  const user = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
+
+  const getPartyByID = async (id: string) => {
+    const party = await $client.party.getPartyByCode.useQuery({ code: id })
+    console.log(party.data.value)
+    // router.push({ path: '/party/session', replace: true })
+  }
+
+  /* const deletePartyByID = (partyID: string) => {
+    $client.party.deleteParty
+      .mutate({ id: partyID })
+      .then((res) => {
+        console.log(res)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  } */
 </script>
 
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer />
-
     <v-row>
       <v-col>
         <h1>My Parties</h1>
@@ -22,7 +40,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <p class="text-center text-subtitle-1 font-weight-bold">Welcome user</p>
+            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.data.value?.display_name }}</p>
             <p class="text-center text-body-1">Let your friends control your music.</p>
             <p class="text-center">Get started by opening a new party.</p>
           </v-col>
@@ -39,6 +57,7 @@
             :key="party.id"
             :title="party.name"
             :subtitle="party.description ? party.description : ''"
+            @click="getPartyByID(party.id)"
           />
         </v-list>
       </v-card>
