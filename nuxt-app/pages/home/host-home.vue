@@ -35,21 +35,23 @@
         <h1>My Parties</h1>
       </v-col>
     </v-row>
-    <!--den text nur anzeigen wenn die Partyliste leer ist-->
     <v-row>
       <v-col>
         <v-row>
           <v-col>
             <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.data.value?.display_name }}</p>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col v-if="!userParties.data.value">
             <p class="text-center text-body-1">Let your friends control your music.</p>
             <p class="text-center">Get started by opening a new party.</p>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
-
     <v-col>
-      <v-card>
+      <v-card v-if="userParties.data.value">
         <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
           <v-list-subheader>All Parties</v-list-subheader>
           <v-list-item
