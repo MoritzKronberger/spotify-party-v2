@@ -1,19 +1,25 @@
 <script setup lang="ts">
   import SpotButton from '~/components/spot-button.vue'
-
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
-  // const router = useRouter()
+  const router = useRouter()
 
   const user = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
 
-  const getPartyByID = async (partyID: string) => {
-    const party = await $client.party.getParty.useQuery({ id: partyID })
-    const partyCode = party.data.value[0].id
-    console.log(partyCode)
-    // router.push({ path: `/party/session/?code=${partyCode}`, replace: true })
+  const joinPartyByID = async (partyID: string) => {
+    await $client.party.getParty
+      .useQuery({ id: partyID })
+      .then((result) => {
+        if (result.data.value) {
+          const code = result.data.value[0]?.code
+          router.push({ path: `/party/session/?code=${code}`, replace: true })
+        }
+      })
+      .catch((ex) => {
+        console.log(ex)
+      })
   }
 
   /*
@@ -27,7 +33,7 @@
       .catch((error) => {
         console.log(error)
       })
-  } 
+  }
   */
 </script>
 
@@ -63,7 +69,7 @@
             :key="party.id"
             :title="party.name"
             :subtitle="party.description ? party.description : ''"
-            @click="getPartyByID(party.id)"
+            @click="joinPartyByID(party.id)"
           />
         </v-list>
       </v-card>
