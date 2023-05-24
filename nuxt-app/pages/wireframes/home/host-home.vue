@@ -35,7 +35,7 @@
     </v-row>
 
     <v-col>
-      <v-card>
+      <v-card variant="outlined">
         <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
           <v-list-subheader>All Parties</v-list-subheader>
           <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs" />
