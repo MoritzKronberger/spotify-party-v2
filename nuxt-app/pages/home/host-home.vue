@@ -23,6 +23,8 @@
   }
 
   /*
+  Requires UI-Element
+
   const deletePartyByID = async (partyID: string) => {
     await $client.party.deleteParty
       .mutate({ id: partyID })
