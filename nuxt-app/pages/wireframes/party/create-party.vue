@@ -29,7 +29,7 @@
             </div>
           </v-col>
           <v-col>
-            <spot-button title="Create" primary="false" />
+            <spot-button title="Create" :primary="true" />
           </v-col>
         </v-form>
       </v-col>

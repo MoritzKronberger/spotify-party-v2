@@ -27,7 +27,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <spot-button primary="true" title="JOIN PARTY" />
+        <spot-button primary title="join party" />
       </v-col>
     </v-row>
     <v-spacer />
