@@ -1,10 +1,10 @@
 <script setup lang="ts">
   const props = defineProps<{
-    title?: string
+    title: string
     primary?: boolean
   }>()
 </script>
 <template>
-  <v-btn v-if="primary" variant="tonal" block>{{ props.title.toUpperCase() }}</v-btn>
-  <v-btn v-else variant="outlined" block>{{ props.title.toUpperCase() }}</v-btn>
+  <v-btn v-if="primary" variant="tonal" block>{{ props.title }}</v-btn>
+  <v-btn v-else variant="outlined" block>{{ props.title }}</v-btn>
 </template>
