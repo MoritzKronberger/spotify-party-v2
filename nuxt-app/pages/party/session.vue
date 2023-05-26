@@ -12,13 +12,25 @@
     partySession.addMessage(suggestion.value)
     suggestion.value = ''
   }
+
+  const isCopied = ref(false)
+
+  const shareCode = () => {
+    navigator.clipboard.writeText(partySession.code).then(() => {
+      isCopied.value = true
+      setTimeout(() => {
+        isCopied.value = false
+      }, 3000)
+    })
+  }
 </script>
 
 <template>
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn variant="tonal">invite</v-btn>
+        <v-btn variant="tonal" @click="shareCode">Party-Code</v-btn>
+        <v-card-text v-if="isCopied" type="text">Copied to clipboard!</v-card-text>
       </v-col>
       <v-col>
         <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">{{
