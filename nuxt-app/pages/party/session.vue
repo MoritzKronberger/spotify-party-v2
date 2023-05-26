@@ -9,9 +9,8 @@
   const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
 
   const addMessage = () => {
-    partySession.addMessage(suggestion.value).then(() => {
-      suggestion.value = ''
-    })
+    partySession.addMessage(suggestion.value)
+    suggestion.value = ''
   }
 </script>
 
