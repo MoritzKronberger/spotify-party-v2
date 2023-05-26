@@ -21,7 +21,9 @@
         <v-btn variant="tonal">invite</v-btn>
       </v-col>
       <v-col>
-        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">1/5</v-btn>
+        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">{{
+          Object.keys(partySession.members.value).length
+        }}</v-btn>
       </v-col>
     </v-row>
 
