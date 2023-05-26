@@ -5,15 +5,14 @@
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
-  const suggestion = ref(null)
-  const playlist = ref([
-    { songname: 'songname', artist: 'michael jackson' },
-    { songname: 'songname', artist: 'michael jackson' },
-    { songname: 'songname', artist: 'michael jackson' },
-    { songname: 'songname', artist: 'michael jackson' },
-    { songname: 'songname', artist: 'michael jackson' },
-    { songname: 'songname', artist: 'michael jackson' },
-  ])
+  const suggestion = ref('')
+  const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
+
+  const addMessage = () => {
+    partySession.addMessage(suggestion.value).then(() => {
+      suggestion.value = ''
+    })
+  }
 </script>
 
 <template>
@@ -42,14 +41,20 @@
                         v-for="(msg, index) in partySession.messages.value"
                         :key="index"
                         :title="msg.content"
-                        :subtitle="'by ' + msg.member"
+                        :subtitle="'by ' + msg.member.name"
                       />
                     </v-list>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col>
-                    <v-text-field :v-model="suggestion" label="Type here"></v-text-field>
+                    <v-text-field
+                      v-model="suggestion"
+                      append-icon="mdi-send"
+                      type="text"
+                      label="Type here"
+                      @click:append="addMessage"
+                    ></v-text-field>
                   </v-col>
                 </v-row>
               </div>
