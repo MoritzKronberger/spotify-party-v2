@@ -14,7 +14,7 @@
       .then((result) => {
         if (result.data.value) {
           const code = result.data.value[0]?.code
-          router.push({ path: `/party/session?code=${code}`, replace: true })
+          router.push({ path: `/party/session`, query: { code }, replace: true })
         }
       })
       .catch((ex) => {
