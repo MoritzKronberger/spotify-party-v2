@@ -26,7 +26,7 @@
     await $client.party.deleteParty
       .mutate({ id: partyID })
       .then(() => {
-        const index = userParties.data.value!.findIndex((party: any) => (party.id = partyID))
+        const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
         userParties.data.value!.splice(index, 1)
       })
       .catch((error) => {
