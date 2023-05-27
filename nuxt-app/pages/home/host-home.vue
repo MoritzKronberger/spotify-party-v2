@@ -17,26 +17,22 @@
           router.push({ path: `/party/session`, query: { code }, replace: true })
         }
       })
-      .catch((ex) => {
-        console.log(ex)
+      .catch((error) => {
+        console.log(error)
       })
   }
-
-  /*
-  Requires UI-Element
 
   const deletePartyByID = async (partyID: string) => {
     await $client.party.deleteParty
       .mutate({ id: partyID })
       .then(() => {
-        const index = userParties.data.value.findIndex((party: any) => (party.id = partyID))
-        userParties.data.value.splice(index, 1)
+        const index = userParties.data.value!.findIndex((party: any) => (party.id = partyID))
+        userParties.data.value!.splice(index, 1)
       })
       .catch((error) => {
         console.log(error)
       })
   }
-  */
 </script>
 
 <template>
@@ -72,7 +68,11 @@
             :title="party.name"
             :subtitle="party.description ? party.description : ''"
             @click="joinPartyByID(party.id)"
-          />
+          >
+            <template #append>
+              <v-btn icon="mdi-delete" @click="deletePartyByID(party.id)"></v-btn>
+            </template>
+          </v-list-item>
         </v-list>
       </v-card>
     </v-col>
