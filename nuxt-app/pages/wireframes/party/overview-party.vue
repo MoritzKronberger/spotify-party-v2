@@ -104,9 +104,7 @@
         <v-row class="my-1">
           <v-col>
             <v-tabs v-model="tab">
-              <v-tab v-for="item in tabs" :key="item" :value="item" class="mx-auto" variant="tonal">{{
-                item
-              }}</v-tab>
+              <v-tab v-for="item in tabs" :key="item" :value="item" class="mx-auto" variant="tonal">{{ item }}</v-tab>
             </v-tabs>
           </v-col>
         </v-row>
