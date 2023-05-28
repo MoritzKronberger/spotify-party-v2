@@ -1,5 +1,4 @@
-import { serial, text, timestamp } from 'drizzle-orm/mysql-core/columns/index.js'
-import { mysqlTable } from 'drizzle-orm/mysql-core/table.js'
+import { serial, text, timestamp, mysqlTable } from 'drizzle-orm/mysql-core'
 
 /**
  * Basic Drizzle schema.
