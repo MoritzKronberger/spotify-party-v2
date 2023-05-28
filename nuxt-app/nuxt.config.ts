@@ -12,6 +12,8 @@ export default defineNuxtConfig({
     public: {
       SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
       SPOTIFY_CLIENT_REDIRECT_URL: process.env.SPOTIFY_CLIENT_REDIRECT_URL,
+      PUSHER_KEY: process.env.PUSHER_KEY,
+      PUSHER_CLUSTER: process.env.PUSHER_CLUSTER,
     },
   },
 })
