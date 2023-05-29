@@ -15,7 +15,10 @@ export default function () {
   const code = route.query.code?.toString()
 
   // TODO: Get username from query parameters or local storage?
+  // (If reading from local storage everything should be done in the `if (!process.server)` block)
   const username = `user ${genNanoId()}`
+  // Optional userIf (used if loading existing user)
+  const userId = genNanoId()
 
   if (!code) throw new Error('Party code is required in query parameters')
 
@@ -42,7 +45,7 @@ export default function () {
   // Client-side only
   if (!process.server) {
     // Initialize Pusher client and subscribe to the party session channel
-    const partySession = new PartySession(code, username)
+    const partySession = new PartySession(code, username, userId)
 
     // Get subscribed user for party session helper
     partySession.onSubscribed((me: Member) => {

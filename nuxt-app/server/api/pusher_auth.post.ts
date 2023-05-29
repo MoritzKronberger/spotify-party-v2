@@ -41,10 +41,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Get username from request query params
+  // Get username and optional user Id (for existing session members) from request query params
   // TODO: Only allow unique usernames?
   const query = getQuery(event)
-  const userName = query.name?.toString()
+  const userName = query.user_name?.toString()
+  const userId = query.user_id?.toString()
 
   if (!userName) {
     throw createError({
@@ -55,7 +56,7 @@ export default defineEventHandler(async (event) => {
 
   // Create user data
   const prescenceData: PresenceData = {
-    user_id: genNanoId(),
+    user_id: userId ?? genNanoId(),
     user_info: {
       userName,
     },
