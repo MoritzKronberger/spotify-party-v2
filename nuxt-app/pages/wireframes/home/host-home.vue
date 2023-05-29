@@ -10,6 +10,7 @@
     { id: 4, name: 'Party 4', songs: 5 },
     { id: 5, name: 'Party 5', songs: 5 },
   ]
+  const deleteParty = () => {}
 </script>
 
 <template>
@@ -35,17 +36,21 @@
     </v-row>
 
     <v-col>
-      <v-card>
+      <v-card variant="outlined">
         <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
           <v-list-subheader>All Parties</v-list-subheader>
-          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs" />
+          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs">
+            <template #append>
+              <v-btn icon="mdi-delete" @click="deleteParty()"></v-btn>
+            </template>
+          </v-list-item>
         </v-list>
       </v-card>
     </v-col>
 
     <v-row>
       <v-col>
-        <spot-button :primary="true" title="NEW PARTY" />
+        <spot-button primary title="NEW PARTY" />
       </v-col>
     </v-row>
     <v-spacer />
