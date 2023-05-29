@@ -18,6 +18,7 @@
         if (result.data.value?.exists) {
           const code: any = partyCode.value
           router.push({ path: `/party/session`, query: { code }, replace: true })
+          /* Requires merge of add-party-session-logic */
         } else {
           /* AMIN -> message log in UI */
           console.log('This party doesnt exist!')
