@@ -30,6 +30,7 @@
     <v-row>
       <v-col>
         <v-btn variant="tonal" @click="shareCode">invite</v-btn>
+        <!-- Invite-Button will route to Share-Page in following update -->
         <v-card-text v-if="isCopied" type="text">Copied to clipboard!</v-card-text>
       </v-col>
       <v-col class="text-right">
