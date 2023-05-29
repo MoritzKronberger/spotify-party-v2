@@ -1,4 +1,4 @@
-import { Message, Member } from '~/types/partySession'
+import { UserMessage, Member } from '~/types/partySession'
 import { genNanoId } from '~/utils/nanoId'
 import { PartySession } from '~/utils/partySession'
 
@@ -25,7 +25,7 @@ export default function () {
   const partySessionHelper = {
     code,
     me: ref<Member>(),
-    messages: ref<Message[]>([]),
+    messages: ref<UserMessage[]>([]),
     members: ref<Member[]>([]),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
@@ -50,7 +50,7 @@ export default function () {
     })
 
     // Update message data for party session helper
-    partySession.onMessage((messages: Message[]) => {
+    partySession.onMessage((messages: UserMessage[]) => {
       partySessionHelper.messages.value = messages
     })
 

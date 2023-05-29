@@ -1,5 +1,5 @@
 import Pusher, { Channel } from 'pusher-js'
-import { Message, Member, PresenceData, partyCodeSchema } from '~/types/partySession'
+import { UserMessage, Member, PresenceData, partyCodeSchema } from '~/types/partySession'
 
 /** Global config for party session Pusher. */
 export const partySessionConfig = {
@@ -80,7 +80,7 @@ export class PartySession {
   }
 
   /** Set callback for new messages on the party session channel. */
-  public onMessage(callback: (messages: Message[]) => void) {
+  public onMessage(callback: (messages: UserMessage[]) => void) {
     this.partyChannel.bind(events.messages, callback)
   }
 

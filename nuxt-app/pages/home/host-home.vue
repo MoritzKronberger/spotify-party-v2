@@ -37,7 +37,7 @@
           <v-list-item
             v-for="party in userParties.data.value"
             :key="party.id"
-            :title="party.name"
+            :title="party.name + ' ' + party.code"
             :subtitle="party.description ? party.description : ''"
           />
         </v-list>

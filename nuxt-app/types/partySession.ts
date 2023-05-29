@@ -1,3 +1,4 @@
+import { ChatCompletionRequestMessage } from 'openai'
 import { z } from 'zod'
 import { nanoId } from '~/utils/nanoId/zod'
 
@@ -11,14 +12,23 @@ export const memberSchema = z.object({
   name: z.string(),
 })
 
-export const messageSchema = z.object({
+/** Message as it is returned to users. */
+export const userMessageSchema = z.object({
   id: nanoId(),
   content: z.string(),
   member: memberSchema,
 })
 
 export type Member = z.infer<typeof memberSchema>
-export type Message = z.infer<typeof messageSchema>
+/** Message as it is returned to users. */
+export type UserMessage = z.infer<typeof userMessageSchema>
+
+// Full message type
+type NonUserChatCompletionRequestMessage = ChatCompletionRequestMessage & { role: 'system' | 'assistant' }
+type UserChatCompletionRequestMessage = ChatCompletionRequestMessage & { role: 'user' }
+export type FullUserMessage = UserMessage & UserChatCompletionRequestMessage
+/** Full message with both, user and OpenAI chat message content. */
+export type FullMessage = FullUserMessage | NonUserChatCompletionRequestMessage
 
 /**
  * User data for Pusher presence channel.
