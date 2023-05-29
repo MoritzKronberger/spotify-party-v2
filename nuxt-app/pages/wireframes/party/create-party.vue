@@ -28,7 +28,7 @@
             </div>
           </v-col>
           <v-col>
-            <spot-button title="Create" :primary="true" />
+            <spot-button :primary="true" title="Create" />
           </v-col>
         </v-form>
       </v-col>
