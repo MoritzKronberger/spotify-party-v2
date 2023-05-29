@@ -87,7 +87,7 @@
         </VRow>
         <VRow>
           <VCol>
-            <button-secondary>I am a guest</button-secondary>
+            <button-secondary href="party/join-party">I am a guest</button-secondary>
           </VCol>
         </VRow>
       </VCol>
