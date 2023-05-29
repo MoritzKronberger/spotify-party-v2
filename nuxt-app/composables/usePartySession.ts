@@ -1,5 +1,4 @@
 import { Message, Member } from '~/types/partySession'
-import { genNanoId } from '~/utils/nanoId'
 import { PartySession } from '~/utils/partySession'
 
 /**
@@ -9,16 +8,10 @@ import { PartySession } from '~/utils/partySession'
  * - Provides method for adding new messages
  * - Provides refs to the party's users and messages
  */
-export default function () {
+export default function (username: string, userId: string) {
   // Get party code from page query parameters
   const route = useRoute()
   const code = route.query.code?.toString()
-
-  // TODO: Get username from query parameters or local storage?
-  // (If reading from local storage everything should be done in the `if (!process.server)` block)
-  const username = `user ${genNanoId()}`
-  // Optional userIf (used if loading existing user)
-  const userId = genNanoId()
 
   if (!code) throw new Error('Party code is required in query parameters')
 

@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { appRouter } from '../trpc/routers'
-import { genNanoId } from '~/utils/nanoId'
 import { partySessionConfig } from '~/utils/partySession'
 import { PartySession } from '~/server/utils/partySession'
 import { PresenceData } from '~/types/partySession'
@@ -54,9 +53,16 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  if (!userId) {
+    throw createError({
+      statusCode: 403, // use 403 for Pusher convention
+      message: 'No user Id provided',
+    })
+  }
+
   // Create user data
   const prescenceData: PresenceData = {
-    user_id: userId ?? genNanoId(),
+    user_id: userId,
     user_info: {
       userName,
     },
