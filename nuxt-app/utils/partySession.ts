@@ -13,8 +13,7 @@ export const partySessionConfig = {
     /** Custom events. */
     messages: 'messages',
   },
-  authEndpoint: (username: string, userId?: string) =>
-    `/api/pusher_auth?user_name=${username}` + (userId ? `&user_id=${userId}` : ''),
+  authEndpoint: (username: string, userId: string) => `/api/pusher_auth?user_name=${username}&user_id=${userId}`,
   presenceCacheChannelPrefix: 'presence-cache-',
   /** Create presence-cache channel using Pusher naming convention.
    *
@@ -47,7 +46,7 @@ type PusherMemberData = {
 export class PartySession {
   sessionCode: string
   username: string
-  userId?: string
+  userId: string
   pusher: Pusher
   partyChannel: Channel
 
@@ -56,7 +55,7 @@ export class PartySession {
    *
    * Validates session code and subscribes to the party session's Pusher channel.
    */
-  constructor(sessionCode: string, username: string, userId?: string) {
+  constructor(sessionCode: string, username: string, userId: string) {
     // Validate session code
     const uppercaseCode = partyCodeSchema.parse(sessionCode.toUpperCase())
     // Set the session code and username
@@ -90,7 +89,7 @@ export class PartySession {
   /** Get me property from channel members. */
   private getMe(): Member {
     const defaultMe = {
-      id: this.userId ?? '',
+      id: this.userId,
       name: this.username,
     }
     if ('members' in this.partyChannel && 'members' in (this.partyChannel.members as PusherMemberData)) {
