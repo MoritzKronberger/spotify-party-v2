@@ -1,6 +1,10 @@
 <script setup lang="ts">
   import { ref } from 'vue'
 
+  definePageMeta({
+    layout: 'song-app-bar',
+  })
+
   const partySession = usePartySession()
 
   const tab = ref(null)
