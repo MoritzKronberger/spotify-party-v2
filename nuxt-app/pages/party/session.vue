@@ -1,11 +1,10 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
-
   definePageMeta({
     layout: 'song-app-bar',
   })
 
-  const partySession = usePartySession()
+  // Get tRPC client
+  const { $client } = useNuxtApp()
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
@@ -16,6 +15,12 @@
     partySession.addMessage(suggestion.value)
     suggestion.value = ''
   }
+
+  const result = await $client.auth.getUser.useQuery()
+  const hostName = result.data.value!.display_name
+  const hostId = result.data.value!.id
+
+  const partySession = usePartySession(hostName, hostId)
 
   const isCopied = ref(false)
 
