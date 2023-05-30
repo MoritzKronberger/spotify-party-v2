@@ -2,6 +2,7 @@
   import SvgIcon from '@jamescoyle/vue-icon'
   import { mdiQrcodeScan } from '@mdi/js'
   import SpotButton from '~/components/spot-button.vue'
+  import user from '~/store/userData'
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const router = useRouter()
@@ -16,8 +17,9 @@
       .useQuery({ code: partyCode.value })
       .then((result) => {
         if (result.data.value?.exists) {
-          const code: any = partyCode.value
-          router.push({ path: `/party/session`, query: { code }, replace: true })
+          user.partyCode = partyCode.value
+          user.isHost = false
+          router.push({ path: `/party/login-guest`, replace: true })
           /* Requires merge of add-party-session-logic */
         } else {
           /* AMIN -> message log in UI */
