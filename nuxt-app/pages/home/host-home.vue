@@ -1,12 +1,18 @@
 <script setup lang="ts">
+  import user from '~/store/userData'
   import SpotButton from '~/components/spot-button.vue'
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
   const router = useRouter()
 
-  const user = await $client.auth.getUser.useQuery()
+  const data = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
+
+  /* Storing data userData */
+  user.id = data.data.value?.id || ''
+  user.name = data.data.value?.display_name || 'unknown'
+  user.isHost = true
 
   const joinPartyByID = async (partyID: string) => {
     await $client.party.getParty
@@ -14,6 +20,7 @@
       .then((result) => {
         if (result.data.value) {
           const code = result.data.value[0]?.code
+          user.partyCode = code || ''
           router.push({ path: `/party/session`, query: { code }, replace: true })
         }
       })
@@ -25,16 +32,16 @@
   // Delete is temporarily disabled for screen-capture purposes
 
   /* const deletePartyByID = async (partyID: string) => {
-    await $client.party.deleteParty
-      .mutate({ id: partyID })
-      .then(() => {
-        const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
-        userParties.data.value!.splice(index, 1)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  } */
+      await $client.party.deleteParty
+        .mutate({ id: partyID })
+        .then(() => {
+          const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
+          userParties.data.value!.splice(index, 1)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    } */
 </script>
 
 <template>
@@ -49,7 +56,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.data.value?.display_name }}</p>
+            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ data.data.value?.display_name }}</p>
           </v-col>
         </v-row>
         <v-row>
