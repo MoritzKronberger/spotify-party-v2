@@ -1,11 +1,9 @@
 <script setup lang="ts">
+  import user from '~/store/userData'
   import { genNanoId } from '~/utils/nanoId'
   definePageMeta({
     layout: 'song-app-bar',
   })
-
-  // Get tRPC client
-  const { $client } = useNuxtApp()
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
@@ -21,13 +19,6 @@
     })
   }
 
-  const result = await $client.auth.getUser.useQuery()
-  const hostName = result.data.value!.display_name
-
-  if (hostName) {
-    isClientHost.value = true
-  }
-
   const getSessionId = (): string => {
     const genId = ref<string>('')
     if (!localStorage.getItem('sessionId')) {
@@ -36,10 +27,13 @@
     } else {
       genId.value = localStorage.getItem('sessionId')!
     }
+    console.log('ID')
+    console.log(genId.value)
+    console.log(user)
     return genId.value
   }
 
-  const partySession = usePartySession(hostName, getSessionId())
+  const partySession = usePartySession(user.name, getSessionId())
 
   const shareCode = () => {
     navigator.clipboard.writeText(partySession.code).then(() => {
