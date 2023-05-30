@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { genNanoId } from '~/utils/nanoId'
   definePageMeta({
     layout: 'song-app-bar',
   })
@@ -10,6 +11,7 @@
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
   const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
+  const isCopied = ref(false)
 
   const addMessage = () => {
     partySession.addMessage(suggestion.value)
@@ -18,11 +20,19 @@
 
   const result = await $client.auth.getUser.useQuery()
   const hostName = result.data.value!.display_name
-  const hostId = result.data.value!.id
 
-  const partySession = usePartySession(hostName, hostId)
+  const getSessionId = (): string => {
+    const genId = ref<string>('')
+    if (!localStorage.getItem('sessionId')) {
+      genId.value = genNanoId()
+      localStorage.setItem('sessionId', genId.value)
+    } else {
+      genId.value = localStorage.getItem('sessionId')!
+    }
+    return genId.value
+  }
 
-  const isCopied = ref(false)
+  const partySession = usePartySession(hostName, getSessionId())
 
   const shareCode = () => {
     navigator.clipboard.writeText(partySession.code).then(() => {
@@ -68,7 +78,7 @@
                           v-for="(msg, index) in partySession.messages.value"
                           :key="index"
                           class="message"
-                          :class="{ own: msg.member.id === partySession.me.value?.id }"
+                          :class="{ own: msg.member.isHost == true }"
                         >
                           <div
                             v-if="index > 0 && partySession.members.value[index - 1]?.id !== msg.member.id"
