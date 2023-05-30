@@ -13,7 +13,7 @@ export const partySessionConfig = {
     /** Custom events. */
     messages: 'messages',
   },
-  authEndpoint: (username: string) => `/api/pusher_auth?name=${username}`,
+  authEndpoint: (username: string, userId: string) => `/api/pusher_auth?user_name=${username}&user_id=${userId}`,
   presenceCacheChannelPrefix: 'presence-cache-',
   /** Create presence-cache channel using Pusher naming convention.
    *
@@ -46,6 +46,7 @@ type PusherMemberData = {
 export class PartySession {
   sessionCode: string
   username: string
+  userId: string
   pusher: Pusher
   partyChannel: Channel
 
@@ -54,12 +55,13 @@ export class PartySession {
    *
    * Validates session code and subscribes to the party session's Pusher channel.
    */
-  constructor(sessionCode: string, username: string) {
+  constructor(sessionCode: string, username: string, userId: string) {
     // Validate session code
     const uppercaseCode = partyCodeSchema.parse(sessionCode.toUpperCase())
     // Set the session code and username
     this.sessionCode = uppercaseCode
     this.username = username
+    this.userId = userId
 
     // Initialize the pusher client
     // Reference: https://github.com/pusher/pusher-js#configuration
@@ -67,7 +69,7 @@ export class PartySession {
     this.pusher = new Pusher(publicVars.PUSHER_KEY, {
       cluster: publicVars.PUSHER_CLUSTER,
       channelAuthorization: {
-        endpoint: authEndpoint(username),
+        endpoint: authEndpoint(username, userId),
         transport: 'ajax',
       },
     })
@@ -87,8 +89,9 @@ export class PartySession {
   /** Get me property from channel members. */
   private getMe(): Member {
     const defaultMe = {
-      id: '',
+      id: this.userId,
       name: this.username,
+      isHost: false,
     }
     if ('members' in this.partyChannel && 'members' in (this.partyChannel.members as PusherMemberData)) {
       const me = (this.partyChannel.members as PusherMemberData).me
@@ -96,6 +99,7 @@ export class PartySession {
       return {
         id: me.id,
         name: me.info.userName,
+        isHost: me.info.isHost,
       }
     } else {
       return defaultMe
@@ -115,6 +119,7 @@ export class PartySession {
       return Object.entries(members).map(([id, info]) => ({
         id,
         name: info.userName,
+        isHost: info.isHost,
       }))
     } else {
       return []

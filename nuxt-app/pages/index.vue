@@ -30,7 +30,7 @@
         // Nuxt's `navigateTo` does not work inside async try/catch
         // -> Use `callWithNuxt` to make it work
         // Reference: https://github.com/nuxt/nuxt/issues/14269#issuecomment-1397352832
-        callWithNuxt(nuxtApp, navigateTo, ['/party/create', { replace: true }])
+        callWithNuxt(nuxtApp, navigateTo, ['/home/host-home', { replace: true }])
       },
       // Otherwise show error message
       () => {
