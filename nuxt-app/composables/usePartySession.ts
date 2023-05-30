@@ -26,7 +26,11 @@ export default function (username: string, userId: string) {
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
         message: {
-          member: { id: partySessionHelper.me.value?.id ?? '', name: username },
+          member: {
+            id: partySessionHelper.me.value?.id ?? '',
+            name: username,
+            isHost: partySessionHelper.me.value?.isHost ?? false,
+          },
           content: msg,
         },
         session: {

@@ -31,7 +31,7 @@
     <VRow>
       <VCol>
         <div>Current users:</div>
-        <div v-for="member in members" :key="member.id">{{ member.name }}</div>
+        <div v-for="member in members" :key="member.id">{{ member.name }} {{ member.isHost ? 'HOST' : '' }}</div>
       </VCol>
     </VRow>
     <VRow>

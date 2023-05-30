@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { appRouter } from '../trpc/routers'
+import { getCredentials } from '../utils/credentials'
 import { partySessionConfig } from '~/utils/partySession'
 import { PartySession } from '~/server/utils/partySession'
 import { PresenceData } from '~/types/partySession'
@@ -25,19 +26,35 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { socket_id: socketId, channel_name: channel } = pusherAuthSchema.parse(body)
 
+  // Get credentials from request cookies (for host)
+  const credentials = getCredentials(event)
+  const existsCredentials = Object.keys(credentials).length > 0
+
   // Ensure that channel name corresponds to valid party code
   // Remove prefix from string
   const partyCode = channel.replace(partySessionConfig.presenceCacheChannelPrefix, '')
-  // Make server-side call to tRPC endpoint
-  // Reference: https://trpc-nuxt.vercel.app/get-started/tips/server-side-calls
-  const tRPCCaller = appRouter.createCaller({ credentials: {}, event })
-  const { exists } = await tRPCCaller.party.checkPartyExists({ code: partyCode })
 
-  if (!exists) {
+  // Make server-side calls to tRPC endpoint
+  // Reference: https://trpc-nuxt.vercel.app/get-started/tips/server-side-calls
+  const tRPCCaller = appRouter.createCaller({ credentials, event })
+
+  const party = (await tRPCCaller.party.getPartyByCode({ code: partyCode }))[0]
+
+  if (!party) {
     throw createError({
       statusCode: 403, // use 403 for Pusher convention
       message: 'Party not found',
     })
+  }
+
+  // Check if current user is party host
+  let isHost = false
+  if (existsCredentials) {
+    // Ignore auth-Errors -> user simply won't be host
+    try {
+      const { id: spotifyUserId } = await tRPCCaller.auth.getUser()
+      isHost = spotifyUserId === party.userId
+    } catch {}
   }
 
   // Get username and optional user Id (for existing session members) from request query params
@@ -65,6 +82,7 @@ export default defineEventHandler(async (event) => {
     user_id: userId,
     user_info: {
       userName,
+      isHost,
     },
   }
 
