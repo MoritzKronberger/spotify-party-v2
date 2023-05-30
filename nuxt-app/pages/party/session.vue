@@ -24,6 +24,10 @@
   const result = await $client.auth.getUser.useQuery()
   const hostName = result.data.value!.display_name
 
+  if (hostName) {
+    isClientHost.value = true
+  }
+
   const getSessionId = (): string => {
     const genId = ref<string>('')
     if (!localStorage.getItem('sessionId')) {
@@ -87,9 +91,11 @@
                             v-if="index > 0 && partySession.members.value[index - 1]?.id !== msg.member.id"
                             class="text-body-1"
                           >
-                            {{ msg.member.name }}
+                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
                           </div>
-                          <div v-if="index === 0" class="text-body-1">{{ msg.member.name }}</div>
+                          <div v-if="index === 0" class="text-body-1">
+                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
+                          </div>
                           <div style="margin-top: 5px"></div>
                           <div class="content">
                             <div>{{ msg.content }}</div>
