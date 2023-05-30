@@ -3,9 +3,17 @@
 
   const currentSong = { title: 'song title', artist: 'song artist', image: 'https://vuejs.org/images/logo.png' }
   const like = () => undefined
+
+  const defineRoute = () => {
+    if (isClientHost.value) {
+      return '/home/host-home'
+    } else {
+      return '/'
+    }
+  }
 </script>
 <template>
-  <AddDefault :song="currentSong" :like="like" show-option>
+  <AddDefault :route-location="defineRoute()" :song="currentSong" :like="like" show-option>
     <slot />
   </AddDefault>
 </template>
