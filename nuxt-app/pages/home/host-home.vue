@@ -22,7 +22,9 @@
       })
   }
 
-  const deletePartyByID = async (partyID: string) => {
+  // Delete is temporarily disabled for screen-capture purposes
+
+  /* const deletePartyByID = async (partyID: string) => {
     await $client.party.deleteParty
       .mutate({ id: partyID })
       .then(() => {
@@ -32,7 +34,7 @@
       .catch((error) => {
         console.log(error)
       })
-  }
+  } */
 </script>
 
 <template>
@@ -70,7 +72,8 @@
             @click="joinPartyByID(party.id)"
           >
             <template #append>
-              <v-btn icon="mdi-delete" @click="deletePartyByID(party.id)"></v-btn>
+              <!-- <v-btn icon="mdi-delete" @click="deletePartyByID(party.id)"></v-btn> -->
+              <!-- Temporarily disabled -->
             </template>
           </v-list-item>
         </v-list>
