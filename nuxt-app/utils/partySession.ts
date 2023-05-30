@@ -91,6 +91,7 @@ export class PartySession {
     const defaultMe = {
       id: this.userId,
       name: this.username,
+      isHost: false,
     }
     if ('members' in this.partyChannel && 'members' in (this.partyChannel.members as PusherMemberData)) {
       const me = (this.partyChannel.members as PusherMemberData).me
@@ -98,6 +99,7 @@ export class PartySession {
       return {
         id: me.id,
         name: me.info.userName,
+        isHost: me.info.isHost,
       }
     } else {
       return defaultMe
@@ -117,6 +119,7 @@ export class PartySession {
       return Object.entries(members).map(([id, info]) => ({
         id,
         name: info.userName,
+        isHost: info.isHost,
       }))
     } else {
       return []
