@@ -79,7 +79,7 @@
                           v-for="(msg, index) in partySession.messages.value"
                           :key="index"
                           class="message"
-                          :class="{ own: msg.member.isHost == true }"
+                          :class="{ own: msg.member.id == partySession.me.value?.id }"
                         >
                           <div
                             v-if="index > 0 && partySession.members.value[index - 1]?.id !== msg.member.id"
