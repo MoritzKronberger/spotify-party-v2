@@ -14,8 +14,11 @@
   const isCopied = ref(false)
 
   const addMessage = () => {
-    partySession.addMessage(suggestion.value)
-    suggestion.value = ''
+    partySession.addMessage(suggestion.value).then(() => {
+      const listContainer = document.getElementById('listContainer')!
+      listContainer.scrollTop = listContainer.scrollHeight
+      suggestion.value = ''
+    })
   }
 
   const result = await $client.auth.getUser.useQuery()
@@ -73,7 +76,7 @@
                 <v-col>
                   <v-row>
                     <v-col>
-                      <v-list lines="one" style="height: 248px" class="overflow-y-auto mx-auto">
+                      <v-list id="listContainer" lines="one" style="height: 248px" class="overflow-y-auto mx-auto">
                         <div
                           v-for="(msg, index) in partySession.messages.value"
                           :key="index"
