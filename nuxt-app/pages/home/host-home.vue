@@ -12,6 +12,9 @@
   /* Storing data userData */
   user.id = data.data.value?.id || ''
   user.name = data.data.value?.display_name || 'unknown'
+  if (process.client) {
+    localStorage.setItem('username', user.name)
+  }
   user.isHost = true
 
   const joinPartyByID = async (partyID: string) => {
