@@ -11,29 +11,42 @@
   const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
   const isCopied = ref(false)
 
+  const scrollToBottom = () => {
+    const listContainer = document.getElementById('listContainer')!
+    listContainer.scrollTop = listContainer.scrollHeight
+  }
+
   const addMessage = () => {
     partySession.addMessage(suggestion.value).then(() => {
-      const listContainer = document.getElementById('listContainer')!
-      listContainer.scrollTop = listContainer.scrollHeight
+      scrollToBottom()
       suggestion.value = ''
     })
   }
 
-  const getSessionId = (): string => {
-    const genId = ref<string>('')
-    if (!localStorage.getItem('sessionId')) {
-      genId.value = genNanoId()
-      localStorage.setItem('sessionId', genId.value)
-    } else {
-      genId.value = localStorage.getItem('sessionId')!
+  const getSessionId = () => {
+    if (process.client) {
+      if (localStorage.getItem('nanoId') == null) {
+        const genId = genNanoId()
+        localStorage.setItem('nanoId', genId)
+      } else {
+        user.name = localStorage.getItem('username') ?? ''
+        user.id = localStorage.getItem('nanoId') ?? ''
+      }
     }
-    console.log('ID')
-    console.log(genId.value)
-    console.log(user)
-    return genId.value
   }
 
-  const partySession = usePartySession(user.name, getSessionId())
+  getSessionId()
+  const partySession = usePartySession(user.name, user.id)
+
+  watch(
+    () => partySession.messages.value,
+    (newValue) => {
+      if (newValue) {
+        /* scroll to botton on incoming messages */
+        scrollToBottom()
+      }
+    }
+  )
 
   const shareCode = () => {
     navigator.clipboard.writeText(partySession.code).then(() => {
@@ -141,12 +154,15 @@
   .message {
     margin-bottom: 10px;
   }
+
   .message.own {
     text-align: right;
   }
+
   .message.own .content {
     background-color: #a6a6a6;
   }
+
   .content {
     padding: 8px;
     background-color: #a6a6a6;
