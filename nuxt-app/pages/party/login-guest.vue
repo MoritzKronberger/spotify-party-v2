@@ -7,6 +7,7 @@
     if (guestName.value.length) {
       const code = user.partyCode
       user.name = guestName.value
+      localStorage.setItem('username', user.name)
       const router = useRouter()
       router.push({ path: `/party/session`, query: { code }, replace: true })
     } else {
