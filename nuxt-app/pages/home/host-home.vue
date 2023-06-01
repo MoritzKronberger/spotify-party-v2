@@ -34,17 +34,18 @@
 
   // Delete is temporarily disabled for screen-capture purposes
 
-  /* const deletePartyByID = async (partyID: string) => {
-      await $client.party.deleteParty
-        .mutate({ id: partyID })
-        .then(() => {
-          const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
-          userParties.data.value!.splice(index, 1)
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    } */
+  const deletePartyByID = async (event: Event, partyID: string) => {
+    event.stopPropagation()
+    await $client.party.deleteParty
+      .mutate({ id: partyID })
+      .then(() => {
+        const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
+        userParties.data.value!.splice(index, 1)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
 </script>
 
 <template>
@@ -71,7 +72,7 @@
       </v-col>
     </v-row>
     <v-col>
-      <v-card v-if="userParties.data.value">
+      <v-card v-if="userParties.data.value?.length">
         <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
           <v-list-subheader>All Parties</v-list-subheader>
           <v-list-item
@@ -82,7 +83,7 @@
             @click="joinPartyByID(party.id)"
           >
             <template #append>
-              <!-- <v-btn icon="mdi-delete" @click="deletePartyByID(party.id)"></v-btn> -->
+              <v-btn icon="mdi-delete" @click="deletePartyByID($event, party.id)"></v-btn>
               <!-- Temporarily disabled -->
             </template>
           </v-list-item>
