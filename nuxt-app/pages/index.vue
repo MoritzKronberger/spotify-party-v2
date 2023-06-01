@@ -7,7 +7,7 @@
     layout: 'default-home',
   })
 
-  const spotifyURL = ref('')
+  const directURL = ref('')
   const errorMessage = ref('')
 
   // Get tRPC client
@@ -43,23 +43,29 @@
   const codeVerifier = generateRandomString(128)
 
   onMounted(() => {
-    generateCodeChallenge(codeVerifier).then((codeChallenge) => {
-      const state = generateRandomString(16)
-      const scope = 'user-read-private user-read-email'
+    $client.auth.getUser.useQuery().then((result) => {
+      if (result.data.value?.id) {
+        directURL.value = '/home/host-home'
+      } else {
+        generateCodeChallenge(codeVerifier).then((codeChallenge) => {
+          const state = generateRandomString(16)
+          const scope = 'user-read-private user-read-email'
 
-      // Set code verifier as cookie (to preserve it after OAuth-redirect)
-      codeVerifierCookie.value = codeVerifier
+          // Set code verifier as cookie (to preserve it after OAuth-redirect)
+          codeVerifierCookie.value = codeVerifier
 
-      const args = new URLSearchParams({
-        response_type: 'code',
-        client_id: clientId,
-        scope,
-        redirect_uri: redirectURI,
-        state,
-        code_challenge_method: 'S256',
-        code_challenge: codeChallenge,
-      })
-      spotifyURL.value = 'https://accounts.spotify.com/authorize?' + args
+          const args = new URLSearchParams({
+            response_type: 'code',
+            client_id: clientId,
+            scope,
+            redirect_uri: redirectURI,
+            state,
+            code_challenge_method: 'S256',
+            code_challenge: codeChallenge,
+          })
+          directURL.value = 'https://accounts.spotify.com/authorize?' + args
+        })
+      }
     })
   })
 </script>
@@ -82,7 +88,7 @@
         </VRow>
         <VRow>
           <VCol>
-            <button-primary :href="spotifyURL">I am a host</button-primary>
+            <button-primary :href="directURL">I am a host</button-primary>
           </VCol>
         </VRow>
         <VRow>
