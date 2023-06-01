@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { genNanoId } from '~/utils/nanoId'
   import user from '~/store/userData'
 
   const guestName = ref('')
@@ -8,6 +9,7 @@
       const code = user.partyCode
       user.name = guestName.value
       localStorage.setItem('username', user.name)
+      localStorage.setItem('nanoId', genNanoId())
       const router = useRouter()
       router.push({ path: `/party/session`, query: { code }, replace: true })
     } else {
