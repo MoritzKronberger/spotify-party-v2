@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import user from '~/store/userData'
-  import { genNanoId } from '~/utils/nanoId'
   definePageMeta({
     layout: 'song-app-bar',
   })
@@ -12,8 +11,8 @@
   const isCopied = ref(false)
 
   const scrollToBottom = () => {
-    const listContainer = document.getElementById('listContainer')!
-    listContainer.scrollTop = listContainer.scrollHeight
+    const listContainer = document.getElementById('listContainer')
+    if (listContainer) nextTick(() => listContainer.scrollTo(0, listContainer.scrollHeight))
   }
 
   const addMessage = () => {
@@ -25,13 +24,8 @@
 
   const getSessionId = () => {
     if (process.client) {
-      if (localStorage.getItem('nanoId') == null) {
-        const genId = genNanoId()
-        localStorage.setItem('nanoId', genId)
-      } else {
-        user.name = localStorage.getItem('username') ?? ''
-        user.id = localStorage.getItem('nanoId') ?? ''
-      }
+      user.name = localStorage.getItem('username') ?? ''
+      user.id = localStorage.getItem('nanoId') ?? ''
     }
   }
 
@@ -94,13 +88,7 @@
                           class="message"
                           :class="{ own: msg.member.id == partySession.me.value?.id }"
                         >
-                          <div
-                            v-if="index > 0 && partySession.members.value[index - 1]?.id !== msg.member.id"
-                            class="text-body-1"
-                          >
-                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
-                          </div>
-                          <div v-if="index === 0" class="text-body-1">
+                          <div class="text-body-1">
                             {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
                           </div>
                           <div style="margin-top: 5px"></div>
@@ -114,7 +102,12 @@
                   <v-divider thickness="2" class="my-1" />
                   <v-row class="my-1">
                     <v-col cols="10">
-                      <v-text-field v-model="suggestion" label="Type here" @keyup.enter="addMessage" />
+                      <v-text-field
+                        v-model="suggestion"
+                        label="Type here"
+                        :disabled="partySession.me.value === undefined"
+                        @keyup.enter="addMessage"
+                      />
                     </v-col>
                     <v-col cols="1" class="mx-auto">
                       <v-btn icon="mdi-send-variant" @click="addMessage"></v-btn>
@@ -168,7 +161,7 @@
     background-color: #a6a6a6;
     border-radius: 10px;
     display: inline-block;
-    /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);*/
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
     max-width: 50%;
     word-wrap: break-word;
   }
