@@ -9,6 +9,7 @@ export const partyCodeSchema = nanoId(partyCodeLength, /^[A-Z0-9]+$/)
 export const memberSchema = z.object({
   id: nanoId(),
   name: z.string(),
+  isHost: z.boolean(),
 })
 
 export const messageSchema = z.object({
@@ -27,5 +28,5 @@ export type Message = z.infer<typeof messageSchema>
  */
 export type PresenceData = {
   user_id: string
-  user_info: { userName: string }
+  user_info: { userName: string; isHost: boolean }
 }
