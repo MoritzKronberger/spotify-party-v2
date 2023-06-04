@@ -1,6 +1,7 @@
 import { ChatCompletionRequestMessage, OpenAIApi } from 'openai'
 import { z } from 'zod'
-import { limitPromptTokenCount } from './utils'
+import { MaxTokenOpts, composePlaylistPrompt, getMessageTokenCount, limitPromptMessageTokens } from './utils'
+import { OpenAIClientOpts } from '.'
 
 // OpenAI API response schema for chat completions
 // Reference: https://platform.openai.com/docs/api-reference/chat/create
@@ -33,29 +34,35 @@ const openAICompletionSchema = z.object({
 export const getPlaylist = async (
   messages: ChatCompletionRequestMessage[],
   openAIApi: OpenAIApi,
-  maxPromptTokens: number,
-  maxCompletionTokens: number,
-  systemMessageContent: string
+  opts: OpenAIClientOpts,
+  maxTokenOpts: MaxTokenOpts
 ) => {
-  const model = 'gpt-3.5-turbo'
-  const truncatedMessages = limitPromptTokenCount(messages, maxPromptTokens, model, systemMessageContent)
-  const res = await openAIApi
-    .createChatCompletion({
-      model,
-      messages: truncatedMessages,
-      max_tokens: maxCompletionTokens,
-    })
-    .catch((e) => console.log(e))
-
-  const completion = openAICompletionSchema.parse(res)
-
+  const { model } = opts
+  const { maxPlaylistTokens } = maxTokenOpts
+  // Compose prompt messages
+  const promptMessages = composePlaylistPrompt(messages, opts)
+  const limitedPromptMessages = limitPromptMessageTokens(promptMessages, model, maxTokenOpts)
+  // Estimate tokens used by prompt
+  const estimatedTokenCount = limitedPromptMessages
+    .map((message) => getMessageTokenCount(message, model))
+    .reduce((a, b) => a + b)
+  // Make prompt using OpenAI-API
+  const res = await openAIApi.createChatCompletion({
+    model,
+    messages: limitedPromptMessages,
+    max_tokens: maxPlaylistTokens,
+  })
+  if (!res) return
+  // Validate API-Response
+  const completion = openAICompletionSchema.parse(res.data)
+  // Get actual used token amounts
+  const { total_tokens: totalTokens, prompt_tokens: promptTokens } = completion.usage
   // Log warning if calculated prompt token count differs from prompt token count returned by API
-  if (completion.usage.prompt_tokens !== maxPromptTokens) {
+  if (Math.abs(promptTokens - estimatedTokenCount) > 0) {
     console.warn(
-      `Calculated prompt token count (${maxPromptTokens}) differs from prompt token count returned by API (${completion.usage.prompt_tokens})`
+      `Calculated prompt token count (${estimatedTokenCount}) differs from prompt token count returned by API (${promptTokens})`
     )
   }
-
-  // Return playlist (as completion message)
-  return completion.choices[0]?.message
+  // Return used tokens and playlist (as completion message)
+  return { totalTokens, playlist: completion.choices[0]?.message }
 }
