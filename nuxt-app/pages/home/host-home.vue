@@ -32,8 +32,6 @@
       })
   }
 
-  // Delete is temporarily disabled for screen-capture purposes
-
   const deletePartyByID = async (event: Event, partyID: string) => {
     event.stopPropagation()
     await $client.party.deleteParty
@@ -84,7 +82,6 @@
           >
             <template #append>
               <v-btn icon="mdi-delete" @click="deletePartyByID($event, party.id)"></v-btn>
-              <!-- Temporarily disabled -->
             </template>
           </v-list-item>
         </v-list>
