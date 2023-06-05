@@ -11,6 +11,7 @@
     { id: 5, name: 'Party 5', songs: 5 },
   ]
   const deleteParty = () => {}
+  const edit = ref(false)
 </script>
 
 <template>
@@ -36,12 +37,23 @@
     </v-row>
 
     <v-col>
-      <v-card variant="outlined">
-        <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
-          <v-list-subheader>All Parties</v-list-subheader>
+      <v-card elevation="3">
+        <v-col class="align-self-start">
+          <v-row>
+            <v-col cols="8" align-self="center" class="pb-0">
+              <v-list-subheader>All Parties</v-list-subheader>
+            </v-col>
+            <v-col cols="4" class="text-right pb-0">
+              <v-btn v-if="!edit" icon="mdi-pencil" @click="edit = !edit"></v-btn>
+              <v-btn v-else icon="mdi-pencil" @click="edit = !edit" color="primary"></v-btn>
+            </v-col>
+            <v-col class="pt-0"><v-divider /></v-col>
+          </v-row>
+        </v-col>
+        <v-list lines="one" height="40vh" class="overflow-y-auto mx-auto">
           <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs">
             <template #append>
-              <v-btn icon="mdi-delete" @click="deleteParty()"></v-btn>
+              <v-btn v-if="edit" icon="mdi-delete" @click="deleteParty()"></v-btn>
             </template>
           </v-list-item>
         </v-list>

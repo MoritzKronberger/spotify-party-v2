@@ -36,7 +36,7 @@
         <v-btn variant="tonal">invite</v-btn>
       </v-col>
       <v-col class="text-right">
-        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">1/5</v-btn>
+        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl" to="/wireframes/guest-list">1/5</v-btn>
       </v-col>
     </v-row>
 
