@@ -136,7 +136,7 @@ const isAuthed = middleware(async ({ next, ctx }) => {
   }
 
   // Pass user info into context (for private procedures to use)
-  return next({ ctx: { user } })
+  return next({ ctx: { user, credentials: { ...ctx.credentials, accessToken, refreshToken } } })
 })
 
 /**
