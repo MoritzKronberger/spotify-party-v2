@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3'
 import { parse } from 'cookie'
-import { Credentials } from './pkce'
+import { Credentials } from '../auth'
 
 /**
  * Get credentials from cookie header.
@@ -16,8 +16,7 @@ export const getCredentials = (event: H3Event) => {
     const cookies = parse(rawCookies)
     credentials = {
       verifier: cookies.code_verifier,
-      accessToken: cookies.access_token,
-      refreshToken: cookies.refresh_token,
+      jwt: cookies.jwt,
     }
   }
 

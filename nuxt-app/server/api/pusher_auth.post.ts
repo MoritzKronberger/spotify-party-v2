@@ -52,8 +52,8 @@ export default defineEventHandler(async (event) => {
   if (existsCredentials) {
     // Ignore auth-Errors -> user simply won't be host
     try {
-      const { id: spotifyUserId } = await tRPCCaller.auth.getUser()
-      isHost = spotifyUserId === party.userId
+      const { id: userId } = await tRPCCaller.auth.getUser()
+      isHost = userId === party.userId
     } catch {}
   }
 

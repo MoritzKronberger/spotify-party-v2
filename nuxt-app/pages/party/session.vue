@@ -22,7 +22,7 @@
   }
 
   const result = await $client.auth.getUser.useQuery()
-  const hostName = result.data.value!.display_name
+  const hostName = result.data.value?.name
 
   if (hostName) {
     isClientHost.value = true
@@ -39,7 +39,8 @@
     return genId.value
   }
 
-  const partySession = usePartySession(hostName, getSessionId())
+  // TODO: Redirect if name is missing?
+  const partySession = usePartySession(hostName ?? 'UNKNOWN', getSessionId())
 
   const shareCode = () => {
     navigator.clipboard.writeText(partySession.code).then(() => {
