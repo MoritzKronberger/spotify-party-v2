@@ -1,12 +1,24 @@
 <script setup lang="ts">
+  import { genNanoId } from '~/utils/nanoId'
+
   definePageMeta({
     layout: 'default-home',
   })
 
   const message = ref('')
 
+  // TODO: Get username from local storage:
+  // - If reading/writing from/to local storage everything should be done in a `if (process.client) {...}` block!
+  // - Local storage is untrusted data source -> validate content using zod
+  // - Maybe offload local-storage-logic (process-check & validation) into composable (resulting in : `const localStorageContent = useLocalStorage()`)
+  const username = `user ${genNanoId()}`
+  // Generate new userId (only used if no Id exists in local storage)
+  const userId = genNanoId()
+
   // Get the party helpers
-  const { me, messages, addMessage, members } = usePartySession()
+  const { me, messages, addMessage, members } = usePartySession(username, userId)
+
+  // TODO: Save user data (`me`) to local storage
 </script>
 
 <template>
@@ -19,7 +31,7 @@
     <VRow>
       <VCol>
         <div>Current users:</div>
-        <div v-for="member in members" :key="member.id">{{ member.name }}</div>
+        <div v-for="member in members" :key="member.id">{{ member.name }} {{ member.isHost ? 'HOST' : '' }}</div>
       </VCol>
     </VRow>
     <VRow>

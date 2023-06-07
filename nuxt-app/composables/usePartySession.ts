@@ -1,5 +1,4 @@
 import { UserMessage, Member } from '~/types/partySession'
-import { genNanoId } from '~/utils/nanoId'
 import { PartySession } from '~/utils/partySession'
 
 /**
@@ -9,13 +8,13 @@ import { PartySession } from '~/utils/partySession'
  * - Provides method for adding new messages
  * - Provides refs to the party's users and messages
  */
-export default function () {
+
+const isClientHost = ref<boolean>()
+
+export default function (username: string, userId: string) {
   // Get party code from page query parameters
   const route = useRoute()
   const code = route.query.code?.toString()
-
-  // TODO: Get username from query parameters or local storage?
-  const username = `user ${genNanoId()}`
 
   if (!code) throw new Error('Party code is required in query parameters')
 
@@ -30,7 +29,11 @@ export default function () {
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
         message: {
-          member: { id: partySessionHelper.me.value?.id ?? '', name: username },
+          member: {
+            id: partySessionHelper.me.value?.id ?? '',
+            name: username,
+            isHost: partySessionHelper.me.value?.isHost ?? false,
+          },
           content: msg,
         },
         session: {
@@ -42,7 +45,7 @@ export default function () {
   // Client-side only
   if (!process.server) {
     // Initialize Pusher client and subscribe to the party session channel
-    const partySession = new PartySession(code, username)
+    const partySession = new PartySession(code, username, userId)
 
     // Get subscribed user for party session helper
     partySession.onSubscribed((me: Member) => {
@@ -62,3 +65,5 @@ export default function () {
 
   return partySessionHelper
 }
+
+export { isClientHost }

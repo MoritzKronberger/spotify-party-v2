@@ -1,7 +1,6 @@
 import { inferAsyncReturnType } from '@trpc/server'
 import type { H3Event } from 'h3'
-import { parse } from 'cookie'
-import { Credentials } from '../auth'
+import { getCredentials } from '../utils/credentials'
 
 /**
  * Create context for all incoming request
@@ -10,20 +9,8 @@ import { Credentials } from '../auth'
  * Reference: https://trpc-nuxt-docs.vercel.app/get-started/usage/recommended#1-create-a-trpc-router
  */
 export const createContext = (event: H3Event) => {
-  // Get cookie header from request
-  // Reference:
-  // https://trpc-nuxt.vercel.app/get-started/tips/authorization#create-context-from-request-headers
-  const rawCookies = getRequestHeader(event, 'cookie')
-  let credentials: Partial<Credentials> = {}
-  // Parse cookie string and extract credentials
-  if (rawCookies) {
-    const cookies = parse(rawCookies)
-    credentials = {
-      verifier: cookies.code_verifier,
-      jwt: cookies.jwt,
-    }
-  }
-
+  // Get credentials from request cookies
+  const credentials = getCredentials(event)
   return {
     // Pass credentials to tRPC context to be used in auth middleware
     credentials,
