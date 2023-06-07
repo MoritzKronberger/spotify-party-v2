@@ -1,10 +1,13 @@
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
+import { eq } from 'drizzle-orm'
 import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
 import { fetchCredentials } from '~/server/utils/pkce'
 import { fetchUserDataFromSpotify } from '~~/server/utils/user'
 import { setJWTCookie, signJWT } from '~/server/auth'
+import { db } from '~/db'
+import { user } from '~/db/schema'
 
 const getCredentialsInputSchema = z.object({
   code: z.string(),
@@ -50,5 +53,11 @@ export const authRouter = router({
   }),
   getUser: privateProcedure.query(({ ctx }) => {
     return ctx.user
+  }),
+  /** Delete entire user data from database. (Returns undefined for Id if user could not be deleted) */
+  logout: privateProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.user.id
+    const res = await db.delete(user).where(eq(user.id, userId))
+    return { id: rowsAffected(res) ? userId : undefined }
   }),
 })
