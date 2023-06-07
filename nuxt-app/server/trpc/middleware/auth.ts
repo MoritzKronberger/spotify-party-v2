@@ -1,52 +1,8 @@
 import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
 import type { H3Event } from 'h3'
 import { middleware, publicProcedure } from '../trpc'
-import { fetchCredentials, getAuthHeader } from '~/server/utils/pkce'
-import tsFetch from '~/utils/tsFetch'
-
-/**
- * User data as returned by the Spotify API.
- *
- * Reference:
- * https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
- */
-const spotifyUserSchema = z.object({
-  country: z.string(),
-  display_name: z.string(),
-  email: z.string(),
-  explicit_content: z.object({
-    filter_enabled: z.boolean(),
-    filter_locked: z.boolean(),
-  }),
-  external_urls: z.object({
-    spotify: z.string(),
-  }),
-  followers: z.object({
-    href: z.string().nullable(),
-    total: z.number(),
-  }),
-  href: z.string(),
-  id: z.string(),
-  images: z
-    .object({
-      url: z.string(),
-      height: z.number().nullable(),
-      width: z.number().nullable(),
-    })
-    .array(),
-  product: z.string(),
-  type: z.string(),
-  uri: z.string(),
-})
-
-/**
- * Unauthorized error as returned by the Spotify API.
- *
- * Reference:
- * https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
- */
-const spotifyUserUnauthorizedSchema = z.object({ error: z.object({ status: z.number(), message: z.string() }) })
+import { fetchCredentials } from '~/server/utils/pkce'
+import { SpotifyUser, fetchUserDataFromSpotify, getUserDataFromDB } from '~/server/utils/user'
 
 /**
  * Helper function to update refresh and access token.
@@ -62,15 +18,6 @@ const updateCredentials = async (refreshToken: string, event: H3Event) => {
     accessToken: res.access_token,
     refreshToken: res.refresh_token,
   }
-}
-
-/** Fetch user data from Spotify API. */
-const fetchUserData = async (accessToken: string) => {
-  return await tsFetch(
-    'https://api.spotify.com/v1/me',
-    { 200: spotifyUserSchema, 401: spotifyUserUnauthorizedSchema },
-    { headers: getAuthHeader(accessToken) }
-  )
 }
 
 /**
@@ -90,7 +37,7 @@ const isAuthed = middleware(async ({ next, ctx }) => {
   // Throw if both, access and refresh token, are missing
   if (!accessToken && !refreshToken) throw unauthorizedError
 
-  let user: z.infer<typeof spotifyUserSchema>
+  let user: SpotifyUser
 
   // Update credentials (incl. cookies) using refresh token if no access token exists
   // (Throw if access token can't be fetched)
@@ -107,12 +54,12 @@ const isAuthed = middleware(async ({ next, ctx }) => {
 
   // Try fetching user data using access token
   // (Throw on any other status codes than 200 and 401)
-  const userRes = await fetchUserData(accessToken).catch(() => {
+  const userRes = await fetchUserDataFromSpotify(accessToken).catch(() => {
     throw userDataError
   })
 
   // Check if user data was returned (200)
-  if ('id' in userRes) {
+  if (userRes) {
     user = userRes
     // If user was unauthorized (401), access token might be expired or invalid
   } else {
@@ -123,11 +70,11 @@ const isAuthed = middleware(async ({ next, ctx }) => {
     }))
     // Try fetching user data again, now that all tokens are up-to date
     // (Throw on any other status codes than 200 and 401)
-    const userRes = await fetchUserData(accessToken).catch(() => {
+    const userRes = await fetchUserDataFromSpotify(accessToken).catch(() => {
       throw userDataError
     })
     // Check if user data was returned (200)
-    if ('id' in userRes) {
+    if (userRes) {
       user = userRes
       // Otherwise throw final unauthorized error
     } else {
@@ -135,8 +82,13 @@ const isAuthed = middleware(async ({ next, ctx }) => {
     }
   }
 
+  // Get user data from database
+  const userData = await getUserDataFromDB(user.spotifyId)
+  // Throw if user does not exist in database
+  if (!userData) throw unauthorizedError
+
   // Pass user info into context (for private procedures to use)
-  return next({ ctx: { user, credentials: { ...ctx.credentials, accessToken, refreshToken } } })
+  return next({ ctx: { user: userData, credentials: { ...ctx.credentials, accessToken, refreshToken } } })
 })
 
 /**

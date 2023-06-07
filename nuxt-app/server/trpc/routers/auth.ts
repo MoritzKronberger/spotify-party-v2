@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
 import { fetchCredentials, setCredentialsCookie } from '~/server/utils/pkce'
+import { fetchUserDataFromSpotify } from '~~/server/utils/user'
 
 const getCredentialsInputSchema = z.object({
   code: z.string(),
@@ -20,13 +21,25 @@ export const authRouter = router({
     // Fetch access token (and other credentials) from Spotify API
     // Reference: https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow
     // (Throw if access token can't be fetched)
-    const creds = await fetchCredentials({ code, verifier: credentials.verifier }).catch(() => {
+    const { access_token: accessToken, refresh_token: refreshToken } = await fetchCredentials({
+      code,
+      verifier: credentials.verifier,
+    }).catch(() => {
       throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could not fetch access token!' })
     })
 
+    // Fetch user data using access token
+    const userData = await fetchUserDataFromSpotify(accessToken)
+    if (!userData)
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could not fetch user data using access token' })
+    // Save user data (and encrypted credentials) to database
+    await upsertUser(userData, accessToken, refreshToken).catch((e) => {
+      throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: e.message })
+    })
+
     // Set cookies for credentials using Nitro
-    setCredentialsCookie(event, 'access_token', creds.access_token)
-    setCredentialsCookie(event, 'refresh_token', creds.refresh_token)
+    setCredentialsCookie(event, 'access_token', accessToken)
+    setCredentialsCookie(event, 'refresh_token', refreshToken)
 
     return true
   }),
