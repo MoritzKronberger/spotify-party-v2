@@ -1,14 +1,22 @@
 import { z } from 'zod'
 import { InferModel, eq } from 'drizzle-orm'
+import { createInsertSchema } from 'drizzle-zod'
 import { decryptData, encryptData } from './crypto'
 import tsFetch from '~/utils/tsFetch'
 import { getAuthHeader } from '~/server/utils/pkce'
 import user from '~/db/schema/user'
 import { db } from '~/db'
 import { genNanoId } from '~/utils/nanoId'
+import { nanoId } from '~~/utils/nanoId/zod'
 
-export type User = InferModel<typeof user>
-export type SpotifyUser = Omit<User, 'id' | 'accessToken' | 'refreshToken'>
+export type PrivateUser = InferModel<typeof user>
+export type User = Omit<PrivateUser, 'accessToken' | 'refreshToken'>
+export type SpotifyUser = Omit<User, 'id'>
+
+/** Zod schema for public user data. */
+export const userSchema = createInsertSchema(user)
+  .omit({ accessToken: true, refreshToken: true })
+  .merge(z.object({ id: nanoId() }))
 
 /**
  * User data as returned by the Spotify API.
@@ -93,8 +101,29 @@ export const decryptUserCredentials = (encryptedAccessToken: string, encryptedRe
  *
  * Get user data without credentials (should be used in most cases).
  */
-export const getUserDataFromDB = async (spotifyUserId: string) => {
-  return (await db.select().from(user).where(eq(user.spotifyId, spotifyUserId)))[0]
+export const getUserDataFromDB = async (spotifyUserId: string): Promise<User | undefined> => {
+  const privateUserData = (await db.select().from(user).where(eq(user.spotifyId, spotifyUserId)))[0]
+  if (!privateUserData) return undefined
+  return {
+    id: privateUserData.id,
+    spotifyId: privateUserData.spotifyId,
+    name: privateUserData.name,
+    email: privateUserData.email,
+  }
+}
+
+/**
+ * Get private user data.
+ *
+ * Includes decrypted Spotify credentials.
+ *
+ * SHOULD ONLY BE USED IF CREDENTIALS ARE ACTUALLY NEEDED!.
+ */
+export const getPrivateUserDataFromDB = async (userId: string): Promise<PrivateUser | undefined> => {
+  const privateUserData = (await db.select().from(user).where(eq(user.id, userId)))[0]
+  if (!privateUserData) return undefined
+  const decryptedCredentials = decryptUserCredentials(privateUserData.accessToken, privateUserData.refreshToken)
+  return { ...privateUserData, ...decryptedCredentials }
 }
 
 /**

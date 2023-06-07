@@ -1,7 +1,7 @@
 import { inferAsyncReturnType } from '@trpc/server'
 import type { H3Event } from 'h3'
 import { parse } from 'cookie'
-import { Credentials } from '../utils/pkce'
+import { Credentials } from '../auth'
 
 /**
  * Create context for all incoming request
@@ -20,8 +20,7 @@ export const createContext = (event: H3Event) => {
     const cookies = parse(rawCookies)
     credentials = {
       verifier: cookies.code_verifier,
-      accessToken: cookies.access_token,
-      refreshToken: cookies.refresh_token,
+      jwt: cookies.jwt,
     }
   }
 

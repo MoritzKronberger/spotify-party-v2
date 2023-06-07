@@ -2,8 +2,9 @@ import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
 import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
-import { fetchCredentials, setCredentialsCookie } from '~/server/utils/pkce'
+import { fetchCredentials } from '~/server/utils/pkce'
 import { fetchUserDataFromSpotify } from '~~/server/utils/user'
+import { setJWTCookie, signJWT } from '~/server/auth'
 
 const getCredentialsInputSchema = z.object({
   code: z.string(),
@@ -28,18 +29,22 @@ export const authRouter = router({
       throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could not fetch access token!' })
     })
 
-    // Fetch user data using access token
+    // Fetch Spotify user data using access token
     const userData = await fetchUserDataFromSpotify(accessToken)
     if (!userData)
       throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could not fetch user data using access token' })
-    // Save user data (and encrypted credentials) to database
-    await upsertUser(userData, accessToken, refreshToken).catch((e) => {
+
+    // Save Spotify user data (and encrypted credentials) to database
+    const user = await upsertUser(userData, accessToken, refreshToken).catch((e) => {
       throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: e.message })
     })
+    if (!user) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Could fetch user from database' })
 
-    // Set cookies for credentials using Nitro
-    setCredentialsCookie(event, 'access_token', accessToken)
-    setCredentialsCookie(event, 'refresh_token', refreshToken)
+    // Create JWT as replacement for Spotify credentials, since they are used server-side
+    const jwt = signJWT(user)
+
+    // Set JWT as cookie using Nitro
+    setJWTCookie(event, jwt)
 
     return true
   }),
