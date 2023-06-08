@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { eq } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
-import { spotifyUserProcedure, spotifyServerProcedure } from '../middleware/spotify'
+import { spotifyUserProcedure, spotifyServerProcedure, spotifySessionUserProcedure } from '../middleware/spotify'
 import { router } from '../trpc'
 import { nanoId } from '~/utils/nanoId/zod'
 import { db } from '~/db'
@@ -46,8 +46,7 @@ export const spotifyRouter = router({
    */
   createPartyPlaylist: spotifyUserProcedure.input(createPlaylistSchema).mutation(async ({ input, ctx }) => {
     const { name, description } = input
-    return (await ctx.spotifyClientAPI.createPlaylist(name, { description: description ?? undefined, public: true }))
-      .body
+    return (await ctx.spotifyUserAPI.createPlaylist(name, { description: description ?? undefined, public: true })).body
   }),
   /**
    * Add custom cover image to playlist.
@@ -61,7 +60,7 @@ export const spotifyRouter = router({
       const { imageId, playlistId } = input
       const imageData = (await db.select().from(image).where(eq(image.id, imageId)))[0]
       if (!imageData) throw new TRPCError({ code: 'BAD_REQUEST', message: `No image found for id ${imageId}` })
-      return await ctx.spotifyClientAPI.uploadCustomPlaylistCoverImage(playlistId, imageData.base64Blob)
+      return await ctx.spotifyUserAPI.uploadCustomPlaylistCoverImage(playlistId, imageData.base64Blob)
     }),
   /**
    * Update tracks in party playlist.
@@ -78,7 +77,7 @@ export const spotifyRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { playlistId, trackURIs } = input
       // Get currently playing track and playlist
-      const playbackState = (await ctx.spotifyClientAPI.getMyCurrentPlaybackState()).body
+      const playbackState = (await ctx.spotifyUserAPI.getMyCurrentPlaybackState()).body
       const playbackTrackURI = playbackState.item?.uri
       const playbackPlaylistURI = playbackState.context?.uri
       const playbackPlaylistId = playbackPlaylistURI?.replace('spotify:playlist:', '')
@@ -86,25 +85,43 @@ export const spotifyRouter = router({
       // (Replace them with new playlist tracks)
       if (playbackTrackURI && playbackPlaylistURI && playbackPlaylistId === playlistId) {
         // Get playlist tracks
-        const playlist = (await ctx.spotifyClientAPI.getPlaylistTracks(playlistId)).body
+        const playlist = (await ctx.spotifyUserAPI.getPlaylistTracks(playlistId)).body
         const playlistTrackURIs = playlist.items.map((item) => item.track?.uri).filter((uri): uri is string => !!uri)
         // Get index of currently playing track
         const currentTrackPlaylistIdx = playlistTrackURIs.indexOf(playbackTrackURI)
         // Remove all tracks after the currently playing one
         const removePlaylistTrackURIs = playlistTrackURIs.slice(currentTrackPlaylistIdx + 1)
-        await ctx.spotifyClientAPI.removeTracksFromPlaylist(
+        await ctx.spotifyUserAPI.removeTracksFromPlaylist(
           playlistId,
           removePlaylistTrackURIs.map((uri) => ({ uri }))
         )
         // Add new tracks to playlist
-        await ctx.spotifyClientAPI.addTracksToPlaylist(playlistId, trackURIs)
+        await ctx.spotifyUserAPI.addTracksToPlaylist(playlistId, trackURIs)
       } else {
         // Otherwise, replace all tracks in playlist with new tracks
-        await ctx.spotifyClientAPI.replaceTracksInPlaylist(playlistId, trackURIs)
+        await ctx.spotifyUserAPI.replaceTracksInPlaylist(playlistId, trackURIs)
       }
     }),
   /** Get single playlist by Id. */
-  getPlaylist: spotifyUserProcedure.input(z.object({ playlistId: z.string() })).query(async ({ ctx, input }) => {
-    return (await ctx.spotifyClientAPI.getPlaylist(input.playlistId)).body
+  getPlaylist: spotifySessionUserProcedure.input(z.object({ playlistId: z.string() })).query(async ({ ctx, input }) => {
+    const playlist = (await ctx.spotifyUserAPI.getPlaylist(input.playlistId)).body
+    // Keep data to a minimum
+    return {
+      id: playlist.id,
+      uri: playlist.uri,
+      name: playlist.name,
+      description: playlist.description,
+      images: playlist.images,
+      tracks: playlist.tracks.items.map((item) => {
+        const { track } = item
+        return {
+          id: track?.id,
+          name: track?.name,
+          images: track?.album.images,
+          durationMs: track?.duration_ms,
+          artists: track?.artists.map((artist) => ({ name: artist.name })),
+        }
+      }),
+    }
   }),
 })

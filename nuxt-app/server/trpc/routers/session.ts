@@ -67,8 +67,9 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
     // Update playlist with new tracks
     await spotify.updatePlaylistTracks({ playlistId, trackURIs })
 
-    // Get new state of playlist
-    await spotify.getPlaylist({ playlistId })
+    // Publish new playlist
+    // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
+    partySession.publishPlaylist(playlistId)
   }
 }
 

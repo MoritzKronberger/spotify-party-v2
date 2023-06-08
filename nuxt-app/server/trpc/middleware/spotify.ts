@@ -1,7 +1,8 @@
 import { TRPCError } from '@trpc/server'
 import { privateProcedure } from './auth'
+import { sessionProcedure } from './isSession'
 import { spotifyProxyAPI } from '~/server/utils/spotifyProxyAPI'
-import { getPrivateUserDataFromDB } from '~/server/utils/user'
+import { PrivateUser, getPrivateUserDataFromDB } from '~/server/utils/user'
 
 /** Throws on missing env variables. */
 const getClientCredentials = () => {
@@ -13,14 +14,11 @@ const getClientCredentials = () => {
   return { clientId, clientSecret }
 }
 
-/** Middleware for making requests to the Spotify-API involving user data. */
-export const spotifyUserProcedure = privateProcedure.use(async ({ next, ctx }) => {
-  // Get the user's Spotify credentials from DB
-  const user = await getPrivateUserDataFromDB(ctx.user.id)
+/** Create a new Spotify-API proxy-client with the user's credentials  */
+const createSpotifyUserAPI = (user?: PrivateUser) => {
   if (!user) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not found in database' })
 
-  // Create a new Spotify-API proxy-client with the user's credentials
-  const spotifyUserAPI = spotifyProxyAPI(
+  return spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
     async (spotifyAPI) => {
       console.log('Spotify-Web-API Proxy: retrying unauthorized request')
@@ -39,8 +37,15 @@ export const spotifyUserProcedure = privateProcedure.use(async ({ next, ctx }) =
       ...getClientCredentials(),
     }
   )
+}
 
-  return next({ ctx: { spotifyClientAPI: spotifyUserAPI } })
+/** Middleware for making requests to the Spotify-API involving user data. */
+export const spotifyUserProcedure = privateProcedure.use(async ({ next, ctx }) => {
+  // Get the user's Spotify credentials from DB
+  const user = await getPrivateUserDataFromDB(ctx.user.id)
+
+  const spotifyUserAPI = createSpotifyUserAPI(user)
+  return next({ ctx: { spotifyUserAPI } })
 })
 
 /** Middleware for making requests to the Spotify-API not involving user data. */
@@ -63,4 +68,19 @@ export const spotifyServerProcedure = privateProcedure.use(async ({ next }) => {
   spotifyServerAPI.setAccessToken(res.body.access_token)
 
   return next({ ctx: { spotifyServerAPI } })
+})
+
+/**
+ * Middleware for allowing all session members to make requests to the Spotify-API that involve the host's user data.
+ *
+ * USE WITH CAUTION!
+ */
+export const spotifySessionUserProcedure = sessionProcedure.use(async ({ next, ctx }) => {
+  // Get the user's Spotify credentials from DB
+  const user = await getPrivateUserDataFromDB(ctx.party.userId)
+  if (!user) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not found in database' })
+
+  // Create a new Spotify-API proxy-client with the user's credentials
+  const spotifyUserAPI = createSpotifyUserAPI(user)
+  return next({ ctx: { spotifyUserAPI } })
 })

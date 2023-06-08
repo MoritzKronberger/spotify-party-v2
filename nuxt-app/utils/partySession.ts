@@ -12,6 +12,7 @@ export const partySessionConfig = {
     },
     /** Custom events. */
     messages: 'messages',
+    playlist: 'playlist',
   },
   authEndpoint: (username: string, userId: string) => `/api/pusher_auth?user_name=${username}&user_id=${userId}`,
   presenceCacheChannelPrefix: 'presence-cache-',
@@ -84,6 +85,11 @@ export class PartySession {
   /** Set callback for new messages on the party session channel. */
   public onMessage(callback: (messages: UserMessage[]) => void) {
     this.partyChannel.bind(events.messages, callback)
+  }
+
+  /** Set callback for new playlist on the party session channel. */
+  public onPlaylist(callback: (playlistId: string) => void) {
+    this.partyChannel.bind(events.playlist, callback)
   }
 
   /** Get me property from channel members. */

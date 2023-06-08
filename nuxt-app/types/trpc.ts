@@ -5,3 +5,4 @@ type RouterInputs = inferRouterInputs<AppRouter>
 type RouterOutputs = inferRouterOutputs<AppRouter>
 export type MimeType = NonNullable<RouterInputs['party']['createParty']['image']>['mimeType']
 export type Party = RouterOutputs['party']['getParty'][number]
+export type Playlist = RouterOutputs['spotify']['getPlaylist']

@@ -101,4 +101,17 @@ export class PartySession {
     // Reference: https://github.com/vercel/next.js/discussions/48433#discussioncomment-5710270
     return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.messages, userMessages)
   }
+
+  /**
+   * Publish session playlist event to Pusher channel.
+   *
+   * Do not publish data, since size of playlist data regularly exceeds Pusher's maximum playlist size.
+   *
+   * References:
+   * - https://github.com/pusher/pusher-http-node#publishing-events
+   * - https://support.pusher.com/hc/en-us/articles/4412243423761-What-Is-The-Message-Size-Limit-When-Publishing-an-Event-in-Channels-
+   */
+  public async publishPlaylist(playlistId: string) {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playlist, playlistId)
+  }
 }

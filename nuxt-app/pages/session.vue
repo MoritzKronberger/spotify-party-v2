@@ -16,7 +16,7 @@
   const userId = genNanoId()
 
   // Get the party helpers
-  const { me, messages, addMessage, members } = usePartySession(username, userId)
+  const { me, messages, addMessage, members, playlist } = usePartySession(username, userId)
 
   // TODO: Save user data (`me`) to local storage
 </script>
@@ -48,6 +48,11 @@
     <VRow>
       <VCol>
         <button-primary @click="() => addMessage(message)">Send message</button-primary>
+      </VCol>
+    </VRow>
+    <VRow v-if="playlist">
+      <VCol>
+        <div v-for="track in playlist.tracks" :key="track.id">{{ track.name }}</div>
       </VCol>
     </VRow>
   </VContainer>
