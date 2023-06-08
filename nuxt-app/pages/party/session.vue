@@ -4,6 +4,20 @@
     layout: 'song-app-bar',
   })
 
+  const getSessionCredentials = () => {
+    if (process.client) {
+      const username = localStorage.getItem('username') ?? null
+      const id = localStorage.getItem('nanoId') ?? null
+      if (username && id) {
+        user.name = username
+        user.id = id
+      } else {
+        router.push({ path: `/party/join-party`, replace: true })
+      }
+    }
+  }
+  getSessionCredentials()
+
   const router = useRouter()
 
   const tab = ref(null)
@@ -24,22 +38,6 @@
       suggestion.value = ''
     })
   }
-
-  const getSessionCredentials = () => {
-    if (process.client) {
-      const username = localStorage.getItem('username') ?? null
-      const id = localStorage.getItem('nanoId') ?? null
-      if (username && id) {
-        user.name = username
-        user.id = id
-      } else {
-        router.push({ path: `/party/join-party`, replace: true })
-      }
-    }
-  }
-  /* ensuring session-credentials exist before rendering */
-
-  onMounted(() => getSessionCredentials())
 
   watch(
     () => partySession.messages.value,
