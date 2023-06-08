@@ -1,7 +1,7 @@
 import { ChatCompletionRequestMessage, OpenAIApi } from 'openai'
 import { z } from 'zod'
 import { MaxTokenOpts, composePlaylistPrompt, getMessageTokenCount, limitPromptMessageTokens } from './utils'
-import { OpenAIClientOpts } from '.'
+import { OpenAIClientOpts, PlaylistParsing } from '.'
 
 // OpenAI API response schema for chat completions
 // Reference: https://platform.openai.com/docs/api-reference/chat/create
@@ -27,11 +27,11 @@ const openAICompletionSchema = z.object({
 })
 
 /**
- * Get new playlist using ChatGPT.
+ * Prompt new playlist using ChatGPT.
  *
  * Reference: https://platform.openai.com/docs/api-reference/chat/create
  */
-export const getPlaylist = async (
+export const promptPlaylist = async (
   messages: ChatCompletionRequestMessage[],
   openAIApi: OpenAIApi,
   opts: OpenAIClientOpts,
@@ -65,4 +65,15 @@ export const getPlaylist = async (
   }
   // Return used tokens and playlist (as completion message)
   return { totalTokens, playlist: completion.choices[0]?.message }
+}
+
+/**
+ * Parse playlist returned by ChatGPT into track-query-strings.
+ */
+export const parsePlaylist = (completion: string, parsingOpts: PlaylistParsing): string[] => {
+  console.log(completion)
+  const { playlistSeparator, csvSeparator } = parsingOpts
+  const rawPlaylist = completion.split(playlistSeparator)[1]?.trim()
+  if (!rawPlaylist) return []
+  return rawPlaylist.split(csvSeparator)
 }

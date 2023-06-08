@@ -1,5 +1,5 @@
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from 'openai'
-import { getPlaylist } from './chat'
+import { parsePlaylist, promptPlaylist } from './promptPlaylist'
 import { getTokenTargets } from './utils'
 
 const { env } = process
@@ -81,7 +81,8 @@ const openai = new OpenAIApi(configuration)
 
 export const openAIClient = {
   opts,
-  getPlaylist: (messages: ChatCompletionRequestMessage[]) => getPlaylist(messages, openai, opts, maxTokenOpts),
+  promptPlaylist: (messages: ChatCompletionRequestMessage[]) => promptPlaylist(messages, openai, opts, maxTokenOpts),
+  parsePlaylist: (completion: string) => parsePlaylist(completion, playlistParsing),
   tokenTargets: getTokenTargets(opts),
   ...maxTokenOpts,
 }
