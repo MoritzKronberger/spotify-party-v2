@@ -11,25 +11,24 @@
   const userParties = await $client.party.getUserParties.useQuery()
 
   /* Storing data userData */
-  onMounted(() => {
-    if (process.client) {
-      if (userSpotify.data.value) {
-        /* Check for existing nanoId */
-        if (!localStorage.getItem('nanoId')) {
-          localStorage.setItem('nanoId', genNanoId())
-        }
-        /* Check for existing name */
-        if (!localStorage.getItem('username')) {
-          const name = userSpotify.data.value?.display_name
-          localStorage.setItem('username', name)
-        }
-        user.isHost = true
-      } else {
-        /* AMIN -> error message log in UI */
-        router.push({ path: `/`, replace: true })
+
+  if (process.client) {
+    if (userSpotify.data.value) {
+      /* Check for existing nanoId */
+      if (!localStorage.getItem('nanoId')) {
+        localStorage.setItem('nanoId', genNanoId())
       }
+      /* Check for existing name */
+      if (!localStorage.getItem('username')) {
+        const name = userSpotify.data.value?.display_name
+        localStorage.setItem('username', name)
+      }
+      user.isHost = true
+    } else {
+      /* AMIN -> error message log in UI */
+      router.push({ path: `/`, replace: true })
     }
-  })
+  }
 
   const joinPartyByID = async (partyID: string) => {
     await $client.party.getParty
