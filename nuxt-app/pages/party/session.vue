@@ -4,11 +4,14 @@
     layout: 'song-app-bar',
   })
 
+  const router = useRouter()
+
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
   const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
   const isCopied = ref(false)
+  const partySession = usePartySession(user.name, user.id)
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')
@@ -22,15 +25,22 @@
     })
   }
 
-  const getSessionId = () => {
+  const getSessionCredentials = () => {
     if (process.client) {
-      user.name = localStorage.getItem('username') ?? ''
-      user.id = localStorage.getItem('nanoId') ?? ''
+      const username = localStorage.getItem('username') ?? undefined
+      const id = localStorage.getItem('nanoId') ?? undefined
+      if (username && id) {
+        user.name = username
+        user.id = id
+      } else {
+        router.push({ path: `/party/join-party`, replace: true })
+      }
     }
   }
-
-  getSessionId()
-  const partySession = usePartySession(user.name, user.id)
+  /* ensuring session-credentials exist before rendering */
+  onMounted(() => {
+    getSessionCredentials()
+  })
 
   watch(
     () => partySession.messages.value,
