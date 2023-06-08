@@ -27,8 +27,8 @@
 
   const getSessionCredentials = () => {
     if (process.client) {
-      const username = localStorage.getItem('username') ?? undefined
-      const id = localStorage.getItem('nanoId') ?? undefined
+      const username = localStorage.getItem('username') ?? null
+      const id = localStorage.getItem('nanoId') ?? null
       if (username && id) {
         user.name = username
         user.id = id
@@ -38,9 +38,8 @@
     }
   }
   /* ensuring session-credentials exist before rendering */
-  onMounted(() => {
-    getSessionCredentials()
-  })
+
+  onMounted(() => getSessionCredentials())
 
   watch(
     () => partySession.messages.value,
@@ -99,7 +98,11 @@
                           :class="{ own: msg.member.id == partySession.me.value?.id }"
                         >
                           <div class="text-body-1">
-                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
+                            {{
+                              msg.member.isHost
+                                ? msg.member.name + msg.member.id + ' (host)'
+                                : msg.member.name + msg.member.id
+                            }}
                           </div>
                           <div style="margin-top: 5px"></div>
                           <div class="content">
