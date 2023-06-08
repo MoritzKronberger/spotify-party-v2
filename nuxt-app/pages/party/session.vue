@@ -1,45 +1,53 @@
 <script setup lang="ts">
-  import { genNanoId } from '~/utils/nanoId'
+  import user from '~/store/userData'
   definePageMeta({
     layout: 'song-app-bar',
   })
 
-  // Get tRPC client
-  const { $client } = useNuxtApp()
+  const getSessionCredentials = () => {
+    if (process.client) {
+      const username = localStorage.getItem('username') ?? null
+      const id = localStorage.getItem('nanoId') ?? null
+      if (username && id) {
+        user.name = username
+        user.id = id
+      } else {
+        router.push({ path: `/party/join-party`, replace: true })
+      }
+    }
+  }
+  getSessionCredentials()
+
+  const router = useRouter()
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
   const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
   const isCopied = ref(false)
+  const partySession = usePartySession(user.name, user.id)
+
+  const scrollToBottom = () => {
+    const listContainer = document.getElementById('listContainer')
+    if (listContainer) nextTick(() => listContainer.scrollTo(0, listContainer.scrollHeight))
+  }
 
   const addMessage = () => {
     partySession.addMessage(suggestion.value).then(() => {
-      const listContainer = document.getElementById('listContainer')!
-      listContainer.scrollTop = listContainer.scrollHeight
+      scrollToBottom()
       suggestion.value = ''
     })
   }
 
-  const result = await $client.auth.getUser.useQuery()
-  const hostName = result.data.value!.display_name
-
-  if (hostName) {
-    isClientHost.value = true
-  }
-
-  const getSessionId = (): string => {
-    const genId = ref<string>('')
-    if (!localStorage.getItem('sessionId')) {
-      genId.value = genNanoId()
-      localStorage.setItem('sessionId', genId.value)
-    } else {
-      genId.value = localStorage.getItem('sessionId')!
+  watch(
+    () => partySession.messages.value,
+    (newValue) => {
+      if (newValue) {
+        /* scroll to botton on incoming messages */
+        scrollToBottom()
+      }
     }
-    return genId.value
-  }
-
-  const partySession = usePartySession(hostName, getSessionId())
+  )
 
   const shareCode = () => {
     navigator.clipboard.writeText(partySession.code).then(() => {
@@ -85,15 +93,9 @@
                           v-for="(msg, index) in partySession.messages.value"
                           :key="index"
                           class="message"
-                          :class="{ own: msg.member.isHost == true }"
+                          :class="{ own: msg.member.id == partySession.me.value?.id }"
                         >
-                          <div
-                            v-if="index > 0 && partySession.members.value[index - 1]?.id !== msg.member.id"
-                            class="text-body-1"
-                          >
-                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
-                          </div>
-                          <div v-if="index === 0" class="text-body-1">
+                          <div class="text-body-1">
                             {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
                           </div>
                           <div style="margin-top: 5px"></div>
@@ -107,7 +109,12 @@
                   <v-divider thickness="2" class="my-1" />
                   <v-row class="my-1">
                     <v-col cols="10">
-                      <v-text-field v-model="suggestion" label="Type here" @keyup.enter="addMessage" />
+                      <v-text-field
+                        v-model="suggestion"
+                        label="Type here"
+                        :disabled="partySession.me.value === undefined"
+                        @keyup.enter="addMessage"
+                      />
                     </v-col>
                     <v-col cols="1" class="mx-auto">
                       <v-btn icon="mdi-send-variant" @click="addMessage"></v-btn>
@@ -147,18 +154,21 @@
   .message {
     margin-bottom: 10px;
   }
+
   .message.own {
     text-align: right;
   }
+
   .message.own .content {
     background-color: #a6a6a6;
   }
+
   .content {
     padding: 8px;
     background-color: #a6a6a6;
     border-radius: 10px;
     display: inline-block;
-    /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);*/
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
     max-width: 50%;
     word-wrap: break-word;
   }
