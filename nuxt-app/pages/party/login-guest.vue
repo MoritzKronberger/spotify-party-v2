@@ -8,11 +8,13 @@
     if (guestName.value.length) {
       const code = user.partyCode
       user.name = guestName.value
+      user.id = genNanoId()
       localStorage.setItem('username', user.name)
-      localStorage.setItem('nanoId', genNanoId())
+      localStorage.setItem('nanoId', user.id)
       const router = useRouter()
       router.push({ path: `/party/session`, query: { code }, replace: true })
     } else {
+      /* AMIN => Log in UI-ELEMENT */
       console.log('Enter name!')
     }
   }
