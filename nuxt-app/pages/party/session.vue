@@ -98,11 +98,7 @@
                           :class="{ own: msg.member.id == partySession.me.value?.id }"
                         >
                           <div class="text-body-1">
-                            {{
-                              msg.member.isHost
-                                ? msg.member.name + msg.member.id + ' (host)'
-                                : msg.member.name + msg.member.id
-                            }}
+                            {{ msg.member.isHost ? msg.member.name + ' (host)' : msg.member.name }}
                           </div>
                           <div style="margin-top: 5px"></div>
                           <div class="content">
