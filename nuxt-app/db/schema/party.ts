@@ -13,5 +13,6 @@ export default mysqlTable('party', {
   startAutomatically: timestamp('start_automatically'), // NULLABLE: no timestamp = manual start
   code: varchar('code', { length: partyCodeLength }).notNull(),
   tokenCount: int('token_count').notNull().default(0),
+  playlistId: text('playlist_id').notNull(),
   imageId: nanoId('image_id'), // NULLABLE, no FKs in PlanetScale: TODO add index?
 })
