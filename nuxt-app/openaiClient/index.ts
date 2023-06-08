@@ -11,6 +11,16 @@ export type SystemMessage = {
   role: 'system'
 }
 
+export type PlaylistParsing = {
+  playlistSeparator: string
+  csvSeparator: string
+}
+
+const playlistParsing: PlaylistParsing = {
+  playlistSeparator: '$PLAYLIST$',
+  csvSeparator: ';',
+}
+
 export type OpenAIClientOpts = {
   max$PerParty: number
   $per1KTokens: number
@@ -36,14 +46,21 @@ const opts: OpenAIClientOpts = {
     content: `
     You are now a playlist generating API.
 
-    As a playlist-API you can only respond in the CSV-response-format.
-    The CSV-Response-Format contains no other content than a playlist in the following CSV-Format:
-
-    song1 artist1;song2 artist2;song3 artist3;...;song10 artist10;
-
+    Your job is to create a single, continuously evolving playlist, that incorporates all music requests and feedback.
     All following messages are music requests or feedback on the current playlist or the playlist's vibe.
 
-    As the API return NOTHING BUT A PLAYLIST containing at least 10 songs CSV-response-format.
+    As a playlist-API you can only respond in the CSV-response-format.
+    The CSV-Response-Format contains no other content than a single(!) playlist in the following CSV-Format:
+
+    ${playlistParsing.playlistSeparator}
+    ${new Array(5)
+      .fill(0)
+      .map((_, i) => `song${i + 1} artist${i + 1}`)
+      .join(playlistParsing.csvSeparator)}
+    ${playlistParsing.playlistSeparator}
+
+    As the API return NOTHING BUT A SINGLE PLAYLIST containing at least 10 songs CSV-response-format.
+    As the API the single playlist should incorporate all the current music requests and feedback.
     As the API you can't use line breaks.
     As the API you can't write an initial sentence.
     `,
