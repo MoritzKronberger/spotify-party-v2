@@ -13,6 +13,8 @@ export type PrivateUser = InferModel<typeof user>
 export type User = Omit<PrivateUser, 'accessToken' | 'refreshToken'>
 export type SpotifyUser = Omit<User, 'id'>
 
+type UserQuery = { spotifyUserId: string } | { userId: string }
+
 /** Zod schema for public user data. */
 export const userSchema = createInsertSchema(user)
   .omit({ accessToken: true, refreshToken: true })
@@ -101,8 +103,13 @@ export const decryptUserCredentials = (encryptedAccessToken: string, encryptedRe
  *
  * Get user data without credentials (should be used in most cases).
  */
-export const getUserDataFromDB = async (spotifyUserId: string): Promise<User | undefined> => {
-  const privateUserData = (await db.select().from(user).where(eq(user.spotifyId, spotifyUserId)))[0]
+export const getUserDataFromDB = async (query: UserQuery): Promise<User | undefined> => {
+  let privateUserData: PrivateUser | undefined
+  if ('spotifyUserId' in query) {
+    privateUserData = (await db.select().from(user).where(eq(user.spotifyId, query.spotifyUserId)))[0]
+  } else {
+    privateUserData = (await db.select().from(user).where(eq(user.id, query.userId)))[0]
+  }
   if (!privateUserData) return undefined
   return {
     id: privateUserData.id,
@@ -134,7 +141,7 @@ export const getPrivateUserDataFromDB = async (userId: string): Promise<PrivateU
 export const updateUserCredentials = async (spotifyUserId: string, accessToken: string, refreshToken: string) => {
   const encryptedCredentials = encryptUserCredentials(accessToken, refreshToken)
   await db.update(user).set(encryptedCredentials).where(eq(user.spotifyId, spotifyUserId))
-  return getUserDataFromDB(spotifyUserId)
+  return getUserDataFromDB({ spotifyUserId })
 }
 
 /**
@@ -149,6 +156,6 @@ export const upsertUser = async (userData: SpotifyUser, accessToken: string, ref
   } else {
     const encryptedCredentials = encryptUserCredentials(accessToken, refreshToken)
     await db.insert(user).values({ ...userData, ...encryptedCredentials, id: genNanoId() })
-    return await getUserDataFromDB(userData.spotifyId)
+    return await getUserDataFromDB({ spotifyUserId: userData.spotifyId })
   }
 }
