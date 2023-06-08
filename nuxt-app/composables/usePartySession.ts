@@ -10,8 +10,6 @@ import { Playlist } from '~/types/trpc'
  * - Provides refs to the party's users and messages
  */
 
-const isClientHost = ref<boolean>()
-
 export default function (username: string, userId: string) {
   // Get party code from page query parameters
   const route = useRoute()
