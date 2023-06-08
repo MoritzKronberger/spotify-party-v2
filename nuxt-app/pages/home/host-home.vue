@@ -14,10 +14,15 @@
   onMounted(() => {
     if (process.client) {
       if (userSpotify.data.value) {
-        user.id = genNanoId()
-        user.name = userSpotify.data.value?.display_name
-        localStorage.setItem('username', user.name)
-        localStorage.setItem('nanoId', user.id)
+        /* Check for existing nanoId */
+        if (!localStorage.getItem('nanoId')) {
+          localStorage.setItem('nanoId', genNanoId())
+        }
+        /* Check for existing name */
+        if (!localStorage.getItem('username')) {
+          const name = userSpotify.data.value?.display_name
+          localStorage.setItem('username', name)
+        }
         user.isHost = true
       } else {
         /* AMIN -> error message log in UI */
