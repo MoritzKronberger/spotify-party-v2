@@ -1,30 +1,44 @@
 <script setup lang="ts">
   import user from '~/store/userData'
   import SpotButton from '~/components/spot-button.vue'
+  import { genNanoId } from '~~/utils/nanoId'
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
   const router = useRouter()
 
-  const data = await $client.auth.getUser.useQuery()
+  const userSpotify = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
 
   /* Storing data userData */
-  user.id = data.data.value?.id || ''
-  user.name = data.data.value?.display_name || 'unknown'
-  if (process.client) {
-    localStorage.setItem('username', user.name)
-  }
-  user.isHost = true
+  onMounted(() => {
+    if (process.client) {
+      if (userSpotify.data.value) {
+        user.id = genNanoId()
+        user.name = userSpotify.data.value?.display_name
+        localStorage.setItem('username', user.name)
+        localStorage.setItem('nanoId', user.id)
+        user.isHost = true
+      } else {
+        /* AMIN -> error message log in UI */
+        router.push({ path: `/`, replace: true })
+      }
+    }
+  })
 
   const joinPartyByID = async (partyID: string) => {
     await $client.party.getParty
       .useQuery({ id: partyID })
       .then((result) => {
         if (result.data.value) {
-          const code = result.data.value[0]?.code
-          user.partyCode = code || ''
-          router.push({ path: `/party/session`, query: { code }, replace: true })
+          if (result.data.value[0]?.code) {
+            const code = result.data.value[0].code
+            user.partyCode = code
+            router.push({ path: `/party/session`, query: { code }, replace: true })
+          } else {
+            /* AMIN -> error message log in UI */
+            console.log('Unvalid Party Code')
+          }
         }
       })
       .catch((error) => {
@@ -58,7 +72,9 @@
       <v-col>
         <v-row>
           <v-col>
-            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ data.data.value?.display_name }}</p>
+            <p class="text-center text-subtitle-1 font-weight-bold">
+              Welcome {{ userSpotify.data.value?.display_name }}
+            </p>
           </v-col>
         </v-row>
         <v-row>
