@@ -26,10 +26,18 @@ export const spotifyRouter = router({
    * https://developer.spotify.com/documentation/web-api/reference/search
    */
   searchTracks: spotifyServerProcedure.input(trackQuerySchema.array()).query(async ({ input, ctx }) => {
-    const res = await Promise.all(input.map((query) => ctx.spotifyServerAPI.searchTracks(query, { limit: 1 })))
+    const res = await Promise.all(
+      input.map((query) =>
+        ctx.spotifyServerAPI.searchTracks(query, { limit: 1 }).catch((e) => {
+          // Return undefined if not found
+          if (e?.body?.error?.status === 404) return undefined
+          throw e
+        })
+      )
+    )
     const trackUris = res
       .map((rs) => {
-        return rs.body.tracks?.items[0]?.uri
+        return rs?.body.tracks?.items[0]?.uri
       })
       .filter((uri): uri is string => !!uri)
     return trackUris
