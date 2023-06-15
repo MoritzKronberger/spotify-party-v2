@@ -19,11 +19,14 @@
   getSessionCredentials()
 
   const router = useRouter()
+  const route = useRoute()
+  const code = route.query.code?.toString()
+  user.partyCode = code ?? ''
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
-  const isCopied = ref(false)
+
   const partySession = usePartySession(user.name, user.id)
 
   const scrollToBottom = () => {
@@ -47,24 +50,13 @@
       }
     }
   )
-
-  const shareCode = () => {
-    navigator.clipboard.writeText(partySession.code).then(() => {
-      isCopied.value = true
-      setTimeout(() => {
-        isCopied.value = false
-      }, 3000)
-    })
-  }
 </script>
 
 <template>
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn variant="tonal" @click="shareCode">invite</v-btn>
-        <!-- Invite-Button will route to Share-Page in following update -->
-        <v-card-text v-if="isCopied" type="text">Copied to clipboard!</v-card-text>
+        <v-btn variant="tonal" to="/party/invite-friends">invite</v-btn>
       </v-col>
       <v-col class="text-right">
         <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">{{
