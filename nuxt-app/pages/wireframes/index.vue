@@ -18,7 +18,7 @@
       <v-col>
         <v-row>
           <v-col>
-            <spot-button to="/wireframes/party/create-party" title="I AM A HOST" />
+            <spot-button primary to="/wireframes/party/create-party" title="I AM A HOST" />
           </v-col>
         </v-row>
         <v-row>
