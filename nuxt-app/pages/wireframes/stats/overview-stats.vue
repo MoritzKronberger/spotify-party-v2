@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import SpotButton from '~/components/spot-button.vue'
-
+  import GuestButton from '~/components/guest-button.vue'
   definePageMeta({
     layout: 'wireframes',
   })
@@ -23,9 +22,9 @@
           <div class="d-flex flex-nowrap justify-space-between">
             <div>
               <v-card-title>Party playlist</v-card-title>
-              <v-card-subtitle>Playlist name</v-card-subtitle>
-              <v-card-actions>
-                <spot-button title="open" primary></spot-button>
+              <v-card-subtitle class="py-1">Playlist name</v-card-subtitle>
+              <v-card-actions class="pl-4">
+                <v-btn color="primary" variant="elevated" to="/wireframes/stats/playlist-stats">open</v-btn>
               </v-card-actions>
             </div>
             <div class="d-flex flex-column justify-center">
@@ -42,7 +41,7 @@
         <p>Active guests</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">1/5</v-btn>
+        <guest-button title="1/5" to="/wireframes/guest-list"></guest-button>
       </v-col>
     </v-row>
     <v-row>
