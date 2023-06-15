@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  import QrcodeVue from 'qrcode.vue'
-  import { ref } from 'vue'
-  import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
     layout: 'wireframes',
   })
@@ -30,14 +27,14 @@
     </v-row>
     <v-row>
       <v-col class="pb-0">
-        <v-card variant="outlined" class="pa-5">
-          <qrcode-vue value="Text to encode"></qrcode-vue>
+        <v-card class="pa-5 bg-background">
+          <VueQr text="Hello World!" size="150" margin="15"></VueQr>
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <p class="text-center text-body-1 font-weight-bold">Party Name</p>
+        <p class="text-center text-body-1 font-weight-bold text-primary">Party Name</p>
         <p class="text-center text-body-2">hosted by hostname</p>
       </v-col>
     </v-row>
