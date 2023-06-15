@@ -37,12 +37,7 @@
     <v-row>
       <v-col>
         <v-list lines="one" class="rounded-lg">
-          <v-list-item
-            v-for="party in parties"
-            :key="party.id"
-            :title="party.name"
-            :subtitle="party.songs"
-          >
+          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs">
             <template #append>
               <v-switch color="primary" inset density="compact"></v-switch>
             </template>
