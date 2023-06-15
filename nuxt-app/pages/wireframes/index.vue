@@ -8,12 +8,14 @@
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer />
-    <v-row style="min-width: 300px">
-      <v-col>
-        <placeholder-card text="Logo" />
-      </v-col>
-    </v-row>
 
+    <v-row>
+      <v-img width="40vw" src="/logo_primary.svg" />
+    </v-row>
+    <v-row>
+      <h1>Spotify Party</h1>
+    </v-row>
+    <v-spacer />
     <v-row style="min-width: 300px">
       <v-col>
         <v-row>
@@ -28,6 +30,5 @@
         </v-row>
       </v-col>
     </v-row>
-    <v-spacer />
   </v-container>
 </template>
