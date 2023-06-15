@@ -49,7 +49,8 @@
       } else {
         generateCodeChallenge(codeVerifier).then((codeChallenge) => {
           const state = generateRandomString(16)
-          const scope = 'user-read-private user-read-email'
+          const scope =
+            'user-read-private user-read-email playlist-modify-public playlist-modify-private user-read-playback-state'
 
           // Set code verifier as cookie (to preserve it after OAuth-redirect)
           codeVerifierCookie.value = codeVerifier

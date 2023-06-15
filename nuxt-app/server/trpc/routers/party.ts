@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { customAlphabet } from 'nanoid'
 import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
+import { spotifyRouter } from './spotify'
 import { db } from '~/db'
 import party from '~/db/schema/party'
 import image from '~/db/schema/image'
@@ -12,7 +13,13 @@ import { nanoId } from '~/utils/nanoId/zod'
 import { partyCodeLength, partyCodeSchema } from '~/types/partySession'
 
 // Create Zod schemas from drizzle schemas.
-const partySchema = createInsertSchema(party).omit({ id: true, userId: true, code: true, imageId: true })
+const partySchema = createInsertSchema(party).omit({
+  id: true,
+  userId: true,
+  code: true,
+  imageId: true,
+  playlistId: true,
+})
 const imageSchema = createInsertSchema(image).omit({ id: true, userId: true })
 
 /**
@@ -56,11 +63,16 @@ export const partyRouter = router({
         const res = await db.insert(image).values({ ...imageData, id, userId })
         imageId = idOnSuccess(res)
       }
+      // Create new playlist to link to party
+      // TODO: Add custom cover to playlist if image was supplied
+      const spotify = spotifyRouter.createCaller(ctx)
+      const playlist = await spotify.createPartyPlaylist(partyData)
+      const playlistId = playlist.id
       // Create new party (and link image if it was created successfully)
       const { id, idOnSuccess } = insertId()
       const res = await db
         .insert(party)
-        .values({ ...partyData, id, userId, code: generateRandomPartyCode(), imageId: imageId ?? null })
+        .values({ ...partyData, id, userId, code: generateRandomPartyCode(), playlistId, imageId: imageId ?? null })
       // Return party Id if it was created successfully
       return { id: idOnSuccess(res) }
     }),

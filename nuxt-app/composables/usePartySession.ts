@@ -1,5 +1,6 @@
-import { Message, Member } from '~/types/partySession'
+import { UserMessage, Member } from '~/types/partySession'
 import { PartySession } from '~/utils/partySession'
+import { Playlist } from '~/types/trpc'
 
 /**
  * Create party session helper that:
@@ -22,7 +23,8 @@ export default function (username: string, userId: string) {
   const partySessionHelper = {
     code,
     me: ref<Member>(),
-    messages: ref<Message[]>([]),
+    messages: ref<UserMessage[]>([]),
+    playlist: ref<Playlist | undefined>(undefined),
     members: ref<Member[]>([]),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
@@ -51,13 +53,21 @@ export default function (username: string, userId: string) {
     })
 
     // Update message data for party session helper
-    partySession.onMessage((messages: Message[]) => {
+    partySession.onMessage((messages: UserMessage[]) => {
       partySessionHelper.messages.value = messages
     })
 
     // Update party session members for party session helper
     partySession.onMember((members: Member[]) => {
       partySessionHelper.members.value = { ...members }
+    })
+
+    // Update party session playlist for party session helper
+    partySession.onPlaylist(async (playlistId) => {
+      partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query({
+        playlistId,
+        session: { sessionCode: code },
+      })
     })
   }
 
