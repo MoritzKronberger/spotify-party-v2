@@ -10,7 +10,7 @@
 
   const userSpotify = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
-
+  const edit = ref(false)
   /* Storing data userData */
 
   if (process.client) {
@@ -24,10 +24,12 @@
         const name = userSpotify.data.value?.display_name
         localStorage.setItem('username', name)
       }
+      user.name = localStorage.getItem('username') ?? ''
       user.isHost = true
     } else {
+      /* Pushback to index-page if no value */
       /* AMIN -> error message log in UI */
-      router.push({ path: `/`, replace: true })
+      router.push({ path: '/', replace: true })
     }
   }
 
@@ -68,32 +70,40 @@
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer />
+
     <v-row>
       <v-col>
         <h1>My Parties</h1>
       </v-col>
     </v-row>
+    <!--den text nur anzeigen wenn die Partyliste leer ist-->
     <v-row>
       <v-col>
         <v-row>
           <v-col>
-            <p class="text-center text-subtitle-1 font-weight-bold">
-              Welcome {{ userSpotify.data.value?.display_name }}
-            </p>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col v-if="!userParties.data.value">
+            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.name }}</p>
             <p class="text-center text-body-1">Let your friends control your music.</p>
             <p class="text-center">Get started by opening a new party.</p>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
+
     <v-col>
-      <v-card v-if="userParties.data.value?.length">
-        <v-list lines="one" style="height: 300px" class="overflow-y-auto mx-auto">
-          <v-list-subheader>All Parties</v-list-subheader>
+      <v-card elevation="3">
+        <v-col class="align-self-start">
+          <v-row>
+            <v-col cols="8" align-self="center" class="pb-0">
+              <v-list-subheader>All Parties</v-list-subheader>
+            </v-col>
+            <v-col cols="4" class="text-right pb-0">
+              <v-btn v-if="!edit" icon="mdi-pencil" @click="edit = !edit"></v-btn>
+              <v-btn v-else icon="mdi-pencil" color="primary" @click="edit = !edit"></v-btn>
+            </v-col>
+            <v-col class="pt-0"><v-divider /></v-col>
+          </v-row>
+        </v-col>
+        <v-list lines="one" height="40vh" class="overflow-y-auto mx-auto">
           <v-list-item
             v-for="party in userParties.data.value"
             :key="party.id"
@@ -102,7 +112,7 @@
             @click="joinPartyByID(party.id)"
           >
             <template #append>
-              <v-btn icon="mdi-delete" @click="deletePartyByID($event, party.id)"></v-btn>
+              <v-btn v-if="edit" icon="mdi-delete" @click="deletePartyByID($event, party.id)"></v-btn>
             </template>
           </v-list-item>
         </v-list>
@@ -111,7 +121,7 @@
 
     <v-row>
       <v-col>
-        <spot-button to="/party/create" :primary="true" title="NEW PARTY" />
+        <spot-button primary title="NEW PARTY" />
       </v-col>
     </v-row>
     <v-spacer />
