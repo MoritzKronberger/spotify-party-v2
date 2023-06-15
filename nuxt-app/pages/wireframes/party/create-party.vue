@@ -12,7 +12,7 @@
   <v-container class="fill-height flex-column">
     <v-row>
       <v-col>
-        <h1>Create Party</h1>
+        <h1 class="text-white">Create Party</h1>
       </v-col>
     </v-row>
     <v-row>
