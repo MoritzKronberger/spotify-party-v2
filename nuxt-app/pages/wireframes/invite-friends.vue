@@ -1,8 +1,14 @@
 <script setup lang="ts">
   import QrcodeVue from 'qrcode.vue'
+  import { ref } from 'vue'
+  import SpotButton from '~/components/spot-button.vue'
   definePageMeta({
     layout: 'wireframes',
   })
+  const showSnackbar = ref(false)
+  const copyCode = () => {
+    showSnackbar.value = true
+  }
 </script>
 
 <template>
@@ -38,8 +44,9 @@
 
     <v-row>
       <v-col>
-        <v-btn primary prepend-icon="mdi-link" variant="tonal">share code</v-btn>
+        <v-btn prepend-icon="mdi-link" color="primary" @click="copyCode">share code</v-btn>
       </v-col>
     </v-row>
+    <v-snackbar v-model="showSnackbar" :timeout="2000" color="surface">Copied code</v-snackbar>
   </v-container>
 </template>
