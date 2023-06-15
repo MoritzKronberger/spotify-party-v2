@@ -2,6 +2,7 @@
   import user from '~/store/userData'
   import SpotButton from '~/components/spot-button.vue'
   import { genNanoId } from '~~/utils/nanoId'
+
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
@@ -96,7 +97,7 @@
           <v-list-item
             v-for="party in userParties.data.value"
             :key="party.id"
-            :title="party.name + ' ' + party.code"
+            :title="party.name"
             :subtitle="party.description ? party.description : ''"
             @click="joinPartyByID(party.id)"
           >
