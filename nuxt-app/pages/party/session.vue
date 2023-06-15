@@ -20,8 +20,12 @@
 
   const router = useRouter()
   const route = useRoute()
-  const code = route.query.code?.toString()
-  user.partyCode = code ?? ''
+  const code = route.query.code?.toString() ?? undefined
+
+  /* Pushback */
+  if (code === undefined) {
+    router.push({ path: '/', replace: true })
+  }
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
@@ -120,7 +124,7 @@
                       <v-list-item
                         v-for="track in partySession.playlist.value?.tracks"
                         :key="track.id"
-                        :title="track.name"
+                        :title="track.images?.[0]?.url"
                         :subtitle="'by ' + track.artists?.[0]?.name"
                       />
                     </v-list>
