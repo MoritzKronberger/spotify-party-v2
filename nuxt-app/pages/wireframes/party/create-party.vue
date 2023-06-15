@@ -10,6 +10,7 @@
 
 <template>
   <v-container class="fill-height flex-column">
+    <v-spacer />
     <v-row>
       <v-col>
         <h1 class="text-white">Create Party</h1>

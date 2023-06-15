@@ -14,7 +14,7 @@
         <h1>Choose a name</h1>
       </v-col>
     </v-row>
-
+    <v-spacer />
     <v-row>
       <v-col>
         <v-form style="min-width: 300px">
@@ -25,12 +25,10 @@
           </v-row>
           <v-row>
             <v-col>
-              <spot-button primary title="continue" to="/wireframes/home/guest-home" />
-            </v-col>
-          </v-row>
-          <v-row class="pt-5">
-            <v-col>
               <spot-button title="Login instead"></spot-button>
+            </v-col>
+            <v-col>
+              <spot-button primary title="continue" to="/wireframes/home/guest-home" />
             </v-col>
           </v-row>
         </v-form>

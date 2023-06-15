@@ -46,7 +46,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <p>Most up voted</p>
+        <p class="pb-1">Most up voted</p>
         <v-card variant="tonal">
           <v-list-item
             :title="mostUpVotedSong.title"
