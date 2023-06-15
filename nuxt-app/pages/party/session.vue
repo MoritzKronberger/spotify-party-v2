@@ -12,7 +12,7 @@
         user.name = username
         user.id = id
       } else {
-        router.push({ path: `/party/join-party`, replace: true })
+        router.push({ path: '/party/join-party', replace: true })
       }
     }
   }
@@ -23,7 +23,6 @@
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
-  const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
   const isCopied = ref(false)
   const partySession = usePartySession(user.name, user.id)
 
@@ -127,10 +126,10 @@
                   <v-col>
                     <v-list lines="one" style="height: 350px" class="overflow-y-auto mx-auto">
                       <v-list-item
-                        v-for="(song, index) in playlist"
-                        :key="index"
-                        :title="song.songname"
-                        :subtitle="'by ' + song.artist"
+                        v-for="track in partySession.playlist.value?.tracks"
+                        :key="track.id"
+                        :title="track.name"
+                        :subtitle="'by ' + track.artists?.[0]?.name"
                       />
                     </v-list>
                   </v-col>
