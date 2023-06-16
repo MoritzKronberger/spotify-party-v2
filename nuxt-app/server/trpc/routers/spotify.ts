@@ -1,11 +1,7 @@
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
-import { TRPCError } from '@trpc/server'
 import { spotifyUserProcedure, spotifyServerProcedure, spotifySessionUserProcedure } from '../middleware/spotify'
 import { router } from '../trpc'
-import { nanoId } from '~/utils/nanoId/zod'
-import { db } from '~/db'
-import { image } from '~/db/schema'
+import { base64BlobSchema } from '~/utils/image'
 
 const trackQuerySchema = z.string()
 
@@ -57,18 +53,16 @@ export const spotifyRouter = router({
     return (await ctx.spotifyUserAPI.createPlaylist(name, { description: description ?? undefined, public: true })).body
   }),
   /**
-   * Add custom cover image to playlist.
+   * Set custom cover image for playlist.
    *
    * Reference:
    * https://developer.spotify.com/documentation/web-api/reference/upload-custom-playlist-cover
    */
-  addPlaylistCoverImage: spotifyUserProcedure
-    .input(z.object({ playlistId: z.string(), imageId: nanoId() }))
+  setPlaylistCoverImage: spotifyUserProcedure
+    .input(z.object({ playlistId: z.string(), base64Blob: base64BlobSchema }))
     .mutation(async ({ input, ctx }) => {
-      const { imageId, playlistId } = input
-      const imageData = (await db.select().from(image).where(eq(image.id, imageId)))[0]
-      if (!imageData) throw new TRPCError({ code: 'BAD_REQUEST', message: `No image found for id ${imageId}` })
-      return await ctx.spotifyUserAPI.uploadCustomPlaylistCoverImage(playlistId, imageData.base64Blob)
+      const { playlistId, base64Blob } = input
+      return await ctx.spotifyUserAPI.uploadCustomPlaylistCoverImage(playlistId, base64Blob)
     }),
   /**
    * Update tracks in party playlist.
