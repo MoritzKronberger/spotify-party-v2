@@ -2,7 +2,7 @@
   import VueDatePicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
   import SpotButton from '~/components/spot-button.vue'
-  import { mimeTypes, MimeType } from '~/utils/image'
+  import { maxImageSizeKB, mimeTypes, MimeType } from '~/utils/image'
 
   // Get tRPC client
   const { $client } = useNuxtApp()
@@ -18,8 +18,6 @@
     description: ref(''),
     startAutomatically: ref<Date | null | undefined>(null),
   }
-  const base64Blob = ref<string | undefined>(undefined)
-  const mimeType = ref<MimeType>()
 
   // Control display of Datepicker
   const isScheduledParty = ref<boolean>(false)
@@ -44,9 +42,9 @@
           if (!value || !value.length) {
             return true // validation passes if value is undefined or empty
           }
-          const fileSizeLimit = 2000000 // in bytes
+          const fileSizeLimit = maxImageSizeKB * 1000 // in bytes
           if (value[0]!.size > fileSizeLimit) {
-            return 'Cover size should be less than 2 MB!' // return error message if file size exceeds limit
+            return `Cover size should be less than ${maxImageSizeKB} KB!` // return error message if file size exceeds limit
           }
           return true // validation passes
         },
@@ -57,35 +55,34 @@
   // New reference rules prop -> reactive
   const rules = toRef(props, 'rules')
 
+  type ImageData = { mimeType: MimeType; base64Blob: string }
+
   // File to Blob(Base-64) Conversion
   // FileReader API: https://developer.mozilla.org/en-US/docs/Web/API/FileReader
   // FileReader.readAsDataURL(): https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-  const fileToBase64 = (file: File | undefined): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
+  const fileToBase64 = (file: File) => {
+    return new Promise<ImageData>((resolve, reject) => {
       const reader = new FileReader()
+      reader.readAsDataURL(file)
       reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          const base64 = reader.result.split(',')[1]
-          if (base64) {
-            const decoder = new TextDecoder('utf-8')
-            const buffer = decoder.decode(Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)))
-            resolve(buffer)
-          } else {
-            reject(new Error('Failed to convert file to Base64'))
-          }
-        } else {
-          reject(new Error('Failed to read file'))
-        }
+        const result = reader.result?.toString()
+        if (!result) return reject
+        const [header, base64Blob] = result.split(',')
+        if (!header || !base64Blob) return reject
+        resolve({
+          mimeType: header.replace('data:', '').replace(';base64', '') as MimeType,
+          base64Blob,
+        })
       }
       reader.onerror = reject
-      reader.readAsDataURL(file!)
     })
   }
 
   const createParty = async () => {
+    let imageData: ImageData | undefined
+
     if (file.value[0]) {
-      base64Blob.value = await fileToBase64(file.value[0])
-      mimeType.value = file.value[0].type as MimeType
+      imageData = await fileToBase64(file.value[0])
     }
 
     await $client.party.createParty
@@ -95,7 +92,7 @@
           description: party.description.value,
           startAutomatically: party.startAutomatically.value,
         },
-        image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
+        image: imageData,
       })
       .then(() => {
         router.push({ path: '/home/host-home', replace: true })
