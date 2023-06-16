@@ -152,7 +152,7 @@ export const sessionRouter = router({
    * (Only for active party and only if party playlist is being played.)
    *
    * Interval to call this function must be run client-side,
-   * sine intervals > 60s would cause Vercel Serverless Functions to timeout.
+   * since intervals > 60s would cause Vercel Serverless Functions to timeout.
    *
    * Reference:
    * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
@@ -174,5 +174,9 @@ export const sessionRouter = router({
       maxTokens: openAIClient.maxPartyTokens,
       tokenCount: ctx.party.tokenCount,
     }
+  }),
+  /** Get maximum amount of tokens allowed for a single message. */
+  getMaxMessageTokens: sessionProcedure.query(() => {
+    return openAIClient.maxMessageTokens
   }),
 })
