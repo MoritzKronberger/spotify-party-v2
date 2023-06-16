@@ -91,13 +91,13 @@ export const sessionRouter = router({
     const spotify = spotifyRouter.createCaller(ctx)
     await spotify.setPlaylistPlayback({ playlistId: party.playlistId })
 
-    // Set session status as "active"
+    // Set session status as "active" in DB
     const partyProcedures = partyRouter.createCaller(ctx)
     const status = 'active'
+    await partyProcedures.setSessionStatus({ id: party.id, status })
+
     // Publish new status
     await partySession.publishStatus(status)
-    // Update DB with new status
-    return await partyProcedures.setSessionStatus({ id: party.id, status })
   }),
   /** End live party session. */
   stopSession: sessionHostProcedure.mutation(async ({ ctx }) => {
@@ -144,5 +144,27 @@ export const sessionRouter = router({
     const { partySession } = ctx
     const messages = (await partySession.getMessages()) ?? []
     return partySession.parseFullMessagesForUsers(messages)
+  }),
+  /**
+   * Allow hosts to publish the current playback state.
+   *
+   * (Only for active party and only if party playlist is being played.)
+   *
+   * Interval to call this function must be run client-side,
+   * sine intervals > 60s would cause Vercel Serverless Functions to timeout.
+   *
+   * Reference:
+   * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
+   */
+  publishPlayback: sessionHostProcedure.query(async ({ ctx }) => {
+    const { party, partySession } = ctx
+    const spotify = spotifyRouter.createCaller(ctx)
+
+    // Do nothing (also ends interval) for inactive party
+    if (party.sessionStatus === 'active') {
+      const playback = await spotify.getPlayback({ playlistId: party.playlistId })
+      await partySession.publishPlayback(playback)
+      return playback
+    }
   }),
 })

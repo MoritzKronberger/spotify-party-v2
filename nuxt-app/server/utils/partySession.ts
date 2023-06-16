@@ -3,7 +3,7 @@ import { ChatCompletionRequestMessage } from 'openai'
 import Pusher from 'pusher'
 import { UserMessage, PresenceData, FullMessage, FullUserMessage } from '~/types/partySession'
 import { partySessionConfig } from '~/utils/partySession'
-import { SessionStatus } from '~/types/trpc'
+import { Playback, SessionStatus } from '~/types/trpc'
 
 const { env } = process
 const { events, presenceCacheChannel } = partySessionConfig
@@ -118,5 +118,9 @@ export class PartySession {
 
   public async publishStatus(status: SessionStatus) {
     return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.status, status)
+  }
+
+  public async publishPlayback(playback: Playback) {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playback, playback)
   }
 }

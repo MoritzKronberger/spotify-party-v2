@@ -1,6 +1,6 @@
 import { UserMessage, Member } from '~/types/partySession'
 import { PartySession } from '~/utils/partySession'
-import { Playlist, SessionStatus } from '~/types/trpc'
+import { Playback, Playlist, SessionStatus } from '~/types/trpc'
 
 /**
  * Create party session helper that:
@@ -33,6 +33,7 @@ export default async function (username: string, userId: string) {
     status: ref<SessionStatus>(party?.sessionStatus ?? 'inactive'),
     messages: ref<UserMessage[]>(messages),
     playlist: ref<Playlist | undefined>(playlist),
+    playback: ref<Playback>(undefined),
     members: ref<Member[]>([]),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
@@ -46,6 +47,36 @@ export default async function (username: string, userId: string) {
         },
         ...session,
       }),
+    /**
+     * Stat publishing current playback in interval.
+     *
+     * Interval timeout is either the time until the next song
+     * or the fallback timeout if no information about the current song exists.
+     *
+     * Must be run client-side, since intervals > 60s would cause Vercel Serveless Functions to time out.
+     * Reference:
+     * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
+     *
+     * @param fallbackIntervalMs The timeout to use if time until next song can't be calculated.
+     * @param progressOffsetMs The time to offset the time until the next song by -> make sure song has "ticked-over"
+     */
+    startPlaybackUpdateInterval: async (fallbackIntervalMs: number, progressOffsetMs: number) => {
+      // Do noting (and stop interval) if session is inactive
+      if (partySessionHelper.status.value === 'active') {
+        // (Updating playback ref is handled via `onPlayback` callback)
+        const playback = await $client.session.publishPlayback.query(session)
+
+        // Calculate time until next track
+        // (or use fallback if playback information is missing)
+        let timeout = fallbackIntervalMs
+        if (playback?.item?.duration_ms && playback.progressMs) {
+          timeout = playback?.item?.duration_ms - playback.progressMs + progressOffsetMs
+        }
+
+        // Start next interval after timeout
+        setTimeout(() => partySessionHelper.startPlaybackUpdateInterval(fallbackIntervalMs, progressOffsetMs), timeout)
+      }
+    },
   }
 
   // Client-side only
@@ -76,6 +107,11 @@ export default async function (username: string, userId: string) {
     // Update party session status
     partySession.onStatus((status) => {
       partySessionHelper.status.value = status
+    })
+
+    // Update playback
+    partySession.onPlayback((playback) => {
+      partySessionHelper.playback.value = playback
     })
   }
 

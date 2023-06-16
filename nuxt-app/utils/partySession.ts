@@ -1,6 +1,6 @@
 import Pusher, { Channel } from 'pusher-js'
 import { UserMessage, Member, PresenceData, partyCodeSchema } from '~/types/partySession'
-import { SessionStatus } from '~/types/trpc'
+import { Playback, SessionStatus } from '~/types/trpc'
 
 /** Global config for party session Pusher. */
 export const partySessionConfig = {
@@ -15,6 +15,7 @@ export const partySessionConfig = {
     messages: 'messages',
     playlist: 'playlist',
     status: 'status',
+    playback: 'playback',
   },
   authEndpoint: (username: string, userId: string) => `/api/pusher_auth?user_name=${username}&user_id=${userId}`,
   presenceCacheChannelPrefix: 'presence-cache-',
@@ -97,6 +98,11 @@ export class PartySession {
   /** Set callback for session status updates on the party session channel. */
   public onStatus(callback: (status: SessionStatus) => void) {
     this.partyChannel.bind(events.status, callback)
+  }
+
+  /** Set callback for playback updates on the party session channel. */
+  public onPlayback(callback: (playback: Playback) => void) {
+    this.partyChannel.bind(events.playback, callback)
   }
 
   /** Get me property from channel members. */
