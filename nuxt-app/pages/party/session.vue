@@ -4,6 +4,8 @@
     layout: 'song-app-bar',
   })
 
+  const { $client } = useNuxtApp()
+
   const getSessionCredentials = () => {
     if (process.client) {
       const username = localStorage.getItem('username') ?? null
@@ -32,6 +34,10 @@
   const suggestion = ref('')
 
   const partySession = await usePartySession(user.name, user.id)
+
+  // Set party session status to "active" if host joins party
+  console.log(user.isHost)
+  if (user.isHost) $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')

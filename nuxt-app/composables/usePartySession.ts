@@ -1,6 +1,6 @@
 import { UserMessage, Member } from '~/types/partySession'
 import { PartySession } from '~/utils/partySession'
-import { Playlist } from '~/types/trpc'
+import { Playlist, SessionStatus } from '~/types/trpc'
 
 /**
  * Create party session helper that:
@@ -24,11 +24,13 @@ export default async function (username: string, userId: string) {
   const session = { session: { sessionCode: code } }
   const messages = await $client.session.getMessages.query(session)
   const playlist = await $client.spotify.getPlaylist.query(session)
+  const party = await $client.party.getPartyByCode.query({ code })
 
   // Create party session helper
   const partySessionHelper = {
     code,
     me: ref<Member>(),
+    status: ref<SessionStatus>(party?.sessionStatus ?? 'inactive'),
     messages: ref<UserMessage[]>(messages),
     playlist: ref<Playlist | undefined>(playlist),
     members: ref<Member[]>([]),
@@ -69,6 +71,11 @@ export default async function (username: string, userId: string) {
     // Update party session playlist for party session helper
     partySession.onPlaylist(async () => {
       partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query(session)
+    })
+
+    // Update party session status
+    partySession.onStatus((status) => {
+      partySessionHelper.status.value = status
     })
   }
 

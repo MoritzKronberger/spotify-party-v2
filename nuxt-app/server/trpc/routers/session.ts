@@ -3,8 +3,9 @@ import { eq } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import type { H3Event } from 'h3'
 import { router } from '../trpc'
-import { sessionProcedure } from '../middleware/isSession'
+import { sessionHostProcedure, sessionProcedure } from '../middleware/isSession'
 import { spotifyRouter } from './spotify'
+import { partyRouter } from './party'
 import { FullMessage, userMessageSchema } from '~/types/partySession'
 import { PartySession } from '~/server/utils/partySession'
 import { genNanoId } from '~/utils/nanoId'
@@ -74,6 +75,22 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
 }
 
 export const sessionRouter = router({
+  /** Start live party session. */
+  startSession: sessionHostProcedure.mutation(async ({ ctx }) => {
+    const { party, partySession } = ctx
+    const partyProcedures = partyRouter.createCaller(ctx)
+    const status = 'active'
+    await partySession.publishStatus(status)
+    return await partyProcedures.setSessionStatus({ id: party.id, status })
+  }),
+  /** End live party session. */
+  stopSession: sessionHostProcedure.mutation(async ({ ctx }) => {
+    const { party, partySession } = ctx
+    const partyProcedures = partyRouter.createCaller(ctx)
+    const status = 'closed'
+    await partySession.publishStatus(status)
+    return await partyProcedures.setSessionStatus({ id: party.id, status })
+  }),
   /** Add message to party session. */
   addMessage: sessionProcedure
     .input(z.object({ message: userMessageSchema.omit({ id: true }) }))
@@ -83,9 +100,9 @@ export const sessionRouter = router({
         throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Maximum token count has been reached' })
 
       // Unpack inputs
-      const { session, message } = input
+      const { message } = input
       // Create new party session helper
-      const partySession = new PartySession(session.sessionCode)
+      const { partySession } = ctx
 
       // Format and publish message
 
@@ -104,9 +121,8 @@ export const sessionRouter = router({
         await updatePlaylist(sessionMessages, ctx.party, ctx.event)
     }),
   /** Get all user messages for party session. */
-  getMessages: sessionProcedure.query(async ({ input }) => {
-    const { session } = input
-    const partySession = new PartySession(session.sessionCode)
+  getMessages: sessionProcedure.query(async ({ ctx }) => {
+    const { partySession } = ctx
     const messages = (await partySession.getMessages()) ?? []
     return partySession.parseFullMessagesForUsers(messages)
   }),
