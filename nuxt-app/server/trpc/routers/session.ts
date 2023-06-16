@@ -69,7 +69,7 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
 
     // Publish new playlist
     // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
-    partySession.publishPlaylist(playlistId)
+    partySession.publishPlaylist()
   }
 }
 
@@ -103,4 +103,11 @@ export const sessionRouter = router({
       if (userMessages.length % openAIClient.opts.promptMessageBuffer === 0)
         await updatePlaylist(sessionMessages, ctx.party, ctx.event)
     }),
+  /** Get all user messages for party session. */
+  getMessages: sessionProcedure.query(async ({ input }) => {
+    const { session } = input
+    const partySession = new PartySession(session.sessionCode)
+    const messages = (await partySession.getMessages()) ?? []
+    return partySession.parseFullMessagesForUsers(messages)
+  }),
 })
