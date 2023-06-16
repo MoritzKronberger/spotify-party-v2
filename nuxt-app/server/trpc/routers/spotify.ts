@@ -133,10 +133,17 @@ export const spotifyRouter = router({
       }),
     }
   }),
-  /** Set playback on active device to playlist. */
+  /**
+   * Set playback on active device to playlist start.
+   *
+   * (Unless playlist is already playing.)
+   */
   setPlaylistPlayback: spotifyUserProcedure
     .input(z.object({ playlistId: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.spotifyUserAPI.play({ context_uri: `spotify:playlist:${input.playlistId}` })
+      const playlistURI = `spotify:playlist:${input.playlistId}`
+      const playbackState = (await ctx.spotifyUserAPI.getMyCurrentPlaybackState()).body
+      const playbackContextURI = playbackState.context?.uri
+      if (playlistURI !== playbackContextURI) return await ctx.spotifyUserAPI.play({ context_uri: playlistURI })
     }),
 })
