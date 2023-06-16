@@ -2,8 +2,8 @@
   import VueDatePicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
   import SpotButton from '~/components/spot-button.vue'
-  import { MimeType } from '~/types/trpc'
-  import { mimeTypes } from '~/db/schema/image'
+  import { mimeTypes, MimeType } from '~/utils/image'
+
   // Get tRPC client
   const { $client } = useNuxtApp()
   // Get router

@@ -1,7 +1,6 @@
 import { text, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core'
 import { nanoId } from '~/utils/nanoId/drizzle'
-
-export const mimeTypes = ['image/jpeg', 'image/jpg', 'image/png'] as const
+import { mimeTypes } from '~/utils/image'
 
 /**
  * Drizzle schema for image.
