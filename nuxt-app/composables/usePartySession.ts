@@ -25,6 +25,7 @@ export default async function (username: string, userId: string) {
   const messages = await $client.session.getMessages.query(session)
   const playlist = await $client.spotify.getPlaylist.query(session)
   const party = await $client.party.getPartyByCode.query({ code })
+  const tokenCount = await $client.session.getTokenCount.query(session)
 
   // Create party session helper
   const partySessionHelper = {
@@ -35,7 +36,7 @@ export default async function (username: string, userId: string) {
     playlist: ref<Playlist | undefined>(playlist),
     playback: ref<Playback>(undefined),
     members: ref<Member[]>([]),
-    tokenCount: ref<TokenCount | undefined>(undefined),
+    tokenCount: ref<TokenCount>(tokenCount),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
         message: {

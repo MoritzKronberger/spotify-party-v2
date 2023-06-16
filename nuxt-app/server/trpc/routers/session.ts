@@ -168,5 +168,11 @@ export const sessionRouter = router({
       return playback
     }
   }),
-  get
+  /** Get token count of current party. */
+  getTokenCount: sessionProcedure.query(({ ctx }) => {
+    return {
+      maxTokens: openAIClient.maxPartyTokens,
+      tokenCount: ctx.party.tokenCount,
+    }
+  }),
 })
