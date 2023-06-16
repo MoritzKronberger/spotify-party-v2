@@ -123,7 +123,7 @@ export const partyRouter = router({
   }),
   /** Get party using random party code. (Returns empty array if code does not exist) */
   getPartyByCode: publicProcedure.input(z.object({ code: partyCodeSchema })).query(async ({ input }) => {
-    return await db.select().from(party).where(eq(party.code, input.code))
+    return (await db.select().from(party).where(eq(party.code, input.code)))[0]
   }),
   /** Delete party (Throws if party does not exist or user is not owner of the party). */
   deleteParty: partyHostProcedure.mutation(async ({ ctx, input }) => {
