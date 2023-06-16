@@ -78,9 +78,21 @@ export const sessionRouter = router({
   /** Start live party session. */
   startSession: sessionHostProcedure.mutation(async ({ ctx }) => {
     const { party, partySession } = ctx
+
+    // If the host is joining the party for the first time
+    // (-> activating it)
+    // Create the initial playlist using all current messages
+    if (party.sessionStatus === 'inactive') {
+      const messages = await partySession.getMessages()
+      if (messages) await updatePlaylist(messages, party, ctx.event)
+    }
+
+    // Set session status as "active"
     const partyProcedures = partyRouter.createCaller(ctx)
     const status = 'active'
+    // Publish new status
     await partySession.publishStatus(status)
+    // Update DB with new status
     return await partyProcedures.setSessionStatus({ id: party.id, status })
   }),
   /** End live party session. */
@@ -102,7 +114,7 @@ export const sessionRouter = router({
       // Unpack inputs
       const { message } = input
       // Create new party session helper
-      const { partySession } = ctx
+      const { party, partySession } = ctx
 
       // Format and publish message
 
@@ -116,9 +128,12 @@ export const sessionRouter = router({
       // Update playlist using OpenAI-API and Spotify-API
 
       // Update playlist every #promptMessageBuffer user-messages
-      const userMessages = sessionMessages.filter((message) => message.role === 'user')
-      if (userMessages.length % openAIClient.opts.promptMessageBuffer === 0)
-        await updatePlaylist(sessionMessages, ctx.party, ctx.event)
+      // Only if party is active!
+      if (party.sessionStatus === 'active') {
+        const userMessages = sessionMessages.filter((message) => message.role === 'user')
+        if (userMessages.length % openAIClient.opts.promptMessageBuffer === 0)
+          await updatePlaylist(sessionMessages, ctx.party, ctx.event)
+      }
     }),
   /** Get all user messages for party session. */
   getMessages: sessionProcedure.query(async ({ ctx }) => {
