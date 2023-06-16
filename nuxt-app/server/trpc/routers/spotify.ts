@@ -133,4 +133,10 @@ export const spotifyRouter = router({
       }),
     }
   }),
+  /** Set playback on active device to playlist. */
+  setPlaylistPlayback: spotifyUserProcedure
+    .input(z.object({ playlistId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.spotifyUserAPI.play({ context_uri: `spotify:playlist:${input.playlistId}` })
+    }),
 })

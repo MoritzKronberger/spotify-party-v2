@@ -87,6 +87,10 @@ export const sessionRouter = router({
       if (messages) await updatePlaylist(messages, party, ctx.event)
     }
 
+    // Start playback of party playlist on the host's device
+    const spotify = spotifyRouter.createCaller(ctx)
+    await spotify.setPlaylistPlayback({ playlistId: party.playlistId })
+
     // Set session status as "active"
     const partyProcedures = partyRouter.createCaller(ctx)
     const status = 'active'
