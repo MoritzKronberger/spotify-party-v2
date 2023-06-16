@@ -1,4 +1,4 @@
-import { UserMessage, Member } from '~/types/partySession'
+import { UserMessage, Member, TokenCount } from '~/types/partySession'
 import { PartySession } from '~/utils/partySession'
 import { Playback, Playlist, SessionStatus } from '~/types/trpc'
 
@@ -35,6 +35,7 @@ export default async function (username: string, userId: string) {
     playlist: ref<Playlist | undefined>(playlist),
     playback: ref<Playback>(undefined),
     members: ref<Member[]>([]),
+    tokenCount: ref<TokenCount | undefined>(undefined),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
         message: {
@@ -100,7 +101,8 @@ export default async function (username: string, userId: string) {
     })
 
     // Update party session playlist for party session helper
-    partySession.onPlaylist(async () => {
+    partySession.onPlaylist(async (tokenCount) => {
+      partySessionHelper.tokenCount.value = tokenCount
       partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query(session)
     })
 

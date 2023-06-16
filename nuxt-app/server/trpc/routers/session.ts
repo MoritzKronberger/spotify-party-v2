@@ -47,10 +47,8 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
   const { totalTokens, playlist } = result
 
   // Increase party token count
-  await db
-    .update(partyTable)
-    .set({ tokenCount: party.tokenCount + totalTokens })
-    .where(eq(partyTable.id, party.id))
+  const tokenCount = party.tokenCount + totalTokens
+  await db.update(partyTable).set({ tokenCount }).where(eq(partyTable.id, party.id))
 
   if (playlist) {
     // Add assistant message (playlist) to messages for later context
@@ -70,7 +68,10 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
 
     // Publish new playlist
     // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
-    partySession.publishPlaylist()
+    partySession.publishPlaylist({
+      maxTokens: openAIClient.maxPartyTokens,
+      tokenCount,
+    })
   }
 }
 
@@ -167,4 +168,5 @@ export const sessionRouter = router({
       return playback
     }
   }),
+  get
 })

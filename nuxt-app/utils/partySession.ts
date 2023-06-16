@@ -1,5 +1,5 @@
 import Pusher, { Channel } from 'pusher-js'
-import { UserMessage, Member, PresenceData, partyCodeSchema } from '~/types/partySession'
+import { UserMessage, Member, PresenceData, partyCodeSchema, TokenCount } from '~/types/partySession'
 import { Playback, SessionStatus } from '~/types/trpc'
 
 /** Global config for party session Pusher. */
@@ -91,7 +91,7 @@ export class PartySession {
   }
 
   /** Set callback for new playlist on the party session channel. */
-  public onPlaylist(callback: () => void) {
+  public onPlaylist(callback: (tokenCount: TokenCount) => void) {
     this.partyChannel.bind(events.playlist, callback)
   }
 
