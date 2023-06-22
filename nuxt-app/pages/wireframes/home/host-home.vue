@@ -6,17 +6,27 @@
     layout: 'wireframes',
   })
   const parties = ref([
-    { id: 1, name: 'Party 1', songs: 10, image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
-    { id: 2, name: 'Party 2', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
-    { id: 3, name: 'Party 3', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
-    { id: 4, name: 'Party 4', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
-    { id: 5, name: 'Party 5', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { id: 1, name: 'Party 1', songs: 10, image: 'https://cdn.vuetifyjs.com/images/john.jpg', status: 'CREATED' },
+    { id: 2, name: 'Party 2', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg', status: 'CREATED' },
+    { id: 3, name: 'Party 3', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg', status: 'RUNNING' },
+    { id: 4, name: 'Party 4', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg', status: 'CLOSED' },
+    { id: 5, name: 'Party 5', songs: 5, image: 'https://cdn.vuetifyjs.com/images/john.jpg', status: 'RUNNING' },
   ])
   const edit = ref(false)
   const showDialog = ref(false)
   const onDelete = (index: number) => {
     parties.value.splice(index, 1)
     showDialog.value = false
+  }
+  const navigate = (status: string) => {
+    switch (status) {
+      case 'CREATED':
+        return '/wireframes/party/edit-party'
+      case 'RUNNING':
+        return '/wireframes/party/overview-party'
+      case 'CLOSED':
+        return '/wireframes/stats/overview-stats'
+    }
   }
 </script>
 
@@ -29,7 +39,6 @@
         <h1 class="text-primary">My Parties</h1>
       </v-col>
     </v-row>
-    <!--den text nur anzeigen wenn die Partyliste leer ist-->
     <v-row>
       <v-col>
         <v-row>
@@ -57,18 +66,14 @@
           </v-row>
         </v-col>
         <v-list lines="one" height="40vh" class="overflow-y-auto mx-auto">
-          <v-list-item
-            v-for="(party, index) in parties"
-            :key="party.id"
-            :title="party.name"
-            :subtitle="party.songs"
-            to="/wireframes/stats/overview-stats"
-          >
+          <v-list-item v-for="(party, index) in parties" :key="party.id" :title="party.name" :subtitle="party.songs">
             <template #prepend>
               <v-avatar :image="party.image" rounded="0"></v-avatar>
             </template>
             <template #append>
+              <v-list-item-subtitle>{{ party.status }}</v-list-item-subtitle>
               <v-btn v-if="edit" icon="mdi-delete" @click="showDialog = true"></v-btn>
+              <v-btn v-else icon="mdi-arrow-right" :to="navigate(party.status)"></v-btn>
             </template>
             <pop-up-dialog
               v-if="showDialog"
