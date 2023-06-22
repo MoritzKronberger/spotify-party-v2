@@ -4,54 +4,55 @@
   definePageMeta({
     layout: 'wireframes',
   })
-  const parties = [
-    { id: 1, name: 'Option 1', songs: 'asdfasdf' },
-    { id: 2, name: 'Option 2', songs: 'adsfasdf' },
-    { id: 3, name: 'Option 3', songs: 'asdf' },
-    { id: 4, name: 'Option 4', songs: 'adsfasdf' },
-    { id: 5, name: 'Option 5', songs: 'adsfasdf' },
-  ]
+  const party = {
+    name: 'party name',
+    description: 'my description',
+    picture: 'https://cdn.vuetifyjs.com/images/parallax/material.jpg',
+    status: 'CREATED',
+  }
 </script>
 <template>
-  <v-container class="flex-column">
+  <v-container class="flex-column fill-height">
+    <v-spacer></v-spacer>
     <v-row>
       <v-col>
-        <p class="text-h5">Settings</p>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <div align="center">
-          <v-img aspect-ratio="1" cover width="15vh" src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" />
-        </div>
-        <div align="center" class="pt-1">
-          <h4>Party image</h4>
-        </div>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col style="max-width: 50vh">
-        <v-text-field label="Party title" hide-details></v-text-field>
+        <h1 class="text-white">Settings</h1>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
-        <v-list lines="one" class="rounded-lg">
-          <v-list-item v-for="party in parties" :key="party.id" :title="party.name" :subtitle="party.songs">
-            <template #append>
-              <v-switch color="primary" inset density="compact"></v-switch>
-            </template>
-          </v-list-item>
-        </v-list>
+        <v-form style="min-width: 85vw">
+          <v-col>
+            <v-text-field label="Party name" />
+            <v-text-field label="Description" />
+            <v-file-input label="Picture" variant="outlined" prepend-icon="mdi-image">
+              <template v-if="party.picture" #append>
+                <div class="mb-3">
+                  <v-img v-if="party.picture" aspect-ratio="1" cover width="8vh" :src="party.picture" />
+                </div>
+              </template>
+            </v-file-input>
+          </v-col>
+        </v-form>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col><h4 class="text-error">Danger Zone</h4></v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <spot-button title="close party" error></spot-button>
-      </v-col>
-    </v-row>
+    <v-spacer></v-spacer>
+    <div v-if="party.status === 'RUNNING'">
+      <v-row>
+        <v-col><h4 class="text-error">Danger Zone</h4></v-col>
+      </v-row>
+      <v-row style="min-width: 85vw">
+        <v-col>
+          <spot-button title="close party" error></spot-button>
+        </v-col>
+      </v-row>
+    </div>
+    <div v-if="party.status === 'CREATED'">
+      <v-row style="min-width: 85vw" class="mb-2">
+        <v-col>
+          <spot-button primary title="start party" to="/wireframes/party/overview-party"></spot-button>
+        </v-col>
+      </v-row>
+    </div>
   </v-container>
 </template>
