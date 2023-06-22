@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { ref } from 'vue'
   import GuestButton from '~/components/guest-button.vue'
   definePageMeta({
     layout: 'wireframes',
@@ -8,6 +9,14 @@
     artist: 'Artist name',
     image: 'https://vuejs.org/images/logo.png',
   }
+  const playlist = ref([
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+    { songname: 'songname', artist: 'michael jackson', image: 'https://cdn.vuetifyjs.com/images/john.jpg' },
+  ])
 </script>
 <template>
   <v-container class="flex-column">
@@ -18,22 +27,40 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-card elevation="2">
-          <div class="d-flex flex-nowrap justify-space-between">
-            <div>
-              <v-card-title>Party playlist</v-card-title>
-              <v-card-subtitle class="py-1">Playlist name</v-card-subtitle>
-              <v-card-actions class="pl-4">
-                <v-btn color="primary" variant="elevated" to="/wireframes/stats/playlist-stats">open</v-btn>
-              </v-card-actions>
-            </div>
-            <div class="d-flex flex-column justify-center">
-              <v-avatar class="ma-3" rounded="0" size="10vh">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <template #title>
+              <v-avatar rounded="0" size="10vh">
                 <v-img src="https://cdn.vuetifyjs.com/images/cards/halcyon.png"></v-img>
               </v-avatar>
-            </div>
-          </div>
-        </v-card>
+              <div class="d-flex flex-nowrap justify-space-between">
+                <div>
+                  <v-card-title>Party playlist</v-card-title>
+                  <v-card-subtitle class="py-1">Playlist name</v-card-subtitle>
+                </div>
+              </div>
+            </template>
+            <template #text>
+              <v-card-item class="px-0">
+                <v-list lines="one" style="height: 54vh" class="overflow-y-auto mx-auto py-0">
+                  <v-list-item
+                    v-for="(song, index) in playlist"
+                    :key="index"
+                    :title="song.songname"
+                    :subtitle="'by ' + song.artist"
+                    class="px-0"
+                  >
+                    <template #prepend>
+                      <v-avatar class="ma-3" rounded="0" size="7vh">
+                        <v-img :src="song.image"></v-img>
+                      </v-avatar>
+                    </template>
+                  </v-list-item>
+                </v-list>
+              </v-card-item>
+            </template>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
     </v-row>
     <v-row>
@@ -58,3 +85,8 @@
     </v-row>
   </v-container>
 </template>
+<style>
+  .v-expansion-panel-text__wrapper {
+    padding-left: 0;
+  }
+</style>
