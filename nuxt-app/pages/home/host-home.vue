@@ -116,7 +116,11 @@
             <template #prepend>
               <v-avatar>
                 <template v-if="party.imageId">
-                  <img :src="`/api/image?id=${imageId}`" alt="Party Image" />
+                  <img
+                    :src="`/api/image?id=${party.imageId}`"
+                    alt="Party Image"
+                    style="width: 100px; height: 100px; object-fit: contain"
+                  />
                 </template>
                 <template v-else>
                   <div
