@@ -33,13 +33,11 @@
       <v-col>
         <v-form style="min-width: 300px">
           <v-row>
-            <v-col>
-              <v-text-field hide-details label="Guest name" />
-            </v-col>
+            <v-col> <v-text-field v-model="guestName" hide-details label="Guest name" /> </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <spot-button primary title="continue" @click="enterSession()" />
+              <spot-button primary title="continue" @click="enterSession" />
             </v-col>
           </v-row>
         </v-form>
