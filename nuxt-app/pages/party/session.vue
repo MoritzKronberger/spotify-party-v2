@@ -31,7 +31,7 @@
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
 
-  const partySession = usePartySession(user.name, user.id)
+  const partySession = await usePartySession(user.name, user.id)
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')

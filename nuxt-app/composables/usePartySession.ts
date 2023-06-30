@@ -10,7 +10,7 @@ import { Playlist } from '~/types/trpc'
  * - Provides refs to the party's users and messages
  */
 
-export default function (username: string, userId: string) {
+export default async function (username: string, userId: string) {
   // Get party code from page query parameters
   const route = useRoute()
   const code = route.query.code?.toString()
@@ -19,12 +19,18 @@ export default function (username: string, userId: string) {
 
   const { $client } = useNuxtApp()
 
+  // Load initial playlist and messages
+  // (Since Pusher cache channel init is sometimes buggy/delayed)
+  const session = { session: { sessionCode: code } }
+  const messages = await $client.session.getMessages.query(session)
+  const playlist = await $client.spotify.getPlaylist.query(session)
+
   // Create party session helper
   const partySessionHelper = {
     code,
     me: ref<Member>(),
-    messages: ref<UserMessage[]>([]),
-    playlist: ref<Playlist | undefined>(undefined),
+    messages: ref<UserMessage[]>(messages),
+    playlist: ref<Playlist | undefined>(playlist),
     members: ref<Member[]>([]),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
@@ -36,9 +42,7 @@ export default function (username: string, userId: string) {
           },
           content: msg,
         },
-        session: {
-          sessionCode: code,
-        },
+        ...session,
       }),
   }
 
@@ -63,11 +67,8 @@ export default function (username: string, userId: string) {
     })
 
     // Update party session playlist for party session helper
-    partySession.onPlaylist(async (playlistId) => {
-      partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query({
-        playlistId,
-        session: { sessionCode: code },
-      })
+    partySession.onPlaylist(async () => {
+      partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query(session)
     })
   }
 
