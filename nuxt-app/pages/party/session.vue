@@ -150,25 +150,25 @@
     </v-row>
   </v-container>
 </template>
+
 <style>
   .message {
     margin-bottom: 10px;
   }
-
   .message.own {
     text-align: right;
   }
-
   .message.own .content {
-    background-color: #a6a6a6;
+    background-color: #ffffff;
+    color: #000000;
   }
-
   .content {
     padding: 8px;
-    background-color: #a6a6a6;
+    background-color: #ffffff;
+    color: #000000;
     border-radius: 10px;
     display: inline-block;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
+    /*box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);*/
     max-width: 50%;
     word-wrap: break-word;
   }
