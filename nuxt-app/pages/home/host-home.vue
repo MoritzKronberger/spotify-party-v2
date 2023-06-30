@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import user from '~/store/userData'
-  import SpotButton from '~/components/spot-button.vue'
   import { genNanoId } from '~~/utils/nanoId'
   // Get tRPC client
   const nuxtApp = useNuxtApp()
@@ -9,7 +8,6 @@
 
   const userSpotify = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
-
   /* Storing data userData */
 
   if (process.client) {
@@ -20,7 +18,7 @@
       }
       /* Check for existing name */
       if (!localStorage.getItem('username')) {
-        const name = userSpotify.data.value?.display_name
+        const name = userSpotify.data.value?.name
         localStorage.setItem('username', name)
       }
       user.isHost = true
@@ -56,14 +54,20 @@
       .then(() => {
         const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
         userParties.data.value!.splice(index, 1)
+        dialogIsActive.value = false
       })
       .catch((error) => {
         console.log(error)
       })
   }
 
-  const showDialog = ref(false)
+  const dialogIsActive = ref(false)
   const edit = ref(false)
+
+  const setDialog = (event?: Event) => {
+    dialogIsActive.value = !dialogIsActive.value
+    event?.stopPropagation()
+  }
 </script>
 
 <template>
@@ -110,20 +114,34 @@
             @click="joinPartyByID(party.id)"
           >
             <template #prepend>
-              <v-avatar :image="party.image" rounded="0"></v-avatar>
+              <v-avatar>
+                <template v-if="party.imageId">
+                  <img :src="`/api/image?id=${imageId}`" alt="Party Image" />
+                </template>
+                <template v-else>
+                  <div
+                    style="
+                      width: 200px;
+                      height: 200px;
+                      background-image: linear-gradient(to bottom, rgb(153, 57, 91), rgb(255, 255, 255));
+                      transition: background-image 0.5s linear;
+                    "
+                  ></div>
+                </template>
+              </v-avatar>
             </template>
             <template #append>
-              <v-list-item-subtitle>{{ party.status }}</v-list-item-subtitle>
-              <v-btn v-if="edit" icon="mdi-delete" @click="showDialog = true"></v-btn>
-              <!-- <v-btn v-else icon="mdi-arrow-right" :to="navigate(party.status)"></v-btn> -->
+              <v-list-item-subtitle>Default-Status</v-list-item-subtitle>
+              <v-btn v-if="edit" icon="mdi-delete" @click="setDialog($event)"></v-btn>
+              <v-btn v-else icon="mdi-arrow-right"></v-btn>
             </template>
             <pop-up-dialog
-              v-if="showDialog"
+              v-model="dialogIsActive"
               title="Confirm Delete"
               :info-text="'Do you really want to delete the party: ' + party.name"
               primary-text="Delete"
               @on-primary="deletePartyByID(party.id)"
-              @on-secondary="showDialog = false"
+              @on-secondary="setDialog"
             ></pop-up-dialog>
           </v-list-item>
         </v-list>
