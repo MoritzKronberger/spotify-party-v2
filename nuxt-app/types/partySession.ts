@@ -40,3 +40,8 @@ export type PresenceData = {
   user_id: string
   user_info: { userName: string; isHost: boolean }
 }
+
+export type TokenCount = {
+  maxTokens: number
+  tokenCount: number
+}
