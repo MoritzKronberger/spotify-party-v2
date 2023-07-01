@@ -1,18 +1,20 @@
 <script setup lang="ts">
   import { genNanoId } from '~/utils/nanoId'
   import user from '~/store/userData'
-  import SpotButton from '~/components/spot-button.vue'
+
+  const route = useRoute()
+
   const guestName = ref('')
 
   const enterSession = () => {
     if (guestName.value.length) {
-      const code = user.partyCode
+      const code = route.query.code
       user.name = guestName.value
       user.id = genNanoId()
       localStorage.setItem('username', user.name)
       localStorage.setItem('nanoId', user.id)
       const router = useRouter()
-      router.push({ path: `/party/session`, query: { code }, replace: true })
+      router.push({ path: '/party/session', query: { code }, replace: true })
     } else {
       /* AMIN => Log in UI-ELEMENT */
       console.log('Enter name!')

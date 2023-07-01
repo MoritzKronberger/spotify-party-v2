@@ -11,7 +11,11 @@
   const router = useRouter()
 
   const routeBack = (location: string | undefined) => {
-    router.push({ path: location || '/', replace: true })
+    if (location) {
+      router.push({ path: location, replace: true })
+    } else {
+      router.go(-1)
+    }
   }
 </script>
 

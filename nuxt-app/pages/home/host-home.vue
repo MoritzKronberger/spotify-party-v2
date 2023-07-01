@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import user from '~/store/userData'
   import { genNanoId } from '~~/utils/nanoId'
+
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
@@ -21,10 +22,12 @@
         const name = userSpotify.data.value?.name
         localStorage.setItem('username', name)
       }
+      user.name = localStorage.getItem('username') ?? ''
       user.isHost = true
     } else {
+      /* Pushback to index-page if no value */
       /* AMIN -> error message log in UI */
-      router.push({ path: `/`, replace: true })
+      router.push({ path: '/', replace: true })
     }
   }
 
@@ -79,11 +82,12 @@
         <h1 class="text-primary">My Parties</h1>
       </v-col>
     </v-row>
+    <!--den text nur anzeigen wenn die Partyliste leer ist-->
     <v-row>
       <v-col>
         <v-row>
           <v-col>
-            <p class="text-center text-subtitle-1 font-weight-bold">Welcome user</p>
+            <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.name }}</p>
             <p class="text-center text-body-1">Let your friends control your music.</p>
             <p class="text-center">Get started by opening a new party.</p>
           </v-col>

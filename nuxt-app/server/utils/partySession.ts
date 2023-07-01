@@ -111,7 +111,7 @@ export class PartySession {
    * - https://github.com/pusher/pusher-http-node#publishing-events
    * - https://support.pusher.com/hc/en-us/articles/4412243423761-What-Is-The-Message-Size-Limit-When-Publishing-an-Event-in-Channels-
    */
-  public async publishPlaylist(playlistId: string) {
-    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playlist, playlistId)
+  public async publishPlaylist() {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playlist, null)
   }
 }

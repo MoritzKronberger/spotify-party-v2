@@ -88,7 +88,7 @@ export class PartySession {
   }
 
   /** Set callback for new playlist on the party session channel. */
-  public onPlaylist(callback: (playlistId: string) => void) {
+  public onPlaylist(callback: () => void) {
     this.partyChannel.bind(events.playlist, callback)
   }
 
