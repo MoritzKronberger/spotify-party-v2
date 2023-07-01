@@ -36,8 +36,8 @@
       .useQuery({ id: partyID })
       .then((result) => {
         if (result.data.value) {
-          if (result.data.value[0]?.code) {
-            const code = result.data.value[0].code
+          if (result.data.value?.code) {
+            const code = result.data.value.code
             user.partyCode = code
             router.push({ path: `/party/session`, query: { code }, replace: true })
           } else {
