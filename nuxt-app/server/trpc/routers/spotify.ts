@@ -111,8 +111,9 @@ export const spotifyRouter = router({
       }
     }),
   /** Get single playlist by Id. */
-  getPlaylist: spotifySessionUserProcedure.input(z.object({ playlistId: z.string() })).query(async ({ ctx, input }) => {
-    const playlist = (await ctx.spotifyUserAPI.getPlaylist(input.playlistId)).body
+  getPlaylist: spotifySessionUserProcedure.query(async ({ ctx }) => {
+    const { playlistId } = ctx.party
+    const playlist = (await ctx.spotifyUserAPI.getPlaylist(playlistId)).body
     // Keep data to a minimum
     return {
       id: playlist.id,

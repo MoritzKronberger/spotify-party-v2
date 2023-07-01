@@ -19,7 +19,8 @@
         if (result.data.value?.exists) {
           user.partyCode = partyCode.value
           user.isHost = false
-          router.push({ path: `/party/login-guest`, replace: true })
+          const code = partyCode.value
+          router.push({ path: `/party/login-guest`, query: { code }, replace: true })
           /* Requires merge of add-party-session-logic */
         } else {
           /* AMIN -> message log in UI */

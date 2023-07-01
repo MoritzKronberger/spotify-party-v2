@@ -4,7 +4,7 @@ interface IUser {
   id: string
   name: string
   isHost: boolean
-  partyCode: string
+  partyCode: string | undefined
 }
 
 const user: IUser = reactive({

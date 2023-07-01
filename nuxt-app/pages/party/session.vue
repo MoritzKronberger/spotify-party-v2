@@ -12,20 +12,26 @@
         user.name = username
         user.id = id
       } else {
-        router.push({ path: `/party/join-party`, replace: true })
+        router.push({ path: '/party/join-party', replace: true })
       }
     }
   }
   getSessionCredentials()
 
   const router = useRouter()
+  const route = useRoute()
+  const code = route.query.code?.toString() ?? undefined
+
+  /* Pushback */
+  if (code === undefined) {
+    router.push({ path: '/', replace: true })
+  }
 
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
-  const playlist = ref([{ songname: 'songname', artist: 'michael jackson' }])
-  const isCopied = ref(false)
-  const partySession = usePartySession(user.name, user.id)
+
+  const partySession = await usePartySession(user.name, user.id)
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')
@@ -48,24 +54,13 @@
       }
     }
   )
-
-  const shareCode = () => {
-    navigator.clipboard.writeText(partySession.code).then(() => {
-      isCopied.value = true
-      setTimeout(() => {
-        isCopied.value = false
-      }, 3000)
-    })
-  }
 </script>
 
 <template>
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn variant="tonal" @click="shareCode">invite</v-btn>
-        <!-- Invite-Button will route to Share-Page in following update -->
-        <v-card-text v-if="isCopied" type="text">Copied to clipboard!</v-card-text>
+        <v-btn variant="tonal" to="/party/invite-friends">invite</v-btn>
       </v-col>
       <v-col class="text-right">
         <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">{{
@@ -127,10 +122,10 @@
                   <v-col>
                     <v-list lines="one" style="height: 350px" class="overflow-y-auto mx-auto">
                       <v-list-item
-                        v-for="(song, index) in playlist"
-                        :key="index"
-                        :title="song.songname"
-                        :subtitle="'by ' + song.artist"
+                        v-for="track in partySession.playlist.value?.tracks"
+                        :key="track.id"
+                        :title="track.images?.[0]?.url"
+                        :subtitle="'by ' + track.artists?.[0]?.name"
                       />
                     </v-list>
                   </v-col>
