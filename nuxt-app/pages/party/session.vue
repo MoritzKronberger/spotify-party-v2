@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import user from '~/store/userData'
+  import { user } from '~/store/userData'
   definePageMeta({
     layout: 'song-app-bar',
   })
@@ -60,18 +60,33 @@
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn variant="tonal" to="/party/invite-friends">invite</v-btn>
+        <v-btn color="primary" to="/party/invite-friends">invite</v-btn>
       </v-col>
       <v-col class="text-right">
-        <guest-button :title="Object.keys(partySession.members.value).length"></guest-button>
+        <guest-button
+          :title="Object.keys(partySession.members.value).length"
+          :to="`/party/guest-list?code=${partySession.code}`"
+        ></guest-button>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col>
         <v-card elevation="10" max-height="64vh">
-          <v-card-title v-if="tab === 'suggestion'">Song suggestions</v-card-title>
-          <v-card-title v-else>Current playlist</v-card-title>
+          <v-card-title v-if="tab === 'suggestion'">
+            <v-row class="align-center justify-space-between">
+              <v-col> Song suggestions </v-col>
+              <v-avatar class="ma-3" rounded="0" size="10vh"> </v-avatar>
+            </v-row>
+          </v-card-title>
+          <v-card-title v-else>
+            <v-row class="align-center justify-space-between">
+              <v-col>Current playlist</v-col>
+              <v-avatar class="ma-3" rounded="0" size="10vh" variant="elevated">
+                <v-img src="https://cdn.vuetifyjs.com/images/cards/halcyon.png"></v-img>
+              </v-avatar>
+            </v-row>
+          </v-card-title>
           <div class="mx-3">
             <v-divider thickness="2" />
           </div>
@@ -122,9 +137,15 @@
                       <v-list-item
                         v-for="track in partySession.playlist.value?.tracks"
                         :key="track.id"
-                        :title="track.images?.[0]?.url"
+                        :title="track.name"
                         :subtitle="'by ' + track.artists?.[0]?.name"
-                      />
+                      >
+                        <template #prepend>
+                          <v-avatar class="ma-3" rounded="0" size="7vh" variant="elevated">
+                            <v-img :src="track.images?.[0]?.url"></v-img>
+                          </v-avatar>
+                        </template>
+                      </v-list-item>
                     </v-list>
                   </v-col>
                 </v-row>
