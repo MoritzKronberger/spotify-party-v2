@@ -34,12 +34,11 @@
   const suggestion = ref('')
 
   const partySession = await usePartySession(user.name, user.id)
-
   // Set party session status to "active" if host joins party
-  if (user.isHost) {
-    await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
-    partySession.startPlaybackUpdateInterval(1000, 50)
-  }
+
+  // CHECK COMPOSABLE
+  await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
+  partySession.startPlaybackUpdateInterval(1000, 50)
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')
@@ -70,6 +69,18 @@
       <v-col>
         <v-btn color="primary" to="/party/invite-friends">invite</v-btn>
       </v-col>
+      <v-col v-if="partySession.playback.value?.item">
+        <v-app-bar-title>
+          <playing-song
+            :current-song="{
+              title: partySession.playback.value.item.name,
+              artist: partySession.playback.value.item.artists.map((artist) => artist.name).join(', '),
+              image: partySession.playback.value.item.album.images[0]?.url ?? '',
+            }"
+            :like="like"
+          ></playing-song>
+        </v-app-bar-title>
+      </v-col>
       <v-col class="text-right">
         <guest-button
           :title="Object.keys(partySession.members.value).length"
@@ -91,7 +102,7 @@
             <v-row class="align-center justify-space-between">
               <v-col>Current playlist</v-col>
               <v-avatar class="ma-3" rounded="0" size="10vh" variant="elevated">
-                <v-img src="https://cdn.vuetifyjs.com/images/cards/halcyon.png"></v-img>
+                <v-img :src="partySession.playlist.value?.images[0]?.url"></v-img>
               </v-avatar>
             </v-row>
           </v-card-title>
@@ -155,7 +166,7 @@
                         v-for="track in partySession.playlist.value?.tracks"
                         :key="track.id"
                         :title="track.name"
-                        :subtitle="'by ' + track.artists?.[0]?.name"
+                        :subtitle="'by ' + track.artists?.map((artist) => artist.name).join(', ')"
                       >
                         <template #prepend>
                           <v-avatar class="ma-3" rounded="0" size="7vh" variant="elevated">
