@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import user from '~/store/userData'
+  import { user } from '~/store/userData'
   import { genNanoId } from '~~/utils/nanoId'
 
   // Get tRPC client
@@ -131,7 +131,7 @@
                     style="
                       width: 200px;
                       height: 200px;
-                      background-image: linear-gradient(to bottom, rgb(153, 57, 91), rgb(255, 255, 255));
+                      background-image: linear-gradient(to bottom, rgb(26, 171, 104), rgb(255, 255, 255));
                       transition: background-image 0.5s linear;
                     "
                   ></div>
@@ -139,7 +139,7 @@
               </v-avatar>
             </template>
             <template #append>
-              <v-list-item-subtitle>Default-Status</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ party.sessionStatus }}</v-list-item-subtitle>
               <v-btn v-if="edit" icon="mdi-delete" @click="setDialog($event)"></v-btn>
               <v-btn v-else icon="mdi-arrow-right"></v-btn>
             </template>
