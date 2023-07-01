@@ -24,7 +24,7 @@
           <playing-song :current-song="song" :like="like"></playing-song>
         </v-app-bar-title>
         <template v-if="showOption" #append>
-          <v-btn icon>
+          <v-btn icon to="/party/edit-party">
             <v-icon>mdi-cog</v-icon>
           </v-btn>
         </template>
