@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import QrcodeVue from 'qrcode.vue'
   import user from '~/store/userData'
   const isCopied = ref(false)
   const shareCode = () => {
@@ -34,7 +33,7 @@
     <v-row>
       <v-col class="pb-0">
         <v-card variant="outlined" class="pa-5">
-          <qrcode-vue value="Text to encode"></qrcode-vue>
+          <VueQr text="Hello World!" size="150" margin="15"></VueQr>
         </v-card>
       </v-col>
     </v-row>

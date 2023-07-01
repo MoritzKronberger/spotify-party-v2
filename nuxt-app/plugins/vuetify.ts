@@ -24,10 +24,12 @@ const defaultTheme: ThemeDefinition = {
 const wireframesTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    background: '#FFFFFF',
-    surface: '#FFFFFF',
-    primary: '#A6A6A6',
-    secondary: '#A6A6A6',
+    background: '#000000',
+    surface: '#1c1b1b',
+    primary: '#17AE69',
+    secondary: '#FFFFFF',
+    spotify: '#1DB954',
+    openAI: '#10A37F',
   },
 }
 
