@@ -116,16 +116,25 @@
                   </v-row>
                   <v-divider thickness="2" class="my-1" />
                   <v-row class="my-1">
-                    <v-col cols="10">
+                    <v-col>
                       <v-text-field
                         v-model="suggestion"
                         label="Type here"
-                        :disabled="partySession.me.value === undefined"
+                        hide-details
+                        single-line
+                        density="comfortable"
                         @keyup.enter="addMessage"
-                      />
-                    </v-col>
-                    <v-col cols="1" class="mx-auto">
-                      <v-btn icon="mdi-send-variant" @click="addMessage"></v-btn>
+                      >
+                        <template #append>
+                          <v-btn
+                            icon="mdi-send-variant"
+                            variant="text"
+                            color="primary"
+                            density="compact"
+                            @click="addMessage"
+                          ></v-btn>
+                        </template>
+                      </v-text-field>
                     </v-col>
                   </v-row>
                 </v-col>
