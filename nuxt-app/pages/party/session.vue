@@ -63,20 +63,18 @@
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn variant="tonal" @click="shareCode">invite</v-btn>
+        <v-btn color="primary" @click="shareCode">invite</v-btn>
         <!-- Invite-Button will route to Share-Page in following update -->
         <v-card-text v-if="isCopied" type="text">Copied to clipboard!</v-card-text>
       </v-col>
       <v-col class="text-right">
-        <v-btn variant="tonal" prepend-icon="mdi-account-multiple" rounded="xl">{{
-          Object.keys(partySession.members.value).length
-        }}</v-btn>
+        <guest-button :title="Object.keys(partySession.members.value).length"></guest-button>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col>
-        <v-card elevation="2">
+        <v-card elevation="10" max-height="64vh">
           <v-card-title v-if="tab === 'suggestion'">Song suggestions</v-card-title>
           <v-card-title v-else>Current playlist</v-card-title>
           <div class="mx-3">
