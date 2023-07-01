@@ -1,10 +1,11 @@
 <script setup lang="ts">
   import { user } from '~/store/userData'
   const isCopied = ref(false)
+  const partyURL = ref('')
   const shareCode = () => {
     if (user.partyCode) {
-      const partyURL = `localhost:3000/party/session?code=${user.partyCode}`
-      navigator.clipboard.writeText(partyURL).then(() => {
+      partyURL.value = `localhost:3000/party/session?code=${user.partyCode}`
+      navigator.clipboard.writeText(partyURL.value).then(() => {
         isCopied.value = true
         setTimeout(() => {
           isCopied.value = false
@@ -33,7 +34,7 @@
     <v-row>
       <v-col class="pb-0">
         <v-card class="pa-5 bg-background">
-          <VueQr text="Hello World!" size="150" margin="15"></VueQr>
+          <VueQr :text="partyURL" size="150" margin="15"></VueQr>
         </v-card>
       </v-col>
     </v-row>
