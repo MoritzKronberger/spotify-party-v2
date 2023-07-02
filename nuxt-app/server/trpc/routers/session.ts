@@ -90,7 +90,12 @@ export const sessionRouter = router({
 
     // Start playback of party playlist on the host's device
     const spotify = spotifyRouter.createCaller(ctx)
-    await spotify.setPlaylistPlayback({ playlistId: party.playlistId })
+    await spotify.setPlaylistPlayback({ playlistId: party.playlistId }).catch(() => {
+      // For now, simply add a log if playback can't be started
+      // (Usually happens, if no Spotify device is active)
+      // TODO: Publish error once frontend implements error messages
+      console.log(`Could not start playback for session ${party.code}`)
+    })
 
     // Set session status as "active" in DB
     const partyProcedures = partyRouter.createCaller(ctx)

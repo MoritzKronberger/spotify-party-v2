@@ -62,7 +62,10 @@ export default async function (username: string, userId: string) {
      * @param fallbackIntervalMs The timeout to use if time until next song can't be calculated.
      * @param progressOffsetMs The time to offset the time until the next song by -> make sure song has "ticked-over"
      */
-    startPlaybackUpdateInterval: async (fallbackIntervalMs: number, progressOffsetMs: number) => {
+    startPlaybackUpdateInterval: async (
+      fallbackIntervalMs: number,
+      progressOffsetMs: number
+    ): Promise<NodeJS.Timeout | undefined> => {
       // Do noting (and stop interval) if session is inactive
       if (partySessionHelper.status.value === 'active') {
         // (Updating playback ref is handled via `onPlayback` callback)
@@ -76,7 +79,10 @@ export default async function (username: string, userId: string) {
         }
 
         // Start next interval after timeout
-        setTimeout(() => partySessionHelper.startPlaybackUpdateInterval(fallbackIntervalMs, progressOffsetMs), timeout)
+        return setTimeout(
+          () => partySessionHelper.startPlaybackUpdateInterval(fallbackIntervalMs, progressOffsetMs),
+          timeout
+        )
       }
     },
   }
@@ -114,6 +120,7 @@ export default async function (username: string, userId: string) {
 
     // Update playback
     partySession.onPlayback((playback) => {
+      console.log('Received playback!')
       partySessionHelper.playback.value = playback
     })
   }
