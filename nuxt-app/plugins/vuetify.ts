@@ -10,10 +10,10 @@ import { VBtn, VCard } from 'vuetify/components'
  * https://vuetifyjs.com/en/features/theme/#typescript
  */
 const defaultTheme: ThemeDefinition = {
-  dark: true,
+  dark: false,
   colors: {
     background: '#000000',
-    surface: '#000000',
+    surface: '#1c1b1b',
     primary: '#17AE69',
     secondary: '#FFFFFF',
     spotify: '#1DB954',

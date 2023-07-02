@@ -166,7 +166,7 @@ export const spotifyRouter = router({
     const playbackContextURI = playbackState?.context?.uri
     if (playbackState && playlistURI === playbackContextURI) {
       return {
-        item: playbackState.item,
+        item: playbackState.item && 'album' in playbackState.item ? playbackState.item : undefined,
         progressMs: playbackState.progress_ms,
         timestamp: playbackState.timestamp,
         isPlaying: playbackState.is_playing,

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-  import user from '~/store/userData'
-  import SpotButton from '~/components/spot-button.vue'
+  import { user } from '~/store/userData'
   import { genNanoId } from '~~/utils/nanoId'
 
   // Get tRPC client
@@ -10,7 +9,6 @@
 
   const userSpotify = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
-  const edit = ref(false)
   /* Storing data userData */
 
   if (process.client) {
@@ -53,17 +51,25 @@
       })
   }
 
-  const deletePartyByID = async (event: Event, partyID: string) => {
-    event.stopPropagation()
+  const deletePartyByID = async (partyID: string) => {
     await $client.party.deleteParty
       .mutate({ id: partyID })
       .then(() => {
         const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
         userParties.data.value!.splice(index, 1)
+        dialogIsActive.value = false
       })
       .catch((error) => {
         console.log(error)
       })
+  }
+
+  const dialogIsActive = ref(false)
+  const edit = ref(false)
+
+  const setDialog = (event?: Event) => {
+    dialogIsActive.value = !dialogIsActive.value
+    event?.stopPropagation()
   }
 </script>
 
@@ -73,7 +79,7 @@
 
     <v-row>
       <v-col>
-        <h1>My Parties</h1>
+        <h1 class="text-primary">My Parties</h1>
       </v-col>
     </v-row>
     <!--den text nur anzeigen wenn die Partyliste leer ist-->
@@ -111,9 +117,40 @@
             :subtitle="party.description ? party.description : ''"
             @click="joinPartyByID(party.id)"
           >
-            <template #append>
-              <v-btn v-if="edit" icon="mdi-delete" @click="deletePartyByID($event, party.id)"></v-btn>
+            <template #prepend>
+              <v-avatar>
+                <template v-if="party.imageId">
+                  <img
+                    :src="`/api/image?id=${party.imageId}`"
+                    alt="Party Image"
+                    style="width: 100px; height: 100px; object-fit: contain"
+                  />
+                </template>
+                <template v-else>
+                  <div
+                    style="
+                      width: 200px;
+                      height: 200px;
+                      background-image: linear-gradient(to bottom, rgb(26, 171, 104), rgb(255, 255, 255));
+                      transition: background-image 0.5s linear;
+                    "
+                  ></div>
+                </template>
+              </v-avatar>
             </template>
+            <template #append>
+              <v-list-item-subtitle>{{ party.sessionStatus }}</v-list-item-subtitle>
+              <v-btn v-if="edit" icon="mdi-delete" @click="setDialog($event)"></v-btn>
+              <v-btn v-else icon="mdi-arrow-right"></v-btn>
+            </template>
+            <pop-up-dialog
+              v-model="dialogIsActive"
+              title="Confirm Delete"
+              :info-text="'Do you really want to delete the party: ' + party.name"
+              primary-text="Delete"
+              @on-primary="deletePartyByID(party.id)"
+              @on-secondary="setDialog"
+            ></pop-up-dialog>
           </v-list-item>
         </v-list>
       </v-card>
@@ -121,7 +158,7 @@
 
     <v-row>
       <v-col>
-        <spot-button primary title="NEW PARTY" />
+        <spot-button primary to="/party/create" title="NEW PARTY" />
       </v-col>
     </v-row>
     <v-spacer />

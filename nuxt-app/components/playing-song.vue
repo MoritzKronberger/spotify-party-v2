@@ -5,7 +5,6 @@
       artist: string
       image: string
     }
-    like: () => void
   }>()
 </script>
 <template>
@@ -15,9 +14,6 @@
         <v-list-item :title="props.currentSong.title" :subtitle="props.currentSong.artist">
           <template #prepend>
             <v-avatar :image="props.currentSong.image" rounded="0"></v-avatar>
-          </template>
-          <template #append>
-            <v-btn icon="mdi-heart-outline" @click="like()"></v-btn>
           </template>
         </v-list-item>
       </v-card>
