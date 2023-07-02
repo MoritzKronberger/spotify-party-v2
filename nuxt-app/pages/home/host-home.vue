@@ -1,35 +1,13 @@
 <script setup lang="ts">
   import { user } from '~/store/userData'
-  import { genNanoId } from '~~/utils/nanoId'
-
+  definePageMeta({
+    middleware: ['auth'],
+  })
   // Get tRPC client
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
   const router = useRouter()
-
-  const userSpotify = await $client.auth.getUser.useQuery()
   const userParties = await $client.party.getUserParties.useQuery()
-  /* Storing data userData */
-
-  if (process.client) {
-    if (userSpotify.data.value) {
-      /* Check for existing nanoId */
-      if (!localStorage.getItem('nanoId')) {
-        localStorage.setItem('nanoId', genNanoId())
-      }
-      /* Check for existing name */
-      if (!localStorage.getItem('username')) {
-        const name = userSpotify.data.value?.name
-        localStorage.setItem('username', name)
-      }
-      user.name = localStorage.getItem('username') ?? ''
-      user.isHost = true
-    } else {
-      /* Pushback to index-page if no value */
-      /* AMIN -> error message log in UI */
-      router.push({ path: '/', replace: true })
-    }
-  }
 
   const joinPartyByID = async (partyID: string) => {
     await $client.party.getParty
