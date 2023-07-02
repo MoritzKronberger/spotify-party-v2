@@ -39,7 +39,7 @@
   let playbackUpdateInterval: NodeJS.Timeout | undefined
   if (user.isHost) {
     await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
-    playbackUpdateInterval = await partySession.startPlaybackUpdateInterval(1000, 50)
+    playbackUpdateInterval = await partySession.startPlaybackUpdateInterval(60 * 1000, 50) // Use fallback interval of 60 seconds
   }
 
   const scrollToBottom = () => {
