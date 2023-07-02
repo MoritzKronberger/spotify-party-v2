@@ -18,8 +18,8 @@
   const party = {
     name: ref(''),
     description: ref(''),
-    startAutomatically: ref<Date | null | undefined>(null),
   }
+
   const base64Blob = ref<string | undefined>(undefined)
   const mimeType = ref<MimeType>()
 
@@ -83,7 +83,6 @@
         party: {
           name: party.name.value,
           description: party.description.value,
-          startAutomatically: party.startAutomatically.value,
         },
         image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
       })
@@ -95,6 +94,17 @@
       })
   }
 
+  if (props.isUpdate) {
+    await $client.party.getPartyByCode
+      .query({ code })
+      .then((data) => {
+        party.name.value = data?.name ?? ''
+        party.description.value = data?.description ?? ''
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
   const updateParty = async () => {
     const partySession = await usePartySession(user.name, user.id)
     const code = partySession.code
@@ -108,7 +118,6 @@
             party: {
               name: party.name.value,
               description: party.description.value,
-              startAutomatically: party.startAutomatically.value,
             },
             image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
           },
