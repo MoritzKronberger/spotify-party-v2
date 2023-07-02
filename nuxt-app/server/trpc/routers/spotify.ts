@@ -111,8 +111,9 @@ export const spotifyRouter = router({
       }
     }),
   /** Get single playlist by Id. */
-  getPlaylist: spotifySessionUserProcedure.input(z.object({ playlistId: z.string() })).query(async ({ ctx, input }) => {
-    const playlist = (await ctx.spotifyUserAPI.getPlaylist(input.playlistId)).body
+  getPlaylist: spotifySessionUserProcedure.query(async ({ ctx }) => {
+    const { playlistId } = ctx.party
+    const playlist = (await ctx.spotifyUserAPI.getPlaylist(playlistId)).body
     // Keep data to a minimum
     return {
       id: playlist.id,
@@ -131,6 +132,39 @@ export const spotifyRouter = router({
           artists: track?.artists.map((artist) => ({ name: artist.name })),
         }
       }),
+    }
+  }),
+  /**
+   * Set playback on active device to playlist start.
+   *
+   * (Unless playlist is already playing.)
+   */
+  setPlaylistPlayback: spotifyUserProcedure
+    .input(z.object({ playlistId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const playlistURI = `spotify:playlist:${input.playlistId}`
+      const playbackState = (await ctx.spotifyUserAPI.getMyCurrentPlaybackState()).body
+      const playbackContextURI = playbackState.context?.uri
+      if (playlistURI !== playbackContextURI) return await ctx.spotifyUserAPI.play({ context_uri: playlistURI })
+    }),
+  /**
+   * Get info about playback on the user's active device.
+   *
+   * Only if party playlist is being played (for privacy).
+   */
+  getPlayback: spotifyUserProcedure.input(z.object({ playlistId: z.string() })).mutation(async ({ input, ctx }) => {
+    const playlistURI = `spotify:playlist:${input.playlistId}`
+    const playbackState = (await ctx.spotifyUserAPI.getMyCurrentPlaybackState()).body
+    const playbackContextURI = playbackState.context?.uri
+
+    // If party playlist is playing
+    if (playlistURI === playbackContextURI) {
+      return {
+        item: playbackState.item && 'album' in playbackState.item ? playbackState.item : undefined,
+        progressMs: playbackState.progress_ms,
+        timestamp: playbackState.timestamp,
+        isPlaying: playbackState.is_playing,
+      }
     }
   }),
 })

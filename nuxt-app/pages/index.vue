@@ -50,7 +50,7 @@
         generateCodeChallenge(codeVerifier).then((codeChallenge) => {
           const state = generateRandomString(16)
           const scope =
-            'user-read-private user-read-email playlist-modify-public playlist-modify-private user-read-playback-state'
+            'user-read-private user-read-email playlist-modify-public playlist-modify-private user-read-playback-state user-modify-playback-state'
 
           // Set code verifier as cookie (to preserve it after OAuth-redirect)
           codeVerifierCookie.value = codeVerifier
@@ -70,36 +70,30 @@
     })
   })
 </script>
-
 <template>
-  <VContainer class="fill-height flex-column">
-    <VSpacer />
-    <VRow style="min-width: 300px">
-      <VCol>
-        <placeholder-card text="Logo" />
-      </VCol>
-    </VRow>
+  <v-container class="fill-height flex-column">
+    <v-spacer />
 
-    <VRow style="min-width: 300px">
-      <VCol>
-        <VRow :v-if="errorMessage != ''">
-          <VCol>
-            <div>{{ errorMessage }}</div>
-          </VCol>
-        </VRow>
-        <VRow>
-          <VCol>
-            <button-primary :href="directURL">I am a host</button-primary>
-          </VCol>
-        </VRow>
-        <VRow>
-          <VCol>
-            <button-secondary href="party/join-party">I am a guest</button-secondary>
-          </VCol>
-        </VRow>
-      </VCol>
-    </VRow>
-
-    <VSpacer />
-  </VContainer>
+    <v-row>
+      <v-img width="40vw" src="/logo_primary.svg" />
+    </v-row>
+    <v-row>
+      <h1>Spotify Party</h1>
+    </v-row>
+    <v-spacer />
+    <v-row style="min-width: 300px">
+      <v-col>
+        <v-row>
+          <v-col>
+            <spot-button primary :to="directURL" :is-href="true" title="I AM A HOST" />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <spot-button to="/party/join-party" title="I AM A GUEST" />
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>

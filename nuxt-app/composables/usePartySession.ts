@@ -1,6 +1,6 @@
-import { UserMessage, Member } from '~/types/partySession'
+import { UserMessage, Member, TokenCount } from '~/types/partySession'
 import { PartySession } from '~/utils/partySession'
-import { Playlist } from '~/types/trpc'
+import { Playback, Playlist, SessionStatus } from '~/types/trpc'
 
 /**
  * Create party session helper that:
@@ -10,7 +10,7 @@ import { Playlist } from '~/types/trpc'
  * - Provides refs to the party's users and messages
  */
 
-export default function (username: string, userId: string) {
+export default async function (username: string, userId: string) {
   // Get party code from page query parameters
   const route = useRoute()
   const code = route.query.code?.toString()
@@ -19,13 +19,24 @@ export default function (username: string, userId: string) {
 
   const { $client } = useNuxtApp()
 
+  // Load initial playlist and messages
+  // (Since Pusher cache channel init is sometimes buggy/delayed)
+  const session = { session: { sessionCode: code } }
+  const messages = await $client.session.getMessages.query(session)
+  const playlist = await $client.spotify.getPlaylist.query(session)
+  const party = await $client.party.getPartyByCode.query({ code })
+  const tokenCount = await $client.session.getTokenCount.query(session)
+
   // Create party session helper
   const partySessionHelper = {
     code,
     me: ref<Member>(),
-    messages: ref<UserMessage[]>([]),
-    playlist: ref<Playlist | undefined>(undefined),
+    status: ref<SessionStatus>(party?.sessionStatus ?? 'inactive'),
+    messages: ref<UserMessage[]>(messages),
+    playlist: ref<Playlist | undefined>(playlist),
+    playback: ref<Playback>(undefined),
     members: ref<Member[]>([]),
+    tokenCount: ref<TokenCount>(tokenCount),
     addMessage: (msg: string) =>
       $client.session.addMessage.mutate({
         message: {
@@ -36,10 +47,38 @@ export default function (username: string, userId: string) {
           },
           content: msg,
         },
-        session: {
-          sessionCode: code,
-        },
+        ...session,
       }),
+    /**
+     * Stat publishing current playback in interval.
+     *
+     * Interval timeout is either the time until the next song
+     * or the fallback timeout if no information about the current song exists.
+     *
+     * Must be run client-side, since intervals > 60s would cause Vercel Serveless Functions to time out.
+     * Reference:
+     * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
+     *
+     * @param fallbackIntervalMs The timeout to use if time until next song can't be calculated.
+     * @param progressOffsetMs The time to offset the time until the next song by -> make sure song has "ticked-over"
+     */
+    startPlaybackUpdateInterval: async (fallbackIntervalMs: number, progressOffsetMs: number) => {
+      // Do noting (and stop interval) if session is inactive
+      if (partySessionHelper.status.value === 'active') {
+        // (Updating playback ref is handled via `onPlayback` callback)
+        const playback = await $client.session.publishPlayback.query(session)
+
+        // Calculate time until next track
+        // (or use fallback if playback information is missing)
+        let timeout = fallbackIntervalMs
+        if (playback?.item?.duration_ms && playback.progressMs) {
+          timeout = playback?.item?.duration_ms - playback.progressMs + progressOffsetMs
+        }
+
+        // Start next interval after timeout
+        setTimeout(() => partySessionHelper.startPlaybackUpdateInterval(fallbackIntervalMs, progressOffsetMs), timeout)
+      }
+    },
   }
 
   // Client-side only
@@ -63,11 +102,19 @@ export default function (username: string, userId: string) {
     })
 
     // Update party session playlist for party session helper
-    partySession.onPlaylist(async (playlistId) => {
-      partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query({
-        playlistId,
-        session: { sessionCode: code },
-      })
+    partySession.onPlaylist(async (tokenCount) => {
+      partySessionHelper.tokenCount.value = tokenCount
+      partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query(session)
+    })
+
+    // Update party session status
+    partySession.onStatus((status) => {
+      partySessionHelper.status.value = status
+    })
+
+    // Update playback
+    partySession.onPlayback((playback) => {
+      partySessionHelper.playback.value = playback
     })
   }
 

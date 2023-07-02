@@ -3,8 +3,9 @@ import { eq } from 'drizzle-orm'
 import { TRPCError } from '@trpc/server'
 import type { H3Event } from 'h3'
 import { router } from '../trpc'
-import { sessionProcedure } from '../middleware/isSession'
+import { sessionHostProcedure, sessionProcedure } from '../middleware/isSession'
 import { spotifyRouter } from './spotify'
+import { partyRouter } from './party'
 import { FullMessage, userMessageSchema } from '~/types/partySession'
 import { PartySession } from '~/server/utils/partySession'
 import { genNanoId } from '~/utils/nanoId'
@@ -46,10 +47,8 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
   const { totalTokens, playlist } = result
 
   // Increase party token count
-  await db
-    .update(partyTable)
-    .set({ tokenCount: party.tokenCount + totalTokens })
-    .where(eq(partyTable.id, party.id))
+  const tokenCount = party.tokenCount + totalTokens
+  await db.update(partyTable).set({ tokenCount }).where(eq(partyTable.id, party.id))
 
   if (playlist) {
     // Add assistant message (playlist) to messages for later context
@@ -69,11 +68,46 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
 
     // Publish new playlist
     // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
-    partySession.publishPlaylist(playlistId)
+    partySession.publishPlaylist({
+      maxTokens: openAIClient.maxPartyTokens,
+      tokenCount,
+    })
   }
 }
 
 export const sessionRouter = router({
+  /** Start live party session. */
+  startSession: sessionHostProcedure.mutation(async ({ ctx }) => {
+    const { party, partySession } = ctx
+
+    // If the host is joining the party for the first time
+    // (-> activating it)
+    // Create the initial playlist using all current messages
+    if (party.sessionStatus === 'inactive') {
+      const messages = await partySession.getMessages()
+      if (messages) await updatePlaylist(messages, party, ctx.event)
+    }
+
+    // Start playback of party playlist on the host's device
+    const spotify = spotifyRouter.createCaller(ctx)
+    await spotify.setPlaylistPlayback({ playlistId: party.playlistId })
+
+    // Set session status as "active" in DB
+    const partyProcedures = partyRouter.createCaller(ctx)
+    const status = 'active'
+    await partyProcedures.setSessionStatus({ id: party.id, status })
+
+    // Publish new status
+    await partySession.publishStatus(status)
+  }),
+  /** End live party session. */
+  stopSession: sessionHostProcedure.mutation(async ({ ctx }) => {
+    const { party, partySession } = ctx
+    const partyProcedures = partyRouter.createCaller(ctx)
+    const status = 'closed'
+    await partySession.publishStatus(status)
+    return await partyProcedures.setSessionStatus({ id: party.id, status })
+  }),
   /** Add message to party session. */
   addMessage: sessionProcedure
     .input(z.object({ message: userMessageSchema.omit({ id: true }) }))
@@ -83,9 +117,9 @@ export const sessionRouter = router({
         throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'Maximum token count has been reached' })
 
       // Unpack inputs
-      const { session, message } = input
+      const { message } = input
       // Create new party session helper
-      const partySession = new PartySession(session.sessionCode)
+      const { party, partySession } = ctx
 
       // Format and publish message
 
@@ -99,8 +133,50 @@ export const sessionRouter = router({
       // Update playlist using OpenAI-API and Spotify-API
 
       // Update playlist every #promptMessageBuffer user-messages
-      const userMessages = sessionMessages.filter((message) => message.role === 'user')
-      if (userMessages.length % openAIClient.opts.promptMessageBuffer === 0)
-        await updatePlaylist(sessionMessages, ctx.party, ctx.event)
+      // Only if party is active!
+      if (party.sessionStatus === 'active') {
+        const userMessages = sessionMessages.filter((message) => message.role === 'user')
+        if (userMessages.length % openAIClient.opts.promptMessageBuffer === 0)
+          await updatePlaylist(sessionMessages, ctx.party, ctx.event)
+      }
     }),
+  /** Get all user messages for party session. */
+  getMessages: sessionProcedure.query(async ({ ctx }) => {
+    const { partySession } = ctx
+    const messages = (await partySession.getMessages()) ?? []
+    return partySession.parseFullMessagesForUsers(messages)
+  }),
+  /**
+   * Allow hosts to publish the current playback state.
+   *
+   * (Only for active party and only if party playlist is being played.)
+   *
+   * Interval to call this function must be run client-side,
+   * since intervals > 60s would cause Vercel Serverless Functions to timeout.
+   *
+   * Reference:
+   * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
+   */
+  publishPlayback: sessionHostProcedure.query(async ({ ctx }) => {
+    const { party, partySession } = ctx
+    const spotify = spotifyRouter.createCaller(ctx)
+
+    // Do nothing (also ends interval) for inactive party
+    if (party.sessionStatus === 'active') {
+      const playback = await spotify.getPlayback({ playlistId: party.playlistId })
+      await partySession.publishPlayback(playback)
+      return playback
+    }
+  }),
+  /** Get token count of current party. */
+  getTokenCount: sessionProcedure.query(({ ctx }) => {
+    return {
+      maxTokens: openAIClient.maxPartyTokens,
+      tokenCount: ctx.party.tokenCount,
+    }
+  }),
+  /** Get maximum amount of tokens allowed for a single message. */
+  getMaxMessageTokens: sessionProcedure.query(() => {
+    return openAIClient.maxMessageTokens
+  }),
 })

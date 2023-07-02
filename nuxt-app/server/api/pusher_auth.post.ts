@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
   // Reference: https://trpc-nuxt.vercel.app/get-started/tips/server-side-calls
   const tRPCCaller = appRouter.createCaller({ credentials, event })
 
-  const party = (await tRPCCaller.party.getPartyByCode({ code: partyCode }))[0]
+  const party = await tRPCCaller.party.getPartyByCode({ code: partyCode })
 
   if (!party) {
     throw createError({

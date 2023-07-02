@@ -1,8 +1,9 @@
 import kv from '@vercel/kv'
 import { ChatCompletionRequestMessage } from 'openai'
 import Pusher from 'pusher'
-import { UserMessage, PresenceData, FullMessage, FullUserMessage } from '~/types/partySession'
+import { UserMessage, PresenceData, FullMessage, FullUserMessage, TokenCount } from '~/types/partySession'
 import { partySessionConfig } from '~/utils/partySession'
+import { Playback, SessionStatus } from '~/types/trpc'
 
 const { env } = process
 const { events, presenceCacheChannel } = partySessionConfig
@@ -111,7 +112,15 @@ export class PartySession {
    * - https://github.com/pusher/pusher-http-node#publishing-events
    * - https://support.pusher.com/hc/en-us/articles/4412243423761-What-Is-The-Message-Size-Limit-When-Publishing-an-Event-in-Channels-
    */
-  public async publishPlaylist(playlistId: string) {
-    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playlist, playlistId)
+  public async publishPlaylist(tokenCont: TokenCount) {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playlist, tokenCont)
+  }
+
+  public async publishStatus(status: SessionStatus) {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.status, status)
+  }
+
+  public async publishPlayback(playback: Playback) {
+    return await this.pusher.trigger(presenceCacheChannel(this.sessionCode), events.playback, playback)
   }
 }
