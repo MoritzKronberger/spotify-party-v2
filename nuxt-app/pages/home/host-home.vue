@@ -1,13 +1,14 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
   definePageMeta({
     middleware: ['auth'],
   })
-  // Get tRPC client
   const nuxtApp = useNuxtApp()
-  const $client = nuxtApp.$client
   const router = useRouter()
+
+  // get user information
+  const $client = nuxtApp.$client
   const userParties = await $client.party.getUserParties.useQuery()
+  const user = await $client.auth.getUser.query()
 
   const joinPartyByID = async (partyID: string) => {
     await $client.party.getParty
@@ -16,11 +17,10 @@
         if (result.data.value) {
           if (result.data.value?.code) {
             const code = result.data.value.code
-            user.partyCode = code
-            router.push({ path: `/party/session`, query: { code }, replace: true })
+            router.push({ path: `/party/session`, query: { code } })
           } else {
             /* AMIN -> error message log in UI */
-            console.log('Unvalid Party Code')
+            console.log('Invalid Party Code')
           }
         }
       })
@@ -60,14 +60,15 @@
         <h1 class="text-primary">My Parties</h1>
       </v-col>
     </v-row>
-    <!--den text nur anzeigen wenn die Partyliste leer ist-->
     <v-row>
       <v-col>
         <v-row>
           <v-col>
             <p class="text-center text-subtitle-1 font-weight-bold">Welcome {{ user.name }}</p>
             <p class="text-center text-body-1">Let your friends control your music.</p>
-            <p class="text-center">Get started by opening a new party.</p>
+            <v-col v-if="!userParties.data.value">
+              <p class="text-center">Get started by opening a new party.</p>
+            </v-col>
           </v-col>
         </v-row>
       </v-col>
