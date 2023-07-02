@@ -7,7 +7,6 @@
 
   const code = await useSessionCode()
   const user = await useUser(code)
-  console.log(user)
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
