@@ -52,7 +52,7 @@
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn color="primary" to="/party/invite-friends">invite</v-btn>
+        <v-btn color="primary" :to="`/party/invite-friends?code=${code}`">invite</v-btn>
       </v-col>
       <v-col v-if="partySession.playback.value?.item">
         <v-app-bar-title>
