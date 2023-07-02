@@ -14,4 +14,5 @@ const user: IUser = reactive({
   partyCode: '',
 })
 
-export default user
+export default { user }
+export { user }

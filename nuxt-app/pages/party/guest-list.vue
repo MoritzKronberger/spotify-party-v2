@@ -1,16 +1,6 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
-  import GuestButton from '~/components/guest-button.vue'
-  import SpotButton from '~/components/spot-button.vue'
-  const guestList = ref([
-    { username: 'username', role: 'Gastgeber' },
-    { username: 'username', role: 'Gast' },
-    { username: 'username', role: 'Gast' },
-    { username: 'username', role: 'Gast' },
-  ])
-  definePageMeta({
-    layout: 'wireframes',
-  })
+  import { user } from '~/store/userData'
+  const partySession = await usePartySession(user.name, user.id)
 </script>
 
 <template>
@@ -31,17 +21,17 @@
                 <p>Guests</p>
               </v-col>
               <v-col class="text-right">
-                <guest-button title="5"></guest-button>
+                <guest-button :title="Object.keys(partySession.members.value).length"></guest-button>
               </v-col>
             </v-row>
           </v-card-subtitle>
           <v-card-item>
             <v-list lines="two" style="height: 50vh" class="overflow-y-auto">
               <v-list-item
-                v-for="(guest, index) in guestList"
-                :key="index"
-                :title="guest.username"
-                :subtitle="guest.role"
+                v-for="member in partySession.members.value"
+                :key="member.id"
+                :title="member.name"
+                :subtitle="member.isHost ? 'Host' : 'Gast'"
                 class="px-0"
               >
                 <template #prepend>
@@ -57,7 +47,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <spot-button primary title="invite" to="/wireframes/invite-friends"></spot-button>
+        <spot-button primary title="invite" to="/party/invite-friends"></spot-button>
       </v-col>
     </v-row>
   </v-container>

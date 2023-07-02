@@ -1,9 +1,5 @@
 <script setup lang="ts">
   import SpotButton from '~/components/spot-button.vue'
-
-  definePageMeta({
-    layout: 'wireframes',
-  })
   const party = {
     name: 'party name',
     description: 'my description',

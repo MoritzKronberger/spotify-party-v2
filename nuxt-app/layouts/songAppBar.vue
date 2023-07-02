@@ -18,26 +18,3 @@
     <slot />
   </AddDefault>
 </template>
-
-<!--<template>-->
-<!--  <v-theme-provider theme="wireframesTheme">-->
-<!--    <v-app class="gradient-background">-->
-<!--      <v-app-bar density="default" color="primary">-->
-<!--        <template #prepend>-->
-<!--          <v-app-bar-nav-icon icon="mdi-arrow-left" @click="useRouter().back()" />-->
-<!--        </template>-->
-<!--        <v-app-bar-title>-->
-<!--          <playing-song :current-song="currentSong" :like="like"></playing-song>-->
-<!--        </v-app-bar-title>-->
-<!--        <template #append>-->
-<!--          <v-btn icon>-->
-<!--            <v-icon>mdi-cog</v-icon>-->
-<!--          </v-btn>-->
-<!--        </template>-->
-<!--      </v-app-bar>-->
-<!--      <v-main>-->
-<!--        <slot />-->
-<!--      </v-main>-->
-<!--    </v-app>-->
-<!--  </v-theme-provider>-->
-<!--</template>-->

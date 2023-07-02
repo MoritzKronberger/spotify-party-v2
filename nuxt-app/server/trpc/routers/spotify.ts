@@ -153,7 +153,7 @@ export const spotifyRouter = router({
     // If party playlist is playing
     if (playlistURI === playbackContextURI) {
       return {
-        item: playbackState.item,
+        item: playbackState.item && 'album' in playbackState.item ? playbackState.item : undefined,
         progressMs: playbackState.progress_ms,
         timestamp: playbackState.timestamp,
         isPlaying: playbackState.is_playing,

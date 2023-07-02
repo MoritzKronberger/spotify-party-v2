@@ -8,5 +8,4 @@ declare module '#app' {
     $client: ReturnType<typeof createTRPCNuxtClient<AppRouter>>
   }
 }
-
 export {}
