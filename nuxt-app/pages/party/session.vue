@@ -13,11 +13,10 @@
 
   const partySession = await usePartySession(user.name, user.id)
   // Set party session status to "active" if host joins party
-
-  // CHECK COMPOSABLE
+  let playbackUpdateInterval: NodeJS.Timeout | undefined
   if (user.isHost) {
     await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
-    partySession.startPlaybackUpdateInterval(1000, 50)
+    playbackUpdateInterval = await partySession.startPlaybackUpdateInterval(60 * 1000, 50) // Use fallback interval of 60 seconds
   }
 
   const scrollToBottom = () => {
@@ -41,6 +40,12 @@
       }
     }
   )
+
+  // Clear playback update interval when leaving page,
+  // otherwise multiple intervals will be coexist when going back and forth between pages.
+  onUnmounted(() => {
+    clearTimeout(playbackUpdateInterval)
+  })
 </script>
 
 <template>
