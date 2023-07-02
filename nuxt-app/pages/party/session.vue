@@ -1,34 +1,13 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
   definePageMeta({
     layout: 'song-app-bar',
   })
 
   const { $client } = useNuxtApp()
 
-  const getSessionCredentials = () => {
-    if (process.client) {
-      const username = localStorage.getItem('username') ?? null
-      const id = localStorage.getItem('nanoId') ?? null
-      if (username && id) {
-        user.name = username
-        user.id = id
-      } else {
-        router.push({ path: '/party/join-party', replace: true })
-      }
-    }
-  }
-  getSessionCredentials()
-
-  const router = useRouter()
-  const route = useRoute()
-  const code = route.query.code?.toString() ?? undefined
-
-  /* Pushback */
-  if (code === undefined) {
-    router.push({ path: '/', replace: true })
-  }
-
+  const code = await useSessionCode()
+  const user = await useUser(code)
+  console.log(user)
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
@@ -37,8 +16,10 @@
   // Set party session status to "active" if host joins party
 
   // CHECK COMPOSABLE
-  await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
-  partySession.startPlaybackUpdateInterval(1000, 50)
+  if (user.isHost) {
+    await $client.session.startSession.mutate({ session: { sessionCode: partySession.code } })
+    partySession.startPlaybackUpdateInterval(1000, 50)
+  }
 
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')
