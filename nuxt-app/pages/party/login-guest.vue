@@ -1,20 +1,15 @@
 <script setup lang="ts">
   import { genNanoId } from '~/utils/nanoId'
-  import user from '~/store/userData'
-
-  const route = useRoute()
 
   const guestName = ref('')
+  const code = await useSessionCode()
 
   const enterSession = () => {
     if (guestName.value.length) {
-      const code = route.query.code
-      user.name = guestName.value
-      user.id = genNanoId()
-      localStorage.setItem('username', user.name)
-      localStorage.setItem('nanoId', user.id)
+      localStorage.setItem('username', guestName.value)
+      localStorage.setItem('nanoId', genNanoId())
       const router = useRouter()
-      router.push({ path: '/party/session', query: { code }, replace: true })
+      router.push({ path: '/party/session', query: { code } })
     } else {
       /* AMIN => Log in UI-ELEMENT */
       console.log('Enter name!')
