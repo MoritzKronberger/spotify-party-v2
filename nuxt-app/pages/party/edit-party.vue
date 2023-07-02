@@ -5,6 +5,7 @@
   const partySession = await usePartySession(user.name, user.id)
   const nuxtApp = useNuxtApp()
   const $client = nuxtApp.$client
+
   const closeParty = () => {
     if (code) {
       $client.session.stopSession
@@ -60,7 +61,7 @@
         </v-col>
       </v-row>
     </div>
-    <div v-if="partySession.status.value === 'inactive'">
+    <div v-if="partySession.status.value === 'closed'">
       <v-row style="min-width: 85vw" class="mb-2">
         <v-col>
           <spot-button primary title="start party" :to="`/party/session?code=${code}`"></spot-button>
