@@ -1,15 +1,13 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
-  const isCopied = ref(false)
+  const route = useRoute()
+  const code = route.query.code
   const partyURL = ref('')
+  const showSnackbar = ref(false)
   const shareCode = () => {
-    if (user.partyCode) {
-      partyURL.value = `localhost:3000/party/session?code=${user.partyCode}`
+    if (code) {
+      partyURL.value = `localhost:3000/party/session?code=${code}`
       navigator.clipboard.writeText(partyURL.value).then(() => {
-        isCopied.value = true
-        setTimeout(() => {
-          isCopied.value = false
-        }, 3000)
+        showSnackbar.value = true
       })
     }
   }
