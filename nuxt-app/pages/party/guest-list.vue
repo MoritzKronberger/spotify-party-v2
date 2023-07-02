@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
+  const code = await useSessionCode()
+  const user = await useUser(code)
   const partySession = await usePartySession(user.name, user.id)
 </script>
 
