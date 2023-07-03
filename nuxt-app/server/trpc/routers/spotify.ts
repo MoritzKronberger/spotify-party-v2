@@ -144,14 +144,21 @@ export const spotifyRouter = router({
    * Get info about playback on the user's active device.
    *
    * Only if party playlist is being played (for privacy).
+   * Return `null` for Pusher compatibility if playback could not be fetched (usually because user has no active devices).
    */
   getPlayback: spotifyUserProcedure.input(z.object({ playlistId: z.string() })).mutation(async ({ input, ctx }) => {
     const playlistURI = `spotify:playlist:${input.playlistId}`
-    const playbackState = (await ctx.spotifyUserAPI.getMyCurrentPlaybackState()).body
-    const playbackContextURI = playbackState.context?.uri
-
-    // If party playlist is playing
-    if (playlistURI === playbackContextURI) {
+    // Fetch playback
+    const { statusCode, body: playbackState } = await ctx.spotifyUserAPI.getMyCurrentPlaybackState()
+    // Return null and log if fetching playback was unsuccessful
+    // (Cannot use try-catch because `getMyCurrentPlaybackState()` doesn't error if device is inactive (status code 204))
+    if (statusCode !== 200) {
+      console.log(`Getting playback state for Spotify user ${ctx.user.spotifyId} failed with status code ${statusCode}`)
+      return null
+    }
+    // Publish playback item (if party playlist is playing)
+    const playbackContextURI = playbackState?.context?.uri
+    if (playbackState && playlistURI === playbackContextURI) {
       return {
         item: playbackState.item && 'album' in playbackState.item ? playbackState.item : undefined,
         progressMs: playbackState.progress_ms,
