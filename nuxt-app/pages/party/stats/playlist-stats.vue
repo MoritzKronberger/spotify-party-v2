@@ -12,7 +12,7 @@
           <v-card-title>Party playlist</v-card-title>
           <v-card-subtitle class="py-1">{{ partySession.playlist.value?.name }}</v-card-subtitle>
           <v-card-actions class="pl-4">
-            <v-btn color="primary" variant="elevated">save</v-btn>
+            <v-btn color="primary" variant="elevated">Open in Spotify</v-btn>
           </v-card-actions>
         </div>
         <div class="d-flex flex-column justify-center">
