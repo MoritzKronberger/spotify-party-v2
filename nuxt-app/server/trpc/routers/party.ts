@@ -12,6 +12,7 @@ import party, { sessionStatus } from '~/db/schema/party'
 import image from '~/db/schema/image'
 import { insertId, rowsAffected } from '~/server/utils/db'
 import { partyCodeLength, partyCodeSchema } from '~/types/partySession'
+import { user } from '~/db/schema'
 
 // Create Zod schemas from drizzle schemas.
 const partySchema = createInsertSchema(party).omit({
@@ -151,4 +152,11 @@ export const partyRouter = router({
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Could not update session status' })
       return { id: partyId }
     }),
+  /** Get username of party host. */
+  getPartyHostName: publicProcedure.input(z.object({ code: partyCodeSchema })).query(async ({ input }) => {
+    const partyUser = (
+      await db.select().from(party).leftJoin(user, eq(user.id, party.userId)).where(eq(party.code, input.code))
+    )[0]
+    return partyUser?.user?.name
+  }),
 })
