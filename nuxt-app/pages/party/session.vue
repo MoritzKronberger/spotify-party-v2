@@ -55,11 +55,6 @@
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn v-if="user.isHost" icon :to="`/party/edit-party?code=${code}`">
-          <v-icon>mdi-cog</v-icon>
-        </v-btn>
-      </v-col>
-      <v-col>
         <v-btn color="primary" :to="`/party/invite-friends?code=${code}`">invite</v-btn>
       </v-col>
       <v-col v-if="partySession.playback.value?.item">
@@ -79,6 +74,9 @@
           :title="Object.keys(partySession.members.value).length"
           :to="`/party/guest-list?code=${partySession.code}`"
         ></guest-button>
+        <v-btn v-if="user.isHost" icon :to="`/party/edit-party?code=${code}`">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
       </v-col>
     </v-row>
 
