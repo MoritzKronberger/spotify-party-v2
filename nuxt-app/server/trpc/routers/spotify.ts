@@ -112,6 +112,7 @@ export const spotifyRouter = router({
     return {
       id: playlist.id,
       uri: playlist.uri,
+      shareURL: playlist.external_urls.spotify,
       name: playlist.name,
       description: playlist.description,
       images: playlist.images,
