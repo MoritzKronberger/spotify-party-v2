@@ -2,7 +2,18 @@
   import { genNanoId } from '~/utils/nanoId'
 
   const guestName = ref('')
+  const nuxtApp = useNuxtApp()
+  const $client = nuxtApp.$client
+  const router = useRouter()
   const code = await useSessionCode()
+
+  // check party exists
+  const exists = await $client.party.checkPartyExists.useQuery({ code })
+
+  // return on invalid party-code
+  if (!exists.data.value?.exists) {
+    router.push({ path: '/party/join-party' })
+  }
 
   const enterSession = () => {
     if (guestName.value.length) {
