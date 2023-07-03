@@ -38,13 +38,23 @@
     rules: {
       type: Array as () => ((value: File[] | undefined) => true | string)[],
       default: () => [
-        (value: File[] | undefined) => {
-          if (!value || !value.length) {
+        async (value: File[] | undefined) => {
+          if (!value || !value.length || !value[0]) {
             return true // validation passes if value is undefined or empty
           }
-          const fileSizeLimit = maxImageSizeKB * 1000 // in bytes
-          if (value[0]!.size > fileSizeLimit) {
-            return `Cover size should be less than ${maxImageSizeKB} KB!` // return error message if file size exceeds limit
+          const fileSizeLimitBytes = maxImageSizeKB * 1024 // in bytes
+          // Account for conversion to base64 in file size limit
+          // References:
+          // - https://stackoverflow.com/a/13378842/14906871
+          // - https://stackoverflow.com/a/22012837/14906871
+          // (In practice, estimating 0.75 might suffice)
+          const base64FileSizeLimitBytes = (3 * (4 * Math.ceil(fileSizeLimitBytes / 4))) / 4
+          const buf = await value[0].arrayBuffer()
+          const fileSizeBytes = buf.byteLength
+          if (fileSizeBytes > base64FileSizeLimitBytes) {
+            return `Image size of ${Math.round(fileSizeBytes / 1024)} KB exceeds limit of ${Math.round(
+              base64FileSizeLimitBytes / 1024
+            )} KB!` // return error message if file size exceeds limit
           }
           return true // validation passes
         },

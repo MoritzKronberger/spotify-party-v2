@@ -34,11 +34,11 @@ export const imageRouter = router({
 
     // Throw if image size exceeds Spotify's maximum image size for custom playlist covers
     // Reference: https://developer.spotify.com/documentation/web-api/reference/upload-custom-playlist-cover
-    const imageSizeKB = Buffer.byteLength(base64Blob) * 0.001
-    if (imageSizeKB > 256)
+    const imageSizeKB = Buffer.byteLength(base64Blob) / 1024
+    if (imageSizeKB > maxImageSizeKB)
       throw new TRPCError({
         code: 'PAYLOAD_TOO_LARGE',
-        message: `Image size of ${imageSizeKB} KB exceeds maximum image size of ${maxImageSizeKB} KB`,
+        message: `Base64 image size of ${imageSizeKB} KB exceeds maximum image size of ${maxImageSizeKB} KB`,
       })
 
     // Save JPEG image to DB
