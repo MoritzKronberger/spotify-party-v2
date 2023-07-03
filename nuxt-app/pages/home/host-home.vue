@@ -47,10 +47,8 @@
   const dialogIsActive = ref(false)
   const edit = ref(false)
 
-  const setDialog = (event?: Event) => {
+  const setDialog = () => {
     dialogIsActive.value = !dialogIsActive.value
-    event?.preventDefault()
-    event?.stopPropagation()
   }
 </script>
 
@@ -97,7 +95,7 @@
             :key="party.id"
             :title="party.name"
             :subtitle="party.description ? party.description : ''"
-            @click="joinPartyByID(party.id)"
+            @click.stop="joinPartyByID(party.id)"
           >
             <template #prepend>
               <v-avatar>
@@ -122,12 +120,13 @@
             </template>
             <template #append>
               <v-list-item-subtitle>{{ party.sessionStatus }}</v-list-item-subtitle>
-              <v-btn v-if="edit" icon="mdi-delete" @click="setDialog($event)"></v-btn>
+              <v-btn v-if="edit" icon="mdi-delete" @click.stop="setDialog"></v-btn>
               <v-btn v-else icon="mdi-arrow-right"></v-btn>
             </template>
             <pop-up-dialog
               v-model="dialogIsActive"
               title="Confirm Delete"
+              :disabled="!edit"
               :info-text="'Do you really want to delete the party: ' + party.name"
               primary-text="Delete"
               @on-primary="deletePartyByID(party.id)"
