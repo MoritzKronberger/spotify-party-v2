@@ -1,10 +1,6 @@
 <script setup lang="ts">
   const props = defineProps<{
     hideNavigation?: boolean
-    routeLocation?: string
-    song?: { title: string; artist: string; image: string }
-    like?: () => void
-    showOption?: boolean
   }>()
 
   const router = useRouter()
