@@ -14,6 +14,7 @@ export default defineNuxtConfig({
       SPOTIFY_CLIENT_REDIRECT_URL: process.env.SPOTIFY_CLIENT_REDIRECT_URL,
       PUSHER_KEY: process.env.PUSHER_KEY,
       PUSHER_CLUSTER: process.env.PUSHER_CLUSTER,
+      SPOTIFY_MAX_IMG_SIZE_KB: process.env.SPOTIFY_MAX_IMG_SIZE_KB,
     },
   },
 })
