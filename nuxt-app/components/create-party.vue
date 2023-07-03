@@ -8,10 +8,6 @@
   // Get router
   const router = useRouter()
 
-  // Get user and session-code
-  const code = await useSessionCode()
-  const user = await useUser(code)
-
   // Temp image-file storage
   const file = ref<File[]>([])
 
@@ -69,11 +65,18 @@
       })
   }
 
+  // Get user and session-code
+  const code = ref('')
+  const user = ref<{ name: string; id: string; isHost: boolean }>()
+
   // Check for isUpdate -> Edit Mode
   // Fetch party information
   if (props.isUpdate) {
+    console.log('TEST')
+    code.value = await useSessionCode()
+    user.value = await useUser(code.value)
     await $client.party.getPartyByCode
-      .query({ code })
+      .query({ code: code.value })
       .then((data) => {
         party.name.value = data?.name ?? ''
         party.description.value = data?.description ?? ''
@@ -83,35 +86,37 @@
       })
   }
   const updateParty = async () => {
-    const partySession = await usePartySession(user.name, user.id)
-    const code = partySession.code
+    if (user.value) {
+      const partySession = await usePartySession(user.value.name, user.value.id)
+      const code = partySession.code
 
-    const partyData = await $client.party.getPartyByCode.query({ code })
-    if (partyData) {
-      await $client.party.updateParty
-        .mutate({
-          id: partyData.id,
-          data: {
-            party: {
-              name: party.name.value,
-              description: party.description.value,
+      const partyData = await $client.party.getPartyByCode.query({ code })
+      if (partyData) {
+        await $client.party.updateParty
+          .mutate({
+            id: partyData.id,
+            data: {
+              party: {
+                name: party.name.value,
+                description: party.description.value,
+              },
+              image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
             },
-            image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
-          },
-        })
-        .then(() => {
-          router.push({ path: '/party/session', query: { code }, replace: true })
-        })
-        .catch((error) => {
-          console.error(error)
-        })
+          })
+          .then(() => {
+            router.push({ path: '/party/session', query: { code }, replace: true })
+          })
+          .catch((error) => {
+            console.error(error)
+          })
+      }
     }
   }
 
   const closeParty = () => {
     if (code) {
       $client.session.stopSession
-        .mutate({ session: { sessionCode: code } })
+        .mutate({ session: { sessionCode: code.value } })
         .then(() => {
           router.push({ path: '/home/host-home' })
         })
