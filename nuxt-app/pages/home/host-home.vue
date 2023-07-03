@@ -14,14 +14,16 @@
     await $client.party.getParty
       .useQuery({ id: partyID })
       .then((result) => {
-        if (result.data.value) {
-          if (result.data.value?.code) {
-            const code = result.data.value.code
+        if (result.data.value?.code) {
+          const code = result.data.value.code
+          if (result.data.value.sessionStatus === 'active') {
             router.push({ path: `/party/session`, query: { code } })
-          } else {
-            /* AMIN -> error message log in UI */
-            console.log('Invalid Party Code')
+          } else if (result.data.value.sessionStatus === 'closed') {
+            router.push({ path: '/party/stats/playlist-stats', query: { code } })
           }
+        } else {
+          /* AMIN -> error message log in UI */
+          console.log('Invalid Party Code')
         }
       })
       .catch((error) => {
