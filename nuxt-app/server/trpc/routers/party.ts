@@ -7,9 +7,9 @@ import { publicProcedure, router } from '../trpc'
 import { privateProcedure } from '../middleware/auth'
 import { partyHostProcedure } from '../middleware/party'
 import { spotifyRouter } from './spotify'
+import { imageRouter, imageSchema } from './image'
 import { db } from '~/db'
 import party, { sessionStatus } from '~/db/schema/party'
-import image from '~/db/schema/image'
 import { insertId, rowsAffected } from '~/server/utils/db'
 import { partyCodeLength, partyCodeSchema } from '~/types/partySession'
 import { user } from '~/db/schema'
@@ -22,7 +22,6 @@ const partySchema = createInsertSchema(party).omit({
   imageId: true,
   playlistId: true,
 })
-const imageSchema = createInsertSchema(image).omit({ id: true, userId: true })
 
 /**
  * Create random party code.
@@ -60,16 +59,16 @@ export const partyRouter = router({
       // Create image (if image data was provided)
       let imageId: string | undefined
       if (imageData) {
-        const { id, idOnSuccess } = insertId()
-        // TODO: Check image size before inserting into DB!
-        const res = await db.insert(image).values({ ...imageData, id, userId })
-        imageId = idOnSuccess(res)
+        const image = imageRouter.createCaller(ctx)
+        imageId = await image.createImage(imageData)
       }
       // Create new playlist to link to party
       // TODO: Add custom cover to playlist if image was supplied
       const spotify = spotifyRouter.createCaller(ctx)
       const playlist = await spotify.createPartyPlaylist(partyData)
       const playlistId = playlist.id
+      // Set image as playlist cover image (if exists)
+      if (imageData) await spotify.setPlaylistCoverImage({ playlistId, base64Blob: imageData.base64Blob })
       // Create new party (and link image if it was created successfully)
       const { id, idOnSuccess } = insertId()
       const res = await db
@@ -89,23 +88,17 @@ export const partyRouter = router({
       let imageId: string | undefined
       // Update image (if image data was provided)
       if (imageData) {
-        // Get id of current party image if exists
-        imageId = await getPartyImageId(partyId, userId)
-        // If no image exists for current party, create new one and get its Id
-        if (!imageId) {
-          const { id, idOnSuccess } = insertId()
-          // TODO: Check image size before inserting into DB!
-          const insertImageRes = await db.insert(image).values({ ...imageData, id, userId })
-          imageId = idOnSuccess(insertImageRes)
-        } else {
-          // Otherwise update the existing image
-          // TODO: Check image size before updating DB!
-          await db
-            .update(image)
-            .set(imageData)
-            .where(and(eq(image.id, imageId), eq(image.userId, userId)))
-        }
+        const image = imageRouter.createCaller(ctx)
+        // Remove current party image from DB (if exists)
+        const currentImageId = await getPartyImageId(partyId, userId)
+        if (currentImageId) await image.deleteImage({ imageId: currentImageId })
+
+        imageId = await image.createImage(imageData)
       }
+      // Update playlist cover image (if exists)
+      const spotify = spotifyRouter.createCaller(ctx)
+      if (imageData)
+        await spotify.setPlaylistCoverImage({ playlistId: ctx.party.playlistId, base64Blob: imageData.base64Blob })
       // Update party (and image Id if new image was created successfully)
       const res = await db
         .update(party)
@@ -132,7 +125,8 @@ export const partyRouter = router({
     // Delete associated image if exists
     const imageId = await getPartyImageId(input.id, ctx.user.id)
     if (imageId) {
-      await db.delete(image).where(eq(image.id, imageId))
+      const image = imageRouter.createCaller(ctx)
+      await image.deleteImage({ imageId })
     }
     // Delete party itself
     const res = await db.delete(party).where(and(eq(party.id, partyId), eq(party.userId, ctx.user.id)))

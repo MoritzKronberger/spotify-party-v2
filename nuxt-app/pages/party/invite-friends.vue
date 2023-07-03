@@ -1,16 +1,36 @@
 <script setup lang="ts">
   const route = useRoute()
-  const code = route.query.code
+  const code = route.query.code as string
   const partyURL = ref('')
   const showSnackbar = ref(false)
-  const shareCode = () => {
+  const nuxtApp = useNuxtApp()
+  const $client = nuxtApp.$client
+  const genCode = () => {
     if (code) {
       partyURL.value = `localhost:3000/party/session?code=${code}`
+    }
+  }
+  genCode()
+
+  const shareCode = () => {
+    if (code) {
       navigator.clipboard.writeText(partyURL.value).then(() => {
         showSnackbar.value = true
       })
     }
   }
+
+  const partyName = ref('')
+  const getPartyInfo = async () => {
+    if (code) {
+      const party = await $client.party.getPartyByCode.useQuery({ code })
+      if (party) {
+        partyName.value = party.data.value?.name ?? ''
+      }
+    }
+  }
+
+  getPartyInfo()
 </script>
 <template>
   <v-container class="fill-height flex-column">
@@ -38,7 +58,7 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <p class="text-center text-body-1 font-weight-bold text-primary">Party Name</p>
+        <p class="text-center text-body-1 font-weight-bold text-primary">{{ partyName }}</p>
         <p class="text-center text-body-2">hosted by hostname</p>
       </v-col>
     </v-row>

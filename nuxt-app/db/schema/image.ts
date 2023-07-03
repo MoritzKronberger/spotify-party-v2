@@ -1,7 +1,6 @@
-import { text, mysqlEnum, mysqlTable } from 'drizzle-orm/mysql-core'
+import { text, mysqlEnum, mysqlTable, mediumtext } from 'drizzle-orm/mysql-core'
 import { nanoId } from '~/utils/nanoId/drizzle'
-
-export const mimeTypes = ['image/jpeg', 'image/jpg', 'image/png'] as const
+import { mimeTypes } from '~/utils/image'
 
 /**
  * Drizzle schema for image.
@@ -9,6 +8,6 @@ export const mimeTypes = ['image/jpeg', 'image/jpg', 'image/png'] as const
 export default mysqlTable('image', {
   id: nanoId('id').primaryKey(),
   userId: text('user_id').notNull(),
-  base64Blob: text('base64_blob').notNull(),
+  base64Blob: mediumtext('base64_blob').notNull(),
   mimeType: mysqlEnum('mime_type', mimeTypes).notNull(),
 })

@@ -50,7 +50,7 @@
         generateCodeChallenge(codeVerifier).then((codeChallenge) => {
           const state = generateRandomString(16)
           const scope =
-            'user-read-private user-read-email ugc-image-upload playlist-modify-public playlist-modify-private user-read-playback-state user-modify-playback-state'
+            'user-read-private user-read-email playlist-modify-public playlist-modify-private user-read-playback-state user-modify-playback-state ugc-image-upload'
 
           // Set code verifier as cookie (to preserve it after OAuth-redirect)
           codeVerifierCookie.value = codeVerifier
