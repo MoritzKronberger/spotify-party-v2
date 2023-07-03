@@ -8,10 +8,10 @@
   const code = await useSessionCode()
 
   // check party exists
-  const exists = await $client.party.checkPartyExists.useQuery({ code })
+  const exists = await $client.party.checkPartyExists.query({ code })
 
   // return on invalid party-code
-  if (!exists.data.value?.exists) {
+  if (!exists) {
     router.push({ path: '/party/join-party' })
   }
 
