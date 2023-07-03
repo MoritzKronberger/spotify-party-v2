@@ -16,7 +16,7 @@
       .then((result) => {
         if (result.data.value?.code) {
           const code = result.data.value.code
-          if (result.data.value.sessionStatus === 'active') {
+          if (result.data.value.sessionStatus === 'active' || result.data.value.sessionStatus === 'inactive') {
             router.push({ path: '/party/session', query: { code } })
           } else if (result.data.value.sessionStatus === 'closed') {
             router.push({ path: '/party/stats/playlist-stats', query: { code } })
@@ -49,6 +49,15 @@
 
   const setDialog = () => {
     dialogIsActive.value = !dialogIsActive.value
+  }
+
+  const partyStatus = (status: string) => {
+    if (status === 'active') {
+      return 'join'
+    } else if (status === 'inactive') {
+      return 'start'
+    }
+    return status
   }
 </script>
 
@@ -119,7 +128,7 @@
               </v-avatar>
             </template>
             <template #append>
-              <v-list-item-subtitle>{{ party.sessionStatus }}</v-list-item-subtitle>
+              <v-list-item-subtitle>{{ partyStatus(party.sessionStatus) }}</v-list-item-subtitle>
               <v-btn v-if="edit" icon="mdi-delete" @click.stop="setDialog"></v-btn>
               <v-btn v-else icon="mdi-arrow-right"></v-btn>
             </template>
