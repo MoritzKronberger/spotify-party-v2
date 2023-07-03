@@ -6,7 +6,10 @@
   const { $client } = useNuxtApp()
 
   const code = await useSessionCode()
-  const user = await useUser(code)
+
+  const party = await $client.party.getPartyByCode.useQuery({ code })
+
+  const user = await useUser(code, party.data.value?.userId)
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
@@ -51,6 +54,11 @@
 <template>
   <v-container class="flex-column">
     <v-row>
+      <v-col>
+        <v-btn v-if="user.isHost" icon :to="`/party/edit-party?code=${code}`">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
+      </v-col>
       <v-col>
         <v-btn color="primary" :to="`/party/invite-friends?code=${code}`">invite</v-btn>
       </v-col>
