@@ -17,7 +17,7 @@
         if (result.data.value?.code) {
           const code = result.data.value.code
           if (result.data.value.sessionStatus === 'active') {
-            router.push({ path: `/party/session`, query: { code } })
+            router.push({ path: '/party/session', query: { code } })
           } else if (result.data.value.sessionStatus === 'closed') {
             router.push({ path: '/party/stats/playlist-stats', query: { code } })
           }
