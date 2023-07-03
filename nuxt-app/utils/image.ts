@@ -6,20 +6,20 @@ const maxSpotifyImageSizeKB = process.client
   : process.env.SPOTIFY_MAX_IMG_SIZE_KB
 
 /**
- * Maximum length for MySQL text columns.
+ * Maximum length for MySQL mediumtext columns.
  *
  * Reference:
- * https://dev.mysql.com/doc/refman/8.0/en/string-type-syntax.html
+ * https://chartio.com/resources/tutorials/understanding-strorage-sizes-for-mysql-text-data-types/
  */
-export const maxMySQLBlobLength = 65_535
+export const maxMySQLMediumTextLength = 16_777_215
 
 /**
- * Ensure blob doesn't exceed maximum length of MySQL text column.
+ * Ensure blob doesn't exceed maximum length of MySQL mediumtext column.
  *
  * Reference:
- * https://dev.mysql.com/doc/refman/8.0/en/string-type-syntax.html
+ * https://chartio.com/resources/tutorials/understanding-strorage-sizes-for-mysql-text-data-types/
  */
-export const base64BlobSchema = z.string().max(maxMySQLBlobLength)
+export const base64BlobSchema = z.string().max(maxMySQLMediumTextLength)
 
 /**
  * Maximum custom playlist cover size supported by Spotify Web API.
