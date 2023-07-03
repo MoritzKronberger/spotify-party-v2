@@ -21,11 +21,14 @@
   }
 
   const partyName = ref('')
+  const partyHost = ref('')
   const getPartyInfo = async () => {
     if (code) {
-      const party = await $client.party.getPartyByCode.useQuery({ code })
-      if (party) {
-        partyName.value = party.data.value?.name ?? ''
+      const party = await $client.party.getPartyByCode.query({ code })
+      const hostName = await $client.party.getPartyHostName.query({ code })
+      if (party && hostName) {
+        partyName.value = party.name
+        partyHost.value = hostName
       }
     }
   }
@@ -59,7 +62,7 @@
     <v-row>
       <v-col class="pt-0">
         <p class="text-center text-body-1 font-weight-bold text-primary">{{ partyName }}</p>
-        <p class="text-center text-body-2">hosted by hostname</p>
+        <p class="text-center text-body-2">hosted by {{ partyHost }}</p>
       </v-col>
     </v-row>
 
