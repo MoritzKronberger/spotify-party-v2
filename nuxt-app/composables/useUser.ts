@@ -15,7 +15,6 @@ export default async function useUser(code: string, partyUserId?: string) {
         if (username && userid) {
           return { name: username, id: userid, isHost: false }
         } else {
-          console.log(code)
           await router.push({ path: '/party/login-guest', query: { code } })
           return { name: '', id: '', isHost: false }
         }
