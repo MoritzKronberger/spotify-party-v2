@@ -1,4 +1,4 @@
-export default async function useUser(code: string) {
+export default async function useUser(code: string, partyUserId?: string) {
   if (process.client) {
     const router = useRouter()
     const nuxtApp = useNuxtApp()
@@ -7,7 +7,7 @@ export default async function useUser(code: string) {
     return await $client.auth.getUser
       .query()
       .then((userData) => {
-        return { name: userData.name, id: userData.id, isHost: true }
+        return { name: userData.name, id: userData.id, isHost: userData.id === partyUserId }
       })
       .catch(async () => {
         const username = localStorage.getItem('username') ?? null
