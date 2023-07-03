@@ -49,6 +49,7 @@
 
   const setDialog = (event?: Event) => {
     dialogIsActive.value = !dialogIsActive.value
+    event?.preventDefault()
     event?.stopPropagation()
   }
 </script>
