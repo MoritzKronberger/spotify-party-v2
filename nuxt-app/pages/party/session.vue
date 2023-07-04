@@ -33,7 +33,6 @@
       suggestion.value = ''
     })
   }
-
   watch(
     () => partySession.messages.value,
     (newValue) => {
@@ -43,12 +42,20 @@
       }
     }
   )
-
   // redirect if party has been closed
   onBeforeMount(() => {
     if (partySession.status.value === 'closed') {
       router.push({ path: '/party/stats/playlist-stats', query: { code } })
     }
+  })
+
+  onMounted(() => {
+    nextTick(() => {
+      const listContainer = document.getElementById('listContainer')
+      if (listContainer) {
+        listContainer.scrollTo(0, listContainer.scrollHeight)
+      }
+    })
   })
 
   // redirect if party gets closed during active session
