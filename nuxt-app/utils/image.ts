@@ -38,3 +38,30 @@ export const maxImageSizeKB = +(maxSpotifyImageSizeKB ?? 100)
 export const mimeTypes = ['image/jpeg'] as const
 
 export type MimeType = (typeof mimeTypes)[number]
+
+export type ImageData = { mimeType: MimeType; base64Blob: string }
+
+/**
+ * Convert JS file to base64 blob.
+ *
+ * References:
+ * https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+ * https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
+ */
+export const fileToBase64 = (file: File) => {
+  return new Promise<ImageData>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      const result = reader.result?.toString()
+      if (!result) return reject
+      const [header, base64Blob] = result.split(',')
+      if (!header || !base64Blob) return reject
+      resolve({
+        mimeType: header.replace('data:', '').replace(';base64', '') as MimeType,
+        base64Blob,
+      })
+    }
+    reader.onerror = reject
+  })
+}

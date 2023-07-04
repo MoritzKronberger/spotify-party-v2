@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import SpotButton from '~/components/spot-button.vue'
   import mimeTypes from '~/db/schema/image'
-  import { fileToBase64 } from '~/utils/imageHelper'
-  import { maxImageSizeKB, MimeType } from '~~/utils/image'
+  import { maxImageSizeKB, ImageData, fileToBase64 } from '~/utils/image'
+
   // Get tRPC client
   const { $client } = useNuxtApp()
   // Get router
@@ -51,12 +51,11 @@
   // New reference rules prop -> reactive
   const rules = toRef(props, 'rules')
 
-  const base64Blob = ref<string | undefined>(undefined)
-  const mimeType = ref<MimeType>()
   const createParty = async () => {
+    let imageData: ImageData | undefined
+
     if (file.value[0]) {
-      base64Blob.value = await fileToBase64(file.value[0])
-      mimeType.value = file.value[0].type as MimeType
+      imageData = await fileToBase64(file.value[0])
     }
 
     await $client.party.createParty
@@ -65,7 +64,7 @@
           name: party.name.value,
           description: party.description.value,
         },
-        image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
+        image: imageData,
       })
       .then(() => {
         router.push({ path: '/home/host-home', replace: true })
@@ -101,6 +100,12 @@
 
       const partyData = await $client.party.getPartyByCode.query({ code })
       if (partyData) {
+        let imageData: ImageData | undefined
+
+        if (file.value[0]) {
+          imageData = await fileToBase64(file.value[0])
+        }
+
         await $client.party.updateParty
           .mutate({
             id: partyData.id,
@@ -109,7 +114,7 @@
                 name: party.name.value,
                 description: party.description.value,
               },
-              image: file.value[0] ? { base64Blob: base64Blob.value!, mimeType: mimeType.value! } : undefined,
+              image: imageData,
             },
           })
           .then(() => {
