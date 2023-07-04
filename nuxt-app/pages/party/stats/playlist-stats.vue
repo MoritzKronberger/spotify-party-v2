@@ -6,11 +6,14 @@
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer></v-spacer>
-    <vol style="height: 80px">
+    <vcol style="height: 80px">
       <v-btn color="primary" variant="elevated" :href="partySession.playlist.value?.shareURL" target="_blank"
         >Open in Spotify</v-btn
       >
-    </vol>
+    </vcol>
+    <vcol style="height: 80px">
+      <v-btn variant="elevated" href="/">Return to Home</v-btn>
+    </vcol>
     <v-row>
       <v-col>
         <v-expansion-panels>
