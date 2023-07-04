@@ -1,34 +1,15 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
   definePageMeta({
     layout: 'song-app-bar',
   })
 
   const { $client } = useNuxtApp()
-
-  const getSessionCredentials = () => {
-    if (process.client) {
-      const username = localStorage.getItem('username') ?? null
-      const id = localStorage.getItem('nanoId') ?? null
-      if (username && id) {
-        user.name = username
-        user.id = id
-      } else {
-        router.push({ path: '/party/join-party', replace: true })
-      }
-    }
-  }
-  getSessionCredentials()
-
   const router = useRouter()
-  const route = useRoute()
-  const code = route.query.code?.toString() ?? undefined
+  const code = await useSessionCode()
 
-  /* Pushback */
-  if (code === undefined) {
-    router.push({ path: '/', replace: true })
-  }
+  const party = await $client.party.getPartyByCode.useQuery({ code })
 
+  const user = await useUser(code, party.data.value?.userId)
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
@@ -52,13 +33,37 @@
       suggestion.value = ''
     })
   }
-
   watch(
     () => partySession.messages.value,
     (newValue) => {
       if (newValue) {
         /* scroll to botton on incoming messages */
         scrollToBottom()
+      }
+    }
+  )
+  // redirect if party has been closed
+  onBeforeMount(() => {
+    if (partySession.status.value === 'closed') {
+      router.push({ path: '/party/stats/playlist-stats', query: { code } })
+    }
+  })
+
+  onMounted(() => {
+    nextTick(() => {
+      const listContainer = document.getElementById('listContainer')
+      if (listContainer) {
+        listContainer.scrollTo(0, listContainer.scrollHeight)
+      }
+    })
+  })
+
+  // redirect if party gets closed during active session
+  watch(
+    () => partySession.status.value,
+    (newValue) => {
+      if (newValue === 'closed') {
+        router.push({ path: '/party/stats/playlist-stats', query: { code } })
       }
     }
   )
@@ -74,7 +79,7 @@
   <v-container class="flex-column">
     <v-row>
       <v-col>
-        <v-btn color="primary" to="/party/invite-friends">invite</v-btn>
+        <v-btn color="primary" :to="`/party/invite-friends?code=${code}`">invite</v-btn>
       </v-col>
       <v-col v-if="partySession.playback.value?.item">
         <v-app-bar-title>
@@ -93,6 +98,9 @@
           :title="Object.keys(partySession.members.value).length"
           :to="`/party/guest-list?code=${partySession.code}`"
         ></guest-button>
+        <v-btn v-if="user.isHost" icon :to="`/party/edit-party?code=${code}`">
+          <v-icon>mdi-cog</v-icon>
+        </v-btn>
       </v-col>
     </v-row>
 

@@ -4,7 +4,5 @@
   }>()
 </script>
 <template>
-  <v-btn color="primary" prepend-icon="mdi-account-multiple" rounded="xl" to="/wireframes/guest-list">{{
-    props.title
-  }}</v-btn>
+  <v-btn color="primary" prepend-icon="mdi-account-multiple" rounded="xl">{{ props.title }}</v-btn>
 </template>

@@ -1,20 +1,12 @@
 <script setup lang="ts">
   const props = defineProps<{
     hideNavigation?: boolean
-    routeLocation?: string
-    song?: { title: string; artist: string; image: string }
-    like?: () => void
-    showOption?: boolean
   }>()
 
   const router = useRouter()
 
-  const routeBack = (location: string | undefined) => {
-    if (location) {
-      router.push({ path: location, replace: true })
-    } else {
-      router.go(-1)
-    }
+  const routeBack = () => {
+    router.go(-1)
   }
 </script>
 
@@ -22,12 +14,7 @@
   <v-theme-provider theme="defaultTheme" with-background>
     <v-app class="gradient-background">
       <v-app-bar v-if="!props.hideNavigation" color="primary">
-        <v-app-bar-nav-icon icon="mdi-arrow-left" @click="routeBack(routeLocation)" />
-        <template v-if="showOption" #append>
-          <v-btn icon to="/party/edit-party">
-            <v-icon>mdi-cog</v-icon>
-          </v-btn>
-        </template>
+        <v-app-bar-nav-icon icon="mdi-arrow-left" @click="routeBack" />
       </v-app-bar>
       <!-- App content goes here -->
       <v-main>

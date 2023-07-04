@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
+  const code = await useSessionCode()
+  const user = await useUser(code)
   const partySession = await usePartySession(user.name, user.id)
 </script>
 
@@ -47,7 +48,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <spot-button primary title="invite" to="/party/invite-friends"></spot-button>
+        <spot-button primary title="invite" :to="`/party/invite-friends?code=${code}`"></spot-button>
       </v-col>
     </v-row>
   </v-container>

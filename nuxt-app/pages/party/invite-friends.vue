@@ -1,18 +1,39 @@
 <script setup lang="ts">
-  import { user } from '~/store/userData'
-  const isCopied = ref(false)
+  const route = useRoute()
+  const code = route.query.code as string
   const partyURL = ref('')
+  const showSnackbar = ref(false)
+  const nuxtApp = useNuxtApp()
+  const $client = nuxtApp.$client
+  const genCode = () => {
+    if (code) {
+      partyURL.value = `localhost:3000/party/session?code=${code}`
+    }
+  }
+  genCode()
+
   const shareCode = () => {
-    if (user.partyCode) {
-      partyURL.value = `localhost:3000/party/session?code=${user.partyCode}`
+    if (code) {
       navigator.clipboard.writeText(partyURL.value).then(() => {
-        isCopied.value = true
-        setTimeout(() => {
-          isCopied.value = false
-        }, 3000)
+        showSnackbar.value = true
       })
     }
   }
+
+  const partyName = ref('')
+  const partyHost = ref('')
+  const getPartyInfo = async () => {
+    if (code) {
+      const party = await $client.party.getPartyByCode.query({ code })
+      const hostName = await $client.party.getPartyHostName.query({ code })
+      if (party && hostName) {
+        partyName.value = party.name
+        partyHost.value = hostName
+      }
+    }
+  }
+
+  getPartyInfo()
 </script>
 <template>
   <v-container class="fill-height flex-column">
@@ -40,8 +61,8 @@
     </v-row>
     <v-row>
       <v-col class="pt-0">
-        <p class="text-center text-body-1 font-weight-bold text-primary">Party Name</p>
-        <p class="text-center text-body-2">hosted by hostname</p>
+        <p class="text-center text-body-1 font-weight-bold text-primary">{{ partyName }}</p>
+        <p class="text-center text-body-2">hosted by {{ partyHost }}</p>
       </v-col>
     </v-row>
 
