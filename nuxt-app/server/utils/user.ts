@@ -129,7 +129,8 @@ export const getUserDataFromDB = async (query: UserQuery): Promise<User | undefi
 export const getPrivateUserDataFromDB = async (userId: string): Promise<PrivateUser | undefined> => {
   const privateUserData = (await db.select().from(user).where(eq(user.id, userId)))[0]
   if (!privateUserData) return undefined
-  const decryptedCredentials = decryptUserCredentials(privateUserData.accessToken, privateUserData.refreshToken)
+  const { accessToken, refreshToken } = privateUserData
+  const decryptedCredentials = accessToken && refreshToken ? decryptUserCredentials(accessToken, refreshToken) : {}
   return { ...privateUserData, ...decryptedCredentials }
 }
 

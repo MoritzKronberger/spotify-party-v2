@@ -17,6 +17,8 @@ const getClientCredentials = () => {
 /** Create a new Spotify-API proxy-client with the user's credentials  */
 const createSpotifyUserAPI = (user?: PrivateUser) => {
   if (!user) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not found in database' })
+  if (!user.accessToken || !user.refreshToken)
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'No credentials found for user.' })
 
   return spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
@@ -25,10 +27,15 @@ const createSpotifyUserAPI = (user?: PrivateUser) => {
       // Get new access token using refresh token
       const res = await spotifyAPI.refreshAccessToken()
       const { access_token: accessToken, refresh_token: refreshToken } = res.body
+      if (!refreshToken)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Received no refresh token when requesting new access token',
+        })
       // Set new credentials for Spotify-API client
       spotifyAPI.setCredentials({ accessToken, refreshToken })
       // Update user data in DB with new credentials
-      await updateUserCredentials(user.spotifyId, accessToken, refreshToken ?? user.refreshToken)
+      await updateUserCredentials(user.spotifyId, accessToken, refreshToken)
     },
     // Init Spotify-API client with the user's credentials
     {

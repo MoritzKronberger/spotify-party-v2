@@ -7,6 +7,6 @@ export default mysqlTable('user', {
   spotifyId: text('spotify_id').notNull(), // Unique is not yet implemented for Drizzle ORM!
   name: text('name').notNull(),
   email: text('e_mail').notNull(), // Unique is not yet implemented for Drizzle ORM!
-  accessToken: text('access_token').notNull(),
-  refreshToken: text('refresh_token').notNull(),
+  accessToken: text('access_token'),
+  refreshToken: text('refresh_token'),
 })
