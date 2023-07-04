@@ -182,11 +182,6 @@
                 <spot-button title="close party" error @click="closeParty"></spot-button>
               </v-col>
             </v-row>
-            <v-row style="min-width: 300px" class="mb-2">
-              <v-col>
-                <spot-button primary title="start party" :to="`/party/session?code=${code}`"></spot-button>
-              </v-col>
-            </v-row>
           </div>
         </v-form>
       </v-col>
