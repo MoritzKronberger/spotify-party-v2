@@ -4,7 +4,7 @@
   })
 
   const { $client } = useNuxtApp()
-
+  const router = useRouter()
   const code = await useSessionCode()
 
   const party = await $client.party.getPartyByCode.useQuery({ code })
@@ -40,6 +40,23 @@
       if (newValue) {
         /* scroll to botton on incoming messages */
         scrollToBottom()
+      }
+    }
+  )
+
+  // redirect if party has been closed
+  onBeforeMount(() => {
+    if (partySession.status.value === 'closed') {
+      router.push({ path: '/party/stats/playlist-stats', query: { code } })
+    }
+  })
+
+  // redirect if party gets closed during active session
+  watch(
+    () => partySession.status.value,
+    (newValue) => {
+      if (newValue === 'closed') {
+        router.push({ path: '/party/stats/playlist-stats', query: { code } })
       }
     }
   )
