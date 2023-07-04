@@ -48,7 +48,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <spot-button primary title="invite" to="/party/invite-friends"></spot-button>
+        <spot-button primary title="invite" :to="`/party/invite-friends?code=${code}`"></spot-button>
       </v-col>
     </v-row>
   </v-container>
