@@ -1,7 +1,7 @@
 import { createInsertSchema } from 'drizzle-zod'
 import { TRPCError } from '@trpc/server'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { privateProcedure } from '../middleware/auth'
 import { router } from '../trpc'
 import { image } from '~/db/schema'
@@ -49,8 +49,15 @@ export const imageRouter = router({
   /** Delete image from DB. */
   deleteImage: privateProcedure.input(z.object({ imageId: nanoId() })).mutation(async ({ ctx, input }) => {
     const { imageId } = input
-    if (ctx.user.id !== imageId) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'User is not owner of image.' })
-    const res = await db.delete(image).where(eq(image.id, imageId))
+    const { id: userId } = ctx.user
+    // Get image data
+    const imageData = (await db.select().from(image).where(eq(image.id, imageId)))[0]
+    if (!imageData) throw new TRPCError({ code: 'NOT_FOUND', message: 'Image does not exist.' })
+    // Ensure user owns image
+    if (userId !== imageData.userId)
+      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'User is not owner of image.' })
+    // Delete image
+    const res = await db.delete(image).where(and(eq(image.id, imageId), eq(image.userId, userId)))
     return { id: rowsAffected(res) ? imageId : undefined }
   }),
 })
