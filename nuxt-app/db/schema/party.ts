@@ -9,7 +9,7 @@ export const sessionStatus = ['inactive', 'active', 'closed'] as const
  */
 export default mysqlTable('party', {
   id: nanoId('id').primaryKey(),
-  userId: text('user_id').notNull(),
+  userId: nanoId('user_id').notNull(),
   name: text('name').notNull(),
   description: text('description'), // NULLABLE
   startAutomatically: timestamp('start_automatically'), // NULLABLE: no timestamp = manual start
