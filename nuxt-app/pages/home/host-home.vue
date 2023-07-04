@@ -139,7 +139,7 @@
         <pop-up-dialog
           v-model="dialogIsActive"
           title="Confirm Delete"
-          :disabled="!edit"
+          :disabled="!dialogIsActive"
           :info-text="`Do you really want to delete the party: ${partyToDelete?.name}`"
           primary-text="Delete"
           @on-primary="deletePartyByID(partyToDelete?.id)"
