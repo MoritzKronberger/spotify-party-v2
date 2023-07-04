@@ -31,23 +31,25 @@
       })
   }
 
-  const deletePartyByID = async (partyID: string) => {
-    await $client.party.deleteParty
-      .mutate({ id: partyID })
-      .then(() => {
-        const index = userParties.data.value!.findIndex((party) => (party.id = partyID))
-        userParties.data.value!.splice(index, 1)
-        dialogIsActive.value = false
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+  const deletePartyByID = async (partyID: string | undefined) => {
+    if (partyID) {
+      await $client.party.deleteParty
+        .mutate({ id: partyID })
+        .then(() => {
+          userParties.refresh()
+          dialogIsActive.value = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
   }
 
   const dialogIsActive = ref(false)
   const edit = ref(false)
-
-  const setDialog = () => {
+  const partyToDelete = ref<{ name: string; id: string }>()
+  const setDialog = (partyName: string, partyID: string) => {
+    partyToDelete.value = { name: partyName, id: partyID }
     dialogIsActive.value = !dialogIsActive.value
   }
 
@@ -129,20 +131,20 @@
             </template>
             <template #append>
               <v-list-item-subtitle>{{ partyStatus(party.sessionStatus) }}</v-list-item-subtitle>
-              <v-btn v-if="edit" icon="mdi-delete" @click.stop="setDialog"></v-btn>
+              <v-btn v-if="edit" icon="mdi-delete" @click.stop="setDialog(party.name, party.id)"></v-btn>
               <v-btn v-else icon="mdi-arrow-right"></v-btn>
             </template>
-            <pop-up-dialog
-              v-model="dialogIsActive"
-              title="Confirm Delete"
-              :disabled="!edit"
-              :info-text="'Do you really want to delete the party: ' + party.name"
-              primary-text="Delete"
-              @on-primary="deletePartyByID(party.id)"
-              @on-secondary="setDialog"
-            ></pop-up-dialog>
           </v-list-item>
         </v-list>
+        <pop-up-dialog
+          v-model="dialogIsActive"
+          title="Confirm Delete"
+          :disabled="!edit"
+          :info-text="`Do you really want to delete the party: ${partyToDelete?.name}`"
+          primary-text="Delete"
+          @on-primary="deletePartyByID(partyToDelete?.id)"
+          @on-secondary="dialogIsActive = !dialogIsActive"
+        ></pop-up-dialog>
       </v-card>
     </v-col>
 
