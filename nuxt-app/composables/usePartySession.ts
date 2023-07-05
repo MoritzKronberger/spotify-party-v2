@@ -113,6 +113,9 @@ export default async function (username: string, userId: string) {
     partySession.onPlaylist(async (tokenCount) => {
       partySessionHelper.tokenCount.value = tokenCount
       partySessionHelper.playlist.value = await $client.spotify.getPlaylist.query(session)
+      // Also update playback status every time the playlist changes
+      // (Outside of regular playback update interval)
+      await $client.session.publishPlayback.query(session)
     })
 
     // Update party session status
