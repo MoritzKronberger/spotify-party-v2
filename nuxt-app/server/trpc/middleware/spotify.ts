@@ -3,6 +3,7 @@ import { privateProcedure } from './auth'
 import { sessionProcedure } from './isSession'
 import { spotifyProxyAPI } from '~/server/utils/spotifyProxyAPI'
 import { PrivateUser, getPrivateUserDataFromDB } from '~/server/utils/user'
+import { log } from '~/server/utils/logging'
 
 /** Throws on missing env variables. */
 const getClientCredentials = () => {
@@ -17,18 +18,25 @@ const getClientCredentials = () => {
 /** Create a new Spotify-API proxy-client with the user's credentials  */
 const createSpotifyUserAPI = (user?: PrivateUser) => {
   if (!user) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'User not found in database' })
+  if (!user.accessToken || !user.refreshToken)
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'No credentials found for user.' })
 
   return spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
     async (spotifyAPI) => {
-      console.log('Spotify-Web-API Proxy: retrying unauthorized request')
+      log('Spotify-Web-API Proxy: retrying unauthorized request')
       // Get new access token using refresh token
       const res = await spotifyAPI.refreshAccessToken()
       const { access_token: accessToken, refresh_token: refreshToken } = res.body
+      if (!refreshToken)
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Received no refresh token when requesting new access token',
+        })
       // Set new credentials for Spotify-API client
       spotifyAPI.setCredentials({ accessToken, refreshToken })
       // Update user data in DB with new credentials
-      await updateUserCredentials(user.spotifyId, accessToken, refreshToken ?? user.refreshToken)
+      await updateUserCredentials(user.spotifyId, accessToken, refreshToken)
     },
     // Init Spotify-API client with the user's credentials
     {
@@ -54,7 +62,7 @@ export const spotifyServerProcedure = privateProcedure.use(async ({ next }) => {
   const spotifyServerAPI = spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
     async (spotifyAPI) => {
-      console.log('Spotify-Web-API Proxy: retrying unauthorized request')
+      log('Spotify-Web-API Proxy: retrying unauthorized request')
       // Set new access token using client credentials
       const res = await spotifyAPI.clientCredentialsGrant()
       spotifyAPI.setAccessToken(res.body.access_token)

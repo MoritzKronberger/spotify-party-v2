@@ -34,7 +34,8 @@ export type FullMessage = FullUserMessage | NonUserChatCompletionRequestMessage
 /**
  * User data for Pusher presence channel.
  *
- * Reference: https://pusher.com/docs/channels/server%5Fapi/authenticating-users/#user-authentication
+ * Reference:
+ * https://pusher.com/docs/channels/server%5Fapi/authenticating-users/#user-authentication
  */
 export type PresenceData = {
   user_id: string

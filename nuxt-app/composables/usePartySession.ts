@@ -7,7 +7,9 @@ import { Playback, Playlist, SessionStatus } from '~/types/trpc'
  * - Subscribes to Pusher channel using code from page query params
  * - Joins party with the current user
  * - Provides method for adding new messages
- * - Provides refs to the party's users and messages
+ * - Provides refs to the party's users, messages, the current playlist and playback state
+ * as well as the party's status and token count
+ * - Provides method for hosts to publish their playback state in regular interval
  */
 
 export default async function (username: string, userId: string) {
@@ -52,10 +54,10 @@ export default async function (username: string, userId: string) {
     /**
      * Stat publishing current playback in interval.
      *
-     * Interval timeout is either the time until the next song
+     * Interval timeout is either the time until the next song (+ offset)
      * or the fallback timeout if no information about the current song exists.
      *
-     * Must be run client-side, since intervals > 60s would cause Vercel Serveless Functions to time out.
+     * Must be run client-side, since intervals > 60s would cause Vercel Serverless Functions to time out.
      * Reference:
      * https://vercel.com/docs/concepts/functions/serverless-functions#execution-timeout
      *
@@ -120,7 +122,6 @@ export default async function (username: string, userId: string) {
 
     // Update playback
     partySession.onPlayback((playback) => {
-      console.log('Received playback!')
       partySessionHelper.playback.value = playback
     })
   }
