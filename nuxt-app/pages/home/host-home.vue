@@ -2,11 +2,10 @@
   definePageMeta({
     middleware: ['auth'],
   })
-  const nuxtApp = useNuxtApp()
   const router = useRouter()
 
   // get user information
-  const $client = nuxtApp.$client
+  const { $client } = useNuxtApp()
   const userParties = await $client.party.getUserParties.useQuery()
   const user = await $client.auth.getUser.query()
 
@@ -22,7 +21,7 @@
             router.push({ path: '/party/stats/playlist-stats', query: { code } })
           }
         } else {
-          /* AMIN -> error message log in UI */
+          /* Error message log in UI */
           console.log('Invalid Party Code')
         }
       })

@@ -1,10 +1,14 @@
 <script setup lang="ts">
   import { mdiQrcodeScan } from '@mdi/js'
   import SpotButton from '~/components/spot-button.vue'
-  // Get tRPC client
-  const nuxtApp = useNuxtApp()
+
+  // Get client
+  const { $client } = useNuxtApp()
+
+  // Get router
   const router = useRouter()
-  const $client = nuxtApp.$client
+
+  // Get qr-code-scanner
   const path = mdiQrcodeScan
 
   const partyCode = ref('')
@@ -17,9 +21,8 @@
         if (result.data.value?.exists) {
           const code = partyCode.value
           router.push({ path: `/party/login-guest`, query: { code } })
-          /* Requires merge of add-party-session-logic */
         } else {
-          /* AMIN -> message log in UI */
+          /* Error message log in UI */
           console.log('This party doesnt exist!')
         }
       })
@@ -60,7 +63,7 @@
           <v-col>
             <v-row>
               <v-col>
-                <v-text-field v-model="partyCode" label="Enter Code" />
+                <v-text-field v-model="partyCode" label="Enter Code" @keyup.enter="joinParty" />
               </v-col>
             </v-row>
             <spot-button :primary="true" title="join" @click="joinParty" />
