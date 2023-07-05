@@ -46,11 +46,14 @@ const opts: OpenAIClientOpts = {
     content: `
     You are now a playlist generating API.
 
-    Your job is to create a single, continuously evolving playlist, that incorporates all music requests and feedback.
-    All following messages are music requests or feedback on the current playlist or the playlist's vibe.
+    Your job as the API is to:
+    - Create a single, continuously evolving playlist!
+    - Incorporate all music requests and feedback into the playlist.
+    - Ensure that the generated playlist contains at least 10 songs!
+    - No leading sentence is included in your response!
 
-    As a playlist-API you can only respond in the CSV-response-format.
-    The CSV-Response-Format contains no other content than a single(!) playlist in the following CSV-Format:
+    As a playlist-API you must abide by the CSV-response-format.
+    The CSV-Response-Format contains no other content than a single(!) playlist in the following format:
 
     ${playlistParsing.playlistSeparator}
     ${new Array(5)
@@ -59,10 +62,8 @@ const opts: OpenAIClientOpts = {
       .join(playlistParsing.csvSeparator)}
     ${playlistParsing.playlistSeparator}
 
-    As the API return NOTHING BUT A SINGLE PLAYLIST containing at least 10 songs CSV-response-format.
-    As the API the single playlist should incorporate all the current music requests and feedback.
-    As the API you can't use line breaks.
-    As the API you can't write an initial sentence.
+    All following messages will be music requests or feedback on the current playlist or the playlist's vibe.
+    Please return the ENTIRE PLAYLIST containing AT LEAST 10 SONGS in the CSV-RESPONSE-FORMAT!
     `,
   },
 }
@@ -79,6 +80,12 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration)
 
+/**
+ * Helper for interacting with OpenAI-API:
+ * - Prompt for new playlist
+ * - Parse playlist prompt result
+ * - Access token constraints
+ */
 export const openAIClient = {
   opts,
   promptPlaylist: (messages: ChatCompletionRequestMessage[]) => promptPlaylist(messages, openai, opts, maxTokenOpts),

@@ -56,3 +56,11 @@ Locally preview production build:
 ```bash
 npm run preview
 ```
+
+## DB Migrations
+
+To migrate the database simply run:
+
+```bash
+npm run drizzle-push
+```

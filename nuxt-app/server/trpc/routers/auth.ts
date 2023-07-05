@@ -54,10 +54,10 @@ export const authRouter = router({
   getUser: privateProcedure.query(({ ctx }) => {
     return ctx.user
   }),
-  /** Delete entire user data from database. (Returns undefined for Id if user could not be deleted) */
+  /** Delete user credentials from database. (Returns undefined for Id if user credentials could not be deleted) */
   logout: privateProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.user.id
-    const res = await db.delete(user).where(eq(user.id, userId))
+    const res = await db.update(user).set({ accessToken: null, refreshToken: null }).where(eq(user.id, userId))
     return { id: rowsAffected(res) ? userId : undefined }
   }),
 })

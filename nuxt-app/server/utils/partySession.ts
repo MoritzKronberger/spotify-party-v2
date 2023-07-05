@@ -66,7 +66,8 @@ export class PartySession {
   /**
    * Get message list from KV store for session code.
    *
-   * Reference: https://vercel.com/docs/storage/vercel-kv/kv-reference#hset
+   * Reference:
+   * https://vercel.com/docs/storage/vercel-kv/kv-reference#hset
    */
   public getMessages(): Promise<FullMessage[] | null> {
     // TODO: Validate using Zod?
@@ -77,7 +78,7 @@ export class PartySession {
    * Add new message to KV store for session code and return new message list.
    *
    * Reference:
-   * - https://vercel.com/docs/storage/vercel-kv/kv-reference#hget
+   * https://vercel.com/docs/storage/vercel-kv/kv-reference#hget
    */
   public async addMessage(message: FullMessage) {
     const messages = (await this.getMessages()) ?? []
@@ -91,7 +92,7 @@ export class PartySession {
    * Publish session messages to Pusher channel.
    *
    * Reference:
-   * - https://github.com/pusher/pusher-http-node#publishing-events
+   * https://github.com/pusher/pusher-http-node#publishing-events
    */
   public async publishMessages(messages?: FullMessage[]) {
     // Get messages from KV storage if none were provided

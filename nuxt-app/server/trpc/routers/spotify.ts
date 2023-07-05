@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { spotifyUserProcedure, spotifyServerProcedure, spotifySessionUserProcedure } from '../middleware/spotify'
 import { router } from '../trpc'
 import { base64BlobSchema } from '~/utils/image'
+import { log } from '~/server/utils/logging'
 
 const trackQuerySchema = z.string()
 
@@ -154,7 +155,10 @@ export const spotifyRouter = router({
     // Return null and log if fetching playback was unsuccessful
     // (Cannot use try-catch because `getMyCurrentPlaybackState()` doesn't error if device is inactive (status code 204))
     if (statusCode !== 200) {
-      console.log(`Getting playback state for Spotify user ${ctx.user.spotifyId} failed with status code ${statusCode}`)
+      log(
+        `Getting playback state for Spotify user ${ctx.user.spotifyId} failed with status code ${statusCode}`,
+        'error'
+      )
       return null
     }
     // Publish playback item (if party playlist is playing)
