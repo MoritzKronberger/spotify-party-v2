@@ -13,8 +13,11 @@
   const showSnackbar = ref(false)
 
   const genCode = () => {
-    if (code) {
-      partyURL.value = `localhost:3000/party/session?code=${code}`
+    if (code && process.client) {
+      // Determine host and protocol dynamically for deployment
+      const location = window.location
+      const { host, protocol } = location
+      partyURL.value = `${protocol}//${host}/party/session?code=${code}`
     }
   }
   genCode()
