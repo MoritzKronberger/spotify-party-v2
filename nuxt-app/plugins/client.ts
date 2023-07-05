@@ -64,8 +64,7 @@ export default defineNuxtPlugin(() => {
   const appCookies = useAppCookies()
 
   /**
-   * `createTRPCNuxtClient` adds a `useQuery` composable
-   * built on top of `useAsyncData`.
+   * `createTRPCNuxtClient` adds a `useQuery` composable built on top of `useAsyncData`.
    *
    * Reference: https://trpc-nuxt-docs.vercel.app/get-started/usage/recommended#2-create-trpc-client-plugin
    */

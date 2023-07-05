@@ -15,6 +15,7 @@ import { party as partyTable } from '~/db/schema'
 import { Party } from '~/types/trpc'
 import { getUserDataFromDB } from '~/server/utils/user'
 import { signJWT } from '~/server/auth'
+import { log } from '~/server/utils/logging'
 
 /**
  * Update playlist using OPenAI-API and Spotify-API.
@@ -25,7 +26,7 @@ import { signJWT } from '~/server/auth'
  * - Update the party playlist with the new tracks
  */
 const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, event: H3Event): Promise<void> => {
-  console.log('Updating playlist...')
+  log('Updating playlist...')
 
   const { playlistId } = party
 
@@ -94,7 +95,7 @@ export const sessionRouter = router({
       // For now, simply add a log if playback can't be started
       // (Usually happens, if no Spotify device is active)
       // TODO: Publish error once frontend implements error messages
-      console.log(`Could not start playback for session ${party.code}`)
+      log(`Could not start playback for session ${party.code}`, 'error')
     })
 
     // Set session status as "active" in DB

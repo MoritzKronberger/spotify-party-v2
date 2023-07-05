@@ -1,10 +1,17 @@
 <script setup lang="ts">
+  // Get query code
   const route = useRoute()
   const code = route.query.code as string
+
+  // Get client
+  const { $client } = useNuxtApp()
+
+  // Share link
   const partyURL = ref('')
+
+  // Copied-Popup
   const showSnackbar = ref(false)
-  const nuxtApp = useNuxtApp()
-  const $client = nuxtApp.$client
+
   const genCode = () => {
     if (code && process.client) {
       // Determine host and protocol dynamically for deployment
@@ -25,7 +32,7 @@
 
   const partyName = ref('')
   const partyHost = ref('')
-  const getPartyInfo = async () => {
+  const getHostInformation = async () => {
     if (code) {
       const party = await $client.party.getPartyByCode.query({ code })
       const hostName = await $client.party.getPartyHostName.query({ code })
@@ -36,7 +43,9 @@
     }
   }
 
-  getPartyInfo()
+  onBeforeMount(() => {
+    getHostInformation()
+  })
 </script>
 <template>
   <v-container class="fill-height flex-column">

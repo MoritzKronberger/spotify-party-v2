@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Create user data
-  const prescenceData: PresenceData = {
+  const presenceData: PresenceData = {
     user_id: userId,
     user_info: {
       userName,
@@ -88,5 +88,5 @@ export default defineEventHandler(async (event) => {
 
   // Authorize user for requested channel
   const session = new PartySession('')
-  return session.authorizeUser(socketId, channel, prescenceData)
+  return session.authorizeUser(socketId, channel, presenceData)
 })
