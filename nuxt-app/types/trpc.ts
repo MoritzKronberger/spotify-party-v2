@@ -3,6 +3,7 @@ import { AppRouter } from '~/server/trpc/routers'
 
 type RouterInputs = inferRouterInputs<AppRouter>
 type RouterOutputs = inferRouterOutputs<AppRouter>
-
-export type SongInput = RouterInputs['addSong']
-export type Song = RouterOutputs['getSongs'][number]
+export type Party = RouterOutputs['party']['getParty']
+export type Playlist = RouterOutputs['spotify']['getPlaylist']
+export type SessionStatus = RouterInputs['party']['setSessionStatus']['status']
+export type Playback = RouterOutputs['spotify']['getPlayback']

@@ -23,7 +23,7 @@ const t = initTRPC.context<Context>().create({
   transformer: superjson,
 })
 
-/** Unprotected procedure. **/
+/** Export public functionality. **/
 export const publicProcedure = t.procedure
 export const router = t.router
 export const middleware = t.middleware
