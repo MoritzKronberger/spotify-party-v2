@@ -2,6 +2,7 @@ import { ChatCompletionRequestMessage, OpenAIApi } from 'openai'
 import { z } from 'zod'
 import { MaxTokenOpts, composePlaylistPrompt, getMessageTokenCount, limitPromptMessageTokens } from './utils'
 import { OpenAIClientOpts, PlaylistParsing } from '.'
+import { log } from '~/server/utils/logging'
 
 // OpenAI API response schema for chat completions
 // Reference: https://platform.openai.com/docs/api-reference/chat/create
@@ -59,8 +60,9 @@ export const promptPlaylist = async (
   const { total_tokens: totalTokens, prompt_tokens: promptTokens } = completion.usage
   // Log warning if calculated prompt token count differs from prompt token count returned by API
   if (Math.abs(promptTokens - estimatedTokenCount) > 0) {
-    console.warn(
-      `Calculated prompt token count (${estimatedTokenCount}) differs from prompt token count returned by API (${promptTokens})`
+    log(
+      `Calculated prompt token count (${estimatedTokenCount}) differs from prompt token count returned by API (${promptTokens})`,
+      'warning'
     )
   }
   // Return used tokens and playlist (as completion message)
@@ -71,7 +73,7 @@ export const promptPlaylist = async (
  * Parse playlist returned by ChatGPT into track-query-strings.
  */
 export const parsePlaylist = (completion: string, parsingOpts: PlaylistParsing): string[] => {
-  console.log(completion)
+  log(completion)
   const { playlistSeparator, csvSeparator } = parsingOpts
   const rawPlaylist = completion.split(playlistSeparator)[1]?.trim()
   if (!rawPlaylist) return []

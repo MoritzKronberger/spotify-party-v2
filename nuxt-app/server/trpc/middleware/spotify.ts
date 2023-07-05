@@ -3,6 +3,7 @@ import { privateProcedure } from './auth'
 import { sessionProcedure } from './isSession'
 import { spotifyProxyAPI } from '~/server/utils/spotifyProxyAPI'
 import { PrivateUser, getPrivateUserDataFromDB } from '~/server/utils/user'
+import { log } from '~/server/utils/logging'
 
 /** Throws on missing env variables. */
 const getClientCredentials = () => {
@@ -23,7 +24,7 @@ const createSpotifyUserAPI = (user?: PrivateUser) => {
   return spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
     async (spotifyAPI) => {
-      console.log('Spotify-Web-API Proxy: retrying unauthorized request')
+      log('Spotify-Web-API Proxy: retrying unauthorized request')
       // Get new access token using refresh token
       const res = await spotifyAPI.refreshAccessToken()
       const { access_token: accessToken, refresh_token: refreshToken } = res.body
@@ -61,7 +62,7 @@ export const spotifyServerProcedure = privateProcedure.use(async ({ next }) => {
   const spotifyServerAPI = spotifyProxyAPI(
     // For unauthorized errors, execute before retry:
     async (spotifyAPI) => {
-      console.log('Spotify-Web-API Proxy: retrying unauthorized request')
+      log('Spotify-Web-API Proxy: retrying unauthorized request')
       // Set new access token using client credentials
       const res = await spotifyAPI.clientCredentialsGrant()
       spotifyAPI.setAccessToken(res.body.access_token)
