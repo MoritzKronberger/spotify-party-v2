@@ -67,20 +67,21 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
     // Update playlist with new tracks
     await spotify.updatePlaylistTracks({ playlistId, trackURIs })
 
-    // Publish new playlist
-    // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
-    await partySession.publishPlaylist({
-      maxTokens: openAIClient.maxPartyTokens,
-      tokenCount,
-    }) // AWAIT, otherwise serverless functions might exit early
-
     // Ensure party playlist is playing on the host's device
+    // (Run before publishing playlist update, since the latter triggers playback synchronization for client)
     await spotify.setPlaylistPlayback({ playlistId: party.playlistId }).catch(() => {
       // For now, simply add a log if playback can't be started
       // (Usually happens, if no Spotify device is active)
       // TODO: Publish error once frontend implements error messages
       log(`Could not start playback for session ${party.code}`, 'error')
     })
+
+    // Publish new playlist
+    // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
+    await partySession.publishPlaylist({
+      maxTokens: openAIClient.maxPartyTokens,
+      tokenCount,
+    }) // AWAIT, otherwise serverless functions might exit early
   }
 }
 
