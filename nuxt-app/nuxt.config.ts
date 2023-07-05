@@ -17,4 +17,11 @@ export default defineNuxtConfig({
       SPOTIFY_MAX_IMG_SIZE_KB: process.env.SPOTIFY_MAX_IMG_SIZE_KB,
     },
   },
+  // Add custom favicon
+  // Reference: https://stackoverflow.com/a/74509670/14906871
+  app: {
+    head: {
+      link: [{ rel: 'icon', type: 'image/svg', href: '/logo_primary.svg' }],
+    },
+  },
 })

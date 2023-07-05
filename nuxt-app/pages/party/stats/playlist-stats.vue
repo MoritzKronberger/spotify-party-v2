@@ -6,14 +6,6 @@
 <template>
   <v-container class="fill-height flex-column">
     <v-spacer></v-spacer>
-    <vcol style="height: 80px">
-      <v-btn color="primary" variant="elevated" :href="partySession.playlist.value?.shareURL" target="_blank"
-        >Open in Spotify</v-btn
-      >
-    </vcol>
-    <vcol style="height: 80px">
-      <v-btn variant="elevated" href="/">Return to Home</v-btn>
-    </vcol>
     <v-row>
       <v-col>
         <v-expansion-panels>
@@ -24,8 +16,13 @@
               </v-avatar>
               <div class="d-flex flex-nowrap justify-space-between">
                 <div>
-                  <v-card-title>Party playlist</v-card-title>
-                  <v-card-subtitle class="py-1">{{ partySession.playlist.value?.name }}</v-card-subtitle>
+                  <v-card-title>{{ partySession.playlist.value?.name }}</v-card-title>
+                  <v-card-subtitle class="py-1">{{ partySession.playlist.value?.description }}</v-card-subtitle>
+                  <v-card-actions>
+                    <v-btn color="primary" variant="text" :href="partySession.playlist.value?.shareURL" target="_blank"
+                      >Open in Spotify</v-btn
+                    >
+                  </v-card-actions>
                 </div>
               </div>
             </template>
