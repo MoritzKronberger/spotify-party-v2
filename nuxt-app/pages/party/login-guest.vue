@@ -1,19 +1,15 @@
 <script setup lang="ts">
   import { genNanoId } from '~/utils/nanoId'
+  // Get client
+  const { $client } = useNuxtApp()
 
-  const guestName = ref('')
-  const nuxtApp = useNuxtApp()
-  const $client = nuxtApp.$client
+  // Get router
   const router = useRouter()
+
+  // Get session code from query
   const code = await useSessionCode()
 
-  // check party exists
-  const exists = await $client.party.checkPartyExists.query({ code })
-
-  // return on invalid party-code
-  if (!exists) {
-    router.push({ path: '/party/join-party' })
-  }
+  const guestName = ref('')
 
   const enterSession = () => {
     if (guestName.value.length) {
@@ -22,10 +18,21 @@
       const router = useRouter()
       router.push({ path: '/party/session', query: { code } })
     } else {
-      /* AMIN => Log in UI-ELEMENT */
+      /* => Log in UI-ELEMENT */
       console.log('Enter name!')
     }
   }
+
+  // check before page gets rendered
+  onBeforeMount(async () => {
+    // check party exists
+    const exists = await $client.party.checkPartyExists.query({ code })
+
+    // return on invalid party-code
+    if (!exists) {
+      router.push({ path: '/party/join-party' })
+    }
+  })
 </script>
 <template>
   <v-container class="fill-height flex-column">
@@ -41,7 +48,9 @@
       <v-col>
         <v-form style="min-width: 300px">
           <v-row>
-            <v-col> <v-text-field v-model="guestName" hide-details label="Guest name" /> </v-col>
+            <v-col>
+              <v-text-field v-model="guestName" label="Guest name" />
+            </v-col>
           </v-row>
           <v-row>
             <v-col>

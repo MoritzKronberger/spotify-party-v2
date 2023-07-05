@@ -51,6 +51,7 @@
   // New reference rules prop -> reactive
   const rules = toRef(props, 'rules')
 
+  // create new party as host
   const createParty = async () => {
     let imageData: ImageData | undefined
 

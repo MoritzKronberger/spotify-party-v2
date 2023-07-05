@@ -2,19 +2,29 @@
   definePageMeta({
     layout: 'song-app-bar',
   })
-
+  // Get client
   const { $client } = useNuxtApp()
+
+  // Get router
   const router = useRouter()
+
+  // Get code from query
   const code = await useSessionCode()
 
+  // Get party by code
   const party = await $client.party.getPartyByCode.useQuery({ code })
 
+  // Get user information
   const user = await useUser(code, party.data.value?.userId)
+
+  // Get party session information
+  const partySession = await usePartySession(user.name, user.id)
+
+  // tabs
   const tab = ref(null)
   const tabs = ['suggestion', 'playlist']
   const suggestion = ref('')
 
-  const partySession = await usePartySession(user.name, user.id)
   // Set party session status to "active" if host joins party
   let playbackUpdateInterval: NodeJS.Timeout | undefined
   if (user.isHost) {
@@ -22,26 +32,33 @@
     playbackUpdateInterval = await partySession.startPlaybackUpdateInterval(60 * 1000, 50) // Use fallback interval of 60 seconds
   }
 
+  // scroll bottom on new message
   const scrollToBottom = () => {
     const listContainer = document.getElementById('listContainer')
     if (listContainer) nextTick(() => listContainer.scrollTo(0, listContainer.scrollHeight))
   }
 
+  // add new message respectively song suggestion
   const addMessage = () => {
-    partySession.addMessage(suggestion.value).then(() => {
+    const msg = suggestion.value
+    suggestion.value = ''
+    partySession.addMessage(msg).then(() => {
       scrollToBottom()
-      suggestion.value = ''
     })
   }
-  watch(
-    () => partySession.messages.value,
-    (newValue) => {
-      if (newValue) {
-        /* scroll to botton on incoming messages */
-        scrollToBottom()
-      }
+
+  watch([() => partySession.messages.value, () => partySession.status.value], ([messages, status]) => {
+    if (messages) {
+      /* scroll to bottom on incoming messages */
+      scrollToBottom()
     }
-  )
+
+    // redirect if party is getting closed
+    if (status === 'closed') {
+      router.push({ path: '/party/stats/playlist-stats', query: { code } })
+    }
+  })
+
   // redirect if party has been closed
   onBeforeMount(() => {
     if (partySession.status.value === 'closed') {
@@ -49,6 +66,7 @@
     }
   })
 
+  // scroll down after page render
   onMounted(() => {
     nextTick(() => {
       const listContainer = document.getElementById('listContainer')
@@ -57,16 +75,6 @@
       }
     })
   })
-
-  // redirect if party gets closed during active session
-  watch(
-    () => partySession.status.value,
-    (newValue) => {
-      if (newValue === 'closed') {
-        router.push({ path: '/party/stats/playlist-stats', query: { code } })
-      }
-    }
-  )
 
   // Clear playback update interval when leaving page,
   // otherwise multiple intervals will be coexist when going back and forth between pages.

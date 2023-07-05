@@ -7,7 +7,10 @@
     layout: 'default-home',
   })
 
+  // direct to host-home if authenticated
   const directURL = ref('')
+
+  // error message
   const errorMessage = ref('')
 
   // Get tRPC client
