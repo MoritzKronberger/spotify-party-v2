@@ -1,10 +1,9 @@
-// eslint-disable-next-line import/default
-import jwt from 'jsonwebtoken'
+import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken'
 import type { H3Event } from 'h3'
 import { User, userSchema } from '../utils/user'
 import { defaultCredentialsCookieSerializationOpts } from '~/utils/pkce'
 
-const expiresIn = '24h'
+const expiresIn = process.env.JWT_EXPIRES_IN ?? '24h'
 
 export type Credentials = {
   verifier: string // Used to verify user using Spotify's PKCE flow
@@ -20,8 +19,7 @@ const useJWTPrivateKey = () => {
 
 /** Sign JWT with public user data payload. */
 export const signJWT = (userData: User) => {
-  // eslint-disable-next-line import/no-named-as-default-member
-  return jwt.sign(userData, useJWTPrivateKey(), { expiresIn })
+  return jwtSign(userData, useJWTPrivateKey(), { expiresIn })
 }
 
 /**
@@ -31,8 +29,7 @@ export const signJWT = (userData: User) => {
  */
 export const verifyJWT = (token: string) => {
   try {
-    // eslint-disable-next-line import/no-named-as-default-member
-    const userData = jwt.verify(token, useJWTPrivateKey())
+    const userData = jwtVerify(token, useJWTPrivateKey())
     return userSchema.parse(userData)
   } catch (_) {
     return undefined

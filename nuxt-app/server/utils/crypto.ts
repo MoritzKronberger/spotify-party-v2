@@ -8,6 +8,8 @@ type EnvString = string | undefined
 /**
  * Generate key and initialization vector for AES-256-CBC cipher.
  *
+ * Throws on missing env variables (key and iv).
+ *
  * Reference:
  * https://dev.to/jobizil/encrypt-and-decrypt-data-in-nodejs-using-aes-256-cbc-2l6d
  */

@@ -9,8 +9,8 @@ export default mysqlTable(
   'image',
   {
     id: nanoId('id').primaryKey(),
-    userId: nanoId('user_id').notNull(),
-    base64Blob: mediumtext('base64_blob').notNull(),
+    userId: nanoId('user_id').notNull(), // No FKs in PlanetScale -> index column
+    base64Blob: mediumtext('base64_blob').notNull(), // Use medium text to fit image blobs
     mimeType: mysqlEnum('mime_type', mimeTypes).notNull(),
   },
   (image) => ({

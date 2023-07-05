@@ -79,6 +79,12 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration)
 
+/**
+ * Helper for interacting with OpenAI-API:
+ * - Prompt for new playlist
+ * - Parse playlist prompt result
+ * - Access token constraints
+ */
 export const openAIClient = {
   opts,
   promptPlaylist: (messages: ChatCompletionRequestMessage[]) => promptPlaylist(messages, openai, opts, maxTokenOpts),
