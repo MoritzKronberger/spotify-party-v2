@@ -1,4 +1,5 @@
-import { sign as jwtSign, verify as jwtVerify } from 'jsonwebtoken'
+// eslint-disable-next-line import/default
+import jwt from 'jsonwebtoken'
 import type { H3Event } from 'h3'
 import { User, userSchema } from '../utils/user'
 import { defaultCredentialsCookieSerializationOpts } from '~/utils/pkce'
@@ -19,7 +20,7 @@ const useJWTPrivateKey = () => {
 
 /** Sign JWT with public user data payload. */
 export const signJWT = (userData: User) => {
-  return jwtSign(userData, useJWTPrivateKey(), { expiresIn })
+  return jwt.sign(userData, useJWTPrivateKey(), { expiresIn })
 }
 
 /**
@@ -29,7 +30,7 @@ export const signJWT = (userData: User) => {
  */
 export const verifyJWT = (token: string) => {
   try {
-    const userData = jwtVerify(token, useJWTPrivateKey())
+    const userData = jwt.verify(token, useJWTPrivateKey())
     return userSchema.parse(userData)
   } catch (_) {
     return undefined
