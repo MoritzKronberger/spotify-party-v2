@@ -68,10 +68,10 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
 
     // Publish new playlist
     // Publish without data, since size of playlist data regularly exceeds Pusher's maximum playlist size (let clients fetch playlist themselves)
-    partySession.publishPlaylist({
+    await partySession.publishPlaylist({
       maxTokens: openAIClient.maxPartyTokens,
       tokenCount,
-    })
+    }) // AWAIT, otherwise serverless functions might exit early
   }
 }
 
@@ -103,15 +103,15 @@ export const sessionRouter = router({
     await partyProcedures.setSessionStatus({ id: party.id, status })
 
     // Publish new status
-    await partySession.publishStatus(status)
+    await partySession.publishStatus(status) // AWAIT, otherwise serverless functions might exit early
   }),
   /** End live party session. */
   stopSession: sessionHostProcedure.mutation(async ({ ctx }) => {
     const { party, partySession } = ctx
     const partyProcedures = partyRouter.createCaller(ctx)
     const status = 'closed'
-    await partySession.publishStatus(status)
-    return await partyProcedures.setSessionStatus({ id: party.id, status })
+    await partySession.publishStatus(status) // AWAIT, otherwise serverless functions might exit early
+    return await partyProcedures.setSessionStatus({ id: party.id, status }) // AWAIT, otherwise serverless functions might exit early
   }),
   /** Add message to party session. */
   addMessage: sessionProcedure
@@ -133,7 +133,7 @@ export const sessionRouter = router({
       // Add message to party session
       const sessionMessages = await partySession.addMessage(fullMessage)
       // Publish new message list (optimistic update)
-      partySession.publishMessages(sessionMessages)
+      await partySession.publishMessages(sessionMessages) // AWAIT, otherwise serverless functions might exit early
 
       // Update playlist using OpenAI-API and Spotify-API
 
@@ -169,7 +169,7 @@ export const sessionRouter = router({
     // Do nothing (also ends interval) for inactive party
     if (party.sessionStatus === 'active') {
       const playback = await spotify.getPlayback({ playlistId: party.playlistId })
-      await partySession.publishPlayback(playback)
+      await partySession.publishPlayback(playback) // AWAIT, otherwise serverless functions might exit early
       return playback
     }
   }),
