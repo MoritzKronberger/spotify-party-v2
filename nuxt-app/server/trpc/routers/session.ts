@@ -73,6 +73,14 @@ const updatePlaylist = async (sessionMessages: FullMessage[], party: Party, even
       maxTokens: openAIClient.maxPartyTokens,
       tokenCount,
     }) // AWAIT, otherwise serverless functions might exit early
+
+    // Ensure party playlist is playing on the host's device
+    await spotify.setPlaylistPlayback({ playlistId: party.playlistId }).catch(() => {
+      // For now, simply add a log if playback can't be started
+      // (Usually happens, if no Spotify device is active)
+      // TODO: Publish error once frontend implements error messages
+      log(`Could not start playback for session ${party.code}`, 'error')
+    })
   }
 }
 
