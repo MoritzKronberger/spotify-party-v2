@@ -29,6 +29,8 @@ Link the directory to the Vercel project:
 npm run vercel-link
 ```
 
+(Link to the project `spotify-party` in moritzkronberger's Team)
+
 And pull the required environment variables:
 
 ```bash
