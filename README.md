@@ -1,6 +1,6 @@
 # Spotify Party
 
-A new and improved rewrite of the original "[SpotifyParty](https://github.com/MoritzKronberger/SpotifyParty)" – 🧠 AI-powered and 🧙‍♂️ typesafe
+A complete rewrite of the original [SpotifyParty](https://github.com/MoritzKronberger/SpotifyParty) – Now AI-powered 🧠 and typesafe 🧙‍♂️
 
 ## Development
 
